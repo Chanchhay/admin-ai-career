@@ -48,10 +48,11 @@ function isFormField(field: string): field is keyof CompanyFormValues {
 export function CompanyForm() {
   const [createCompany, { isLoading }] = useCreateCompanyMutation();
 
+  // 1. ជំនួសនៅត្រង់ useForm defaultValues
   const form = useForm<CompanyFormValues>({
     resolver: zodResolver(companySchema),
     mode: "onBlur",
-    defaultValues: companyFormDefaults as CompanyFormValues,
+    defaultValues: companyFormDefaults,
   });
 
   const onSubmit = async (values: CompanyFormValues) => {
@@ -65,7 +66,9 @@ export function CompanyForm() {
         logo: values.logo ?? null,
       }).unwrap();
       toast.success(`${company.name} added to your directory.`);
-      form.reset(companyFormDefaults as CompanyFormValues);
+      
+      // 2. ជំនួសនៅត្រង់ success reset
+      form.reset(companyFormDefaults);
     } catch (error) {
       const apiError = toApiError(error);
       if (apiError.field && isFormField(apiError.field)) {
@@ -77,7 +80,8 @@ export function CompanyForm() {
   };
 
   const handleDiscard = () => {
-    form.reset(companyFormDefaults as CompanyFormValues);
+    // 3. ជំនួសនៅត្រង់ discard
+    form.reset(companyFormDefaults);
     toast("Draft discarded.");
   };
 
@@ -155,7 +159,7 @@ export function CompanyForm() {
                           />
                           <Input
                             {...field}
-                            placeholder="https:// nebula.io"
+                            placeholder="https://nebula.io"
                             aria-invalid={fieldState.invalid}
                             className="field-input pl-9"
                           />

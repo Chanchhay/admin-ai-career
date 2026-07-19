@@ -45,10 +45,11 @@ export const companySchema = z.object({
 });
 
 export type CompanyFormValues = z.infer<typeof companySchema>;
-
-export const companyFormDefaults: Partial<CompanyFormValues> = {
+export const companyFormDefaults: CompanyFormValues = {
   name: "",
   websiteUrl: "",
+  industry: "" as CompanyFormValues["industry"],
+  size: "" as CompanyFormValues["size"],
   logo: null,
   selfVerified: true,
 };
