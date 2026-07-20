@@ -151,7 +151,7 @@ export function JobForm() {
             />
 
             <FormField
-              contro={form.control}
+              control={form.control}
               name="category"
               render={({ field, fieldState }) => (
                 <FieldWrapper label="Category / Department">

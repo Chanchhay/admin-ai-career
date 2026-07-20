@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { AppShell } from "@/components/layout/AppShell";
 import { StoreProvider } from "@/redux/StoreProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -25,7 +24,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen bg-canvas">
         <StoreProvider>
-          <AppShell>{children}</AppShell>
+          {children}
           <Toaster
             richColors
             position="top-right"

@@ -36,7 +36,7 @@ export type Company = {
   createdAt: string;
 };
 
-export type CreateCompanyRequest = Omit
+export type CreateCompanyRequest = Omit<
   Company,
   "id" | "createdAt" | "logoUrl"
 > & {
