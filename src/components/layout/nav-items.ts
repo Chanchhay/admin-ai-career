@@ -1,11 +1,10 @@
 import {
-  BadgeCheck,
   Briefcase,
+  Building2,
   CircleUser,
-  Compass,
-  Kanban,
   LayoutGrid,
-  Star,
+  Search,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -16,14 +15,17 @@ export type NavItem = {
 };
 
 export const PRIMARY_NAV: NavItem[] = [
-  { label: "Dashboard", href: "/", icon: LayoutGrid },
-  { label: "Jobs", href: "/jobs/new", icon: Briefcase },
-  { label: "Discovery", href: "/discovery/new", icon: Compass },
-  { label: "ATS Board", href: "/ats", icon: Kanban },
-  { label: "Watchlist", href: "/watchlist", icon: Star },
+  { label: "Dashboard", href: "/recruiter/dashboard", icon: LayoutGrid },
+  { label: "Company", href: "/recruiter/company", icon: Building2 },
+  { label: "Jobs", href: "/recruiter/jobs", icon: Briefcase },
+  { label: "Talent Discovery", href: "/recruiter/talent", icon: Search },
+  {
+    label: "Forwarded Candidates",
+    href: "/recruiter/forwarded-candidates",
+    icon: UsersRound,
+  },
 ];
 
 export const SECONDARY_NAV: NavItem[] = [
-  { label: "Profile", href: "/profile", icon: CircleUser },
-  { label: "Verification", href: "/verification", icon: BadgeCheck },
+  { label: "Recruiter Profile", href: "/recruiter/profile", icon: CircleUser },
 ];

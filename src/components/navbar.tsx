@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -12,8 +11,6 @@ import {
 } from "@/components/ui/navigation-menu";
 
 export default function Navbar() {
-  const [dark, setDark] = useState(false);
-
   return (
     <header className="w-full border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 bg-white dark:bg-gray-950">
       <nav className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-0 flex items-center justify-between">
@@ -37,7 +34,7 @@ export default function Navbar() {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
-                    href="/find-job"
+                    href="/jobs"
                     className="inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800 transition"
                   >
                     Find Job
@@ -48,7 +45,7 @@ export default function Navbar() {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
-                    href="/post-job"
+                    href="/recruiter/jobs/new"
                     className="inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800 transition"
                   >
                     Post Job
@@ -59,10 +56,10 @@ export default function Navbar() {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
-                    href="/about-us"
+                    href="/register"
                     className="inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800 transition"
                   >
-                    About Us
+                    Register
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -96,8 +93,8 @@ export default function Navbar() {
 
           {/* Profile Icon linking to dashboard */}
           <Link
-            href="/"
-            aria-label="Dashboard"
+            href="/job-seeker/dashboard"
+            aria-label="Job seeker dashboard"
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition text-gray-700 dark:text-gray-300"
           >
             <svg
@@ -118,7 +115,7 @@ export default function Navbar() {
 
           {/* Login Button */}
           <Link
-            href="/auth/login"
+            href="/login"
             className="hidden sm:inline-block bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition"
           >
             Login
@@ -151,31 +148,31 @@ export default function Navbar() {
       <div className="md:hidden border-t border-gray-200 dark:border-gray-800">
         <div className="px-4 py-3 flex flex-col gap-2">
           <Link
-            href="/find-job"
+            href="/jobs"
             className="px-4 py-2 text-sm font-medium rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
             Find Job
           </Link>
           <Link
-            href="/post-job"
+            href="/recruiter/jobs/new"
             className="px-4 py-2 text-sm font-medium rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
             Post Job
           </Link>
           <Link
-            href="/about-us"
+            href="/register"
             className="px-4 py-2 text-sm font-medium rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
-            About Us
+            Register
           </Link>
           <Link
-            href="/"
+            href="/job-seeker/dashboard"
             className="px-4 py-2 text-sm font-medium rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
             Dashboard
           </Link>
           <Link
-            href="/auth/login"
+            href="/login"
             className="mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-center font-medium transition"
           >
             Login
@@ -185,4 +182,3 @@ export default function Navbar() {
     </header>
   );
 }
-

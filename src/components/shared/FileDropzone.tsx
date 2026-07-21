@@ -3,6 +3,7 @@
 import Image from "next/image";
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type DragEvent,
@@ -31,17 +32,16 @@ export function FileDropzone({ value, onChange, error }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const previewUrl = useMemo(
+    () => (value ? URL.createObjectURL(value) : null),
+    [value],
+  );
 
   useEffect(() => {
-    if (!value) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(value);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [value]);
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const accept = (file: File | undefined) => {
     if (!file) return;
@@ -86,7 +86,6 @@ export function FileDropzone({ value, onChange, error }: FileDropzoneProps) {
         role="button"
         tabIndex={0}
         aria-label="Upload company logo"
-        aria-invalid={visibleError ? true : undefined}
         onClick={() => inputRef.current?.click()}
         onKeyDown={handleKeyDown}
         onDragOver={(event) => {

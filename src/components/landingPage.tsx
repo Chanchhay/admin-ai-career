@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import React, { useState } from "react";
 import Navbar from "./navbar";
 import Footer from "./footer";
@@ -909,50 +910,68 @@ export default function LandingPage() {
                                 <div className="absolute h-72 w-72 rounded-full border border-dashed border-[#F3BE00] sm:h-96 sm:w-96" />
                                 <div className="absolute h-44 w-44 rounded-full border border-dashed border-[#F3BE00] sm:h-56 sm:w-56" />
 
-                                <img
+                                <Image
                                     src={avatars[0]}
                                     alt="User"
+                                    width={48}
+                                    height={48}
                                     className="absolute -top-1 h-10 w-10 rounded-full border-2 border-white object-cover shadow-md sm:h-12 sm:w-12"
                                 />
-                                <img
+                                <Image
                                     src={avatars[1]}
                                     alt="User"
+                                    width={48}
+                                    height={48}
                                     className="absolute right-6 top-24 h-10 w-10 rounded-full border-2 border-white object-cover shadow-md sm:right-10 sm:h-12 sm:w-12"
                                 />
-                                <img
+                                <Image
                                     src={avatars[2]}
                                     alt="User"
+                                    width={48}
+                                    height={48}
                                     className="absolute left-2 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border-2 border-white object-cover shadow-md sm:h-12 sm:w-12"
                                 />
-                                <img
+                                <Image
                                     src={avatars[3]}
                                     alt="User"
+                                    width={48}
+                                    height={48}
                                     className="absolute bottom-6 right-12 h-10 w-10 rounded-full border-2 border-white object-cover shadow-md sm:h-12 sm:w-12"
                                 />
-                                <img
+                                <Image
                                     src={avatars[4]}
                                     alt="User"
+                                    width={48}
+                                    height={48}
                                     className="absolute bottom-6 left-12 h-10 w-10 rounded-full border-2 border-white object-cover shadow-md sm:h-12 sm:w-12"
                                 />
 
-                                <img
+                                <Image
                                     src={avatars[5]}
                                     alt="User"
+                                    width={36}
+                                    height={36}
                                     className="absolute top-16 h-9 w-9 rounded-full border-2 border-white object-cover shadow-md"
                                 />
-                                <img
+                                <Image
                                     src={avatars[6]}
                                     alt="User"
+                                    width={36}
+                                    height={36}
                                     className="absolute bottom-20 h-9 w-9 rounded-full border-2 border-white object-cover shadow-md"
                                 />
-                                <img
+                                <Image
                                     src={avatars[7]}
                                     alt="User"
+                                    width={36}
+                                    height={36}
                                     className="absolute bottom-24 right-20 h-9 w-9 rounded-full border-2 border-white object-cover shadow-md"
                                 />
-                                <img
+                                <Image
                                     src={avatars[1]}
                                     alt="User"
+                                    width={36}
+                                    height={36}
                                     className="absolute left-20 top-28 h-9 w-9 rounded-full border-2 border-white object-cover shadow-md"
                                 />
                             </div>
@@ -1063,9 +1082,11 @@ export default function LandingPage() {
                         <div className="mx-auto flex flex-col items-center gap-8 lg:flex-row lg:gap-12 max-w-3xl">
                             <div className="relative shrink-0">
                                 <div className="relative flex h-52 w-52 items-center justify-center rounded-[50px] bg-[#008A1E] p-2 shadow-sm">
-                                    <img
+                                    <Image
                                         src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80"
                                         alt="Lut Lyna"
+                                        width={176}
+                                        height={176}
                                         className="h-44 w-44 rounded-[40px] object-cover border-2 border-white"
                                     />
                                 </div>
@@ -1094,7 +1115,7 @@ export default function LandingPage() {
                                     </span>{" "}
                                     is a good website for learning IT with a
                                     great environment and mentors. A perfect
-                                    place to start your IT career."
+                                    place to start your IT career.&quot;
                                 </blockquote>
                             </div>
                         </div>

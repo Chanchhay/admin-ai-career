@@ -2,11 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, MapPin } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { FieldWrapper } from "@/components/shared/FieldWrapper";
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormMessage } from "@/components/ui/form";
+import { Form, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -66,7 +66,7 @@ export function JobForm() {
     defaultValues: jobFormDefaults,
   });
 
-  const watched = form.watch();
+  const watched = useWatch({ control: form.control });
 
   const onSubmit = async (values: JobFormValues) => {
     try {
@@ -395,15 +395,17 @@ export function JobForm() {
           <WeeklyAllotmentCard />
           <SmartTipCard />
           <JobPreviewCard
-            title={watched.title}
-            category={watched.category}
-            location={watched.location}
-            workMode={watched.workMode}
-            jobType={watched.jobType}
-            experienceLevel={watched.experienceLevel}
+            title={watched.title ?? jobFormDefaults.title}
+            category={watched.category ?? jobFormDefaults.category}
+            location={watched.location ?? jobFormDefaults.location}
+            workMode={watched.workMode ?? jobFormDefaults.workMode}
+            jobType={watched.jobType ?? jobFormDefaults.jobType}
+            experienceLevel={
+              watched.experienceLevel ?? jobFormDefaults.experienceLevel
+            }
             salaryMin={watched.salaryMin}
             salaryMax={watched.salaryMax}
-            description={watched.description}
+            description={watched.description ?? jobFormDefaults.description}
           />
         </aside>
       </div>
