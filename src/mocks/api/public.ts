@@ -57,8 +57,8 @@ export const publicIndustries: PublicIndustryResponse[] = [
 
 export const publicJobs: PublicJobResponse[] = [
   {
-    id: 1001,
-    companyId: 501,
+    id: 1,
+    companyId: 1,
     companyName: "ABA Digital",
     categoryId: 10,
     categoryName: "Software Engineering",
@@ -94,6 +94,16 @@ export const publicJobs: PublicJobResponse[] = [
           "Implement React views, review pull requests, and improve accessibility.",
         displayOrder: 2,
       },
+      {
+        id: 3005,
+        sectionType: "BENEFIT",
+        title: "Benefits",
+        contentMarkdown:
+          "Hybrid schedule, learning support, and product ownership with senior engineers.",
+        contentText:
+          "Hybrid schedule, learning support, and product ownership with senior engineers.",
+        displayOrder: 3,
+      },
     ],
     skills: [
       {
@@ -106,8 +116,8 @@ export const publicJobs: PublicJobResponse[] = [
     ],
   },
   {
-    id: 1002,
-    companyId: 502,
+    id: 2,
+    companyId: 2,
     companyName: "ISTAD Labs",
     categoryId: 11,
     categoryName: "Design",
@@ -142,11 +152,18 @@ export const publicJobs: PublicJobResponse[] = [
         skillType: "TECHNICAL",
         requiredLevel: "INTERMEDIATE",
       },
+      {
+        id: 4004,
+        skillId: 4,
+        skillName: "Communication",
+        skillType: "SOFT",
+        requiredLevel: "INTERMEDIATE",
+      },
     ],
   },
   {
-    id: 1003,
-    companyId: 503,
+    id: 3,
+    companyId: 3,
     companyName: "Cellcard",
     categoryId: 12,
     categoryName: "Data",
@@ -179,6 +196,108 @@ export const publicJobs: PublicJobResponse[] = [
         skillName: "Data Analysis",
         skillType: "TECHNICAL",
         requiredLevel: "FOUNDATIONAL",
+      },
+    ],
+  },
+  {
+    id: 4,
+    companyId: 1,
+    companyName: "ABA Digital",
+    categoryId: 10,
+    categoryName: "Software Engineering",
+    title: "Backend Engineer",
+    description:
+      "Build Spring Boot services that support job matching and application workflows.",
+    location: "Phnom Penh",
+    jobType: "FULL_TIME",
+    workMode: "ONSITE",
+    salaryMin: 1100,
+    salaryMax: 1900,
+    experienceLevel: "MID",
+    publishedAt: "2026-07-16T08:00:00Z",
+    expiredAt: "2026-08-16T08:00:00Z",
+    sections: [
+      {
+        id: 3006,
+        sectionType: "DESCRIPTION",
+        title: "Role overview",
+        contentMarkdown:
+          "Design secure APIs, optimize data access, and keep services observable.",
+        contentText:
+          "Design secure APIs, optimize data access, and keep services observable.",
+        displayOrder: 1,
+      },
+      {
+        id: 3007,
+        sectionType: "QUALIFICATION",
+        title: "Qualifications",
+        contentMarkdown:
+          "Practical Spring Boot experience and clear understanding of REST contracts.",
+        contentText:
+          "Practical Spring Boot experience and clear understanding of REST contracts.",
+        displayOrder: 2,
+      },
+    ],
+    skills: [
+      {
+        id: 4005,
+        skillId: 2,
+        skillName: "Spring Boot",
+        skillType: "TECHNICAL",
+        requiredLevel: "INTERMEDIATE",
+      },
+      {
+        id: 4006,
+        skillId: 4,
+        skillName: "Communication",
+        skillType: "SOFT",
+        requiredLevel: "FOUNDATIONAL",
+      },
+    ],
+  },
+  {
+    id: 5,
+    companyId: 4,
+    companyName: "Koompi Tech",
+    categoryId: 10,
+    categoryName: "Software Engineering",
+    title: "QA Automation Engineer",
+    description:
+      "Create automated checks for web applications and help teams ship with confidence.",
+    location: "Siem Reap",
+    jobType: "CONTRACT",
+    workMode: "REMOTE",
+    salaryMin: 650,
+    salaryMax: 1000,
+    experienceLevel: "ENTRY",
+    publishedAt: "2026-07-18T08:00:00Z",
+    expiredAt: "2026-08-18T08:00:00Z",
+    sections: [
+      {
+        id: 3008,
+        sectionType: "DESCRIPTION",
+        title: "Role overview",
+        contentMarkdown:
+          "Write test plans, automate core journeys, and report quality risks early.",
+        contentText:
+          "Write test plans, automate core journeys, and report quality risks early.",
+        displayOrder: 1,
+      },
+    ],
+    skills: [
+      {
+        id: 4007,
+        skillId: 1,
+        skillName: "React",
+        skillType: "TECHNICAL",
+        requiredLevel: "FOUNDATIONAL",
+      },
+      {
+        id: 4008,
+        skillId: 4,
+        skillName: "Communication",
+        skillType: "SOFT",
+        requiredLevel: "INTERMEDIATE",
       },
     ],
   },

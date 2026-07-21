@@ -1,153 +1,71 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
+import { Code2, Mail, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "./PasswordInput";
 
-export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
-
-  const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
-
-    if (!email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!password.trim()) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      console.log("Form submitted:", { email, password });
-      // Handle login logic here
-    }
-  };
-
-  const handleBlur = (field: "email" | "password") => {
-    setTouched({ ...touched, [field]: true });
-  };
+export function LoginForm() {
+  const [remember, setRemember] = useState(true);
 
   return (
-    <section className="flex items-center justify-center bg-white p-12">
-
-      <div className="w-full max-w-md">
-
-        <h1 className="text-5xl font-bold text-green-600">
-          Welcome
-        </h1>
-
-        <p className="mt-3 text-gray-500">
-          Sign in to continue your AI career journey.
-        </p>
-
-        <form className="mt-10 space-y-5" onSubmit={handleSubmit}>
-
-          <div>
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={() => handleBlur("email")}
-              className={`w-full rounded-lg border p-4 ${
-                touched.email && errors.email ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            {touched.email && errors.email && (
-              <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-            )}
-          </div>
-
-          <div>
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onBlur={() => handleBlur("password")}
-              className={`w-full rounded-lg border p-4 ${
-                touched.password && errors.password ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            {touched.password && errors.password && (
-              <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-            )}
-          </div>
-
-          <div className="flex justify-between text-sm">
-
-            <label className="flex items-center gap-2">
-              <input type="checkbox"/>
-              Remember me
-            </label>
-
-            <Link href="/forgot-password">
-              Forgot Password?
-            </Link>
-
-          </div>
-
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-green-600 py-4 font-semibold text-white hover:bg-green-700 disabled:opacity-50"
-          >
-            Login
-          </button>
-
-        </form>
-
-        <div className="my-8 flex items-center">
-
-          <div className="h-px flex-1 bg-gray-200"/>
-
-          <span className="mx-4 text-gray-400">
-            Continue with
-          </span>
-
-          <div className="h-px flex-1 bg-gray-200"/>
-
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-
-          <button type="button" className="rounded-lg border p-3 flex items-center justify-center">
-            <Image src="/images/google.png" alt="Google" width={20} height={20} />
-          </button>
-
-          <button type="button" className="rounded-lg border p-3 flex items-center justify-center">
-            <Image src="/images/github.png" alt="GitHub" width={30} height={30} />
-          </button>
-        </div>
-
-        <p className="mt-8 text-center">
-
-          Don&apos;t have an account?
-
-          <Link
-            href="/register"
-            className="ml-2 text-green-600 font-semibold"
-          >
-            Register
-          </Link>
-
-        </p>
-
+    <form className="space-y-5">
+      <label className="block text-sm font-medium text-heading">
+        Email address
+        <Input
+          type="email"
+          autoComplete="email"
+          placeholder="name@example.com"
+          className="mt-1"
+        />
+      </label>
+      <PasswordInput
+        label="Password"
+        autoComplete="current-password"
+        placeholder="Enter password"
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+        <label className="inline-flex items-center gap-2 text-body">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(event) => setRemember(event.target.checked)}
+            className="size-4 rounded border-border accent-[var(--primary)]"
+          />
+          Keep me logged in
+        </label>
+        <span className="text-brand">Forgot password?</span>
       </div>
-
-    </section>
+      <Button type="button" className="w-full" size="lg">
+        Log in
+      </Button>
+      <p className="text-center text-sm text-body">
+        Do not have an account?{" "}
+        <Link href="/register" className="font-semibold text-brand">
+          Sign up
+        </Link>
+      </p>
+      <div className="relative py-2 text-center text-sm text-muted-fg">
+        <span className="relative z-10 bg-surface px-3">Or continue with</span>
+        <span className="absolute left-0 top-1/2 h-px w-full bg-border" />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {[
+          ["Google", Mail],
+          ["Facebook", Mail],
+          ["GitHub", Code2],
+          ["Telegram", Send],
+        ].map(([label, Icon]) => (
+          <Button key={label as string} type="button" variant="outline">
+            <Icon aria-hidden="true" className="size-4" />
+            {label as string}
+          </Button>
+        ))}
+      </div>
+    </form>
   );
 }
+
+export default LoginForm;

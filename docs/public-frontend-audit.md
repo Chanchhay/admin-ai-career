@@ -158,6 +158,28 @@ Main errors:
 - Public, job-seeker, and recruiter navigation definitions are centralized in `src/lib/navigation.ts`.
 - Batch 1 did not add admin, moderator, or finance routes.
 
+## Batch 2 Legacy Classification
+
+| Legacy file | Classification | Replacement / status |
+| --- | --- | --- |
+| `src/components/landingPage.tsx` | Replace | Replaced in active route by `src/components/public/HeroSection.tsx`, `FeaturedJobs.tsx`, and `CategorySection.tsx`; file retained until deletion is separately confirmed. |
+| `src/components/navbar.tsx` | Replace | Active public navigation is `src/components/layout/PublicShell.tsx`; file retained until deletion is separately confirmed. |
+| `src/components/footer.tsx` | Replace | Active public footer is `PublicFooter`; file retained until deletion is separately confirmed. |
+| `src/components/auth/AuthLayout.tsx` | Replace | Active auth routes use `AuthShell`; file retained for now. |
+| `src/components/auth/LoginIllustration.tsx` | Keep | Useful teammate visual direction remains available; active `AuthShell` uses tokenized CSS illustration. |
+| `src/components/auth/LoginForm.tsx` | Refactor | Now static login UI with password visibility and no fake API request. |
+| `src/components/auth/RegisterForm.tsx` | Refactor | Now `RegisterRequest`-aligned static registration UI with local validation and only `SEEKER`/`RECRUITER` roles. |
+
+## Batch 2 Validation
+
+- `npm run lint`: passes with zero warnings.
+- `npx next typegen`: passes.
+- `npx tsc --noEmit`: passes.
+- `npm run build`: sandbox run is blocked by Turbopack creating a process and binding to a port; the same command passes outside the sandbox.
+- Manual production route check from `next start -p 3020`: `/`, `/jobs`, `/jobs/1`, `/companies/1`, `/login`, and `/register` return HTTP 200.
+- Batch 2 is limited to public and authentication routes only.
+- No backend connection, route handler, job-seeker dashboard page, or recruiter dashboard page was added.
+
 ## Consolidation Rules
 
 - Exclude all moderator/admin/finance API paths from this frontend.

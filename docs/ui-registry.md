@@ -35,3 +35,36 @@
 | `src/components/ui/*` | Keep / Refactor | Existing primitives kept; Button, Input, Textarea, and Card were token-aligned in Batch 1. |
 | `public/figma/*` | Keep | Local Figma-exported brand/profile assets remain available. |
 | `public/images/*` | Defer | Directory is not present in this checkout. |
+
+## Batch 2 Public And Auth Components
+
+| Component | Path | Purpose | Variants / size options | Token usage | Responsive behavior | Accessibility behavior |
+| --- | --- | --- | --- | --- | --- | --- |
+| `HeroSection` | `src/components/public/HeroSection.tsx` | Homepage public hero and job search CTA. | Single homepage variant. | canvas, surface, border, brand, brand-tint, shadow-card. | Two-column desktop, single-column mobile, full-width search controls. | Semantic `h1`, labelled search inputs, native form submit to `/jobs`. |
+| `CategorySection` | `src/components/public/CategorySection.tsx` | Category, industry, and skill discovery from public lookup mocks. | Category cards and tag links. | surface, border, brand, brand-tint. | Three-column desktop cards, stacked mobile cards, wrapping tags. | Links use real routes/query strings and visible focus styles from browser/Tailwind. |
+| `FeaturedJobs` | `src/components/public/FeaturedJobs.tsx` | Homepage recent job grid. | Compact job cards. | canvas and shared card tokens. | Two-column desktop, stacked mobile. | Uses `PublicJobCard` link semantics. |
+| `PublicJobCard` | `src/components/public/PublicJobCard.tsx` | API-shaped public job summary card. | Compact and default. | surface, border, brand, brand-tint, shadow-card/dropdown. | Flex sections wrap on mobile without horizontal overflow. | Job title and details are links; metadata remains visible as text. |
+| `PublicJobExplorer` | `src/components/public/PublicJobExplorer.tsx` | Client-side static job filtering, state demos, and pagination. | Populated, loading, error, empty, active-filter, first-page, later-page states. | Delegates to shared primitives. | Filter grid collapses across mobile/tablet/desktop. | Buttons have explicit types; state controls are keyboard-accessible. |
+| `PublicJobFilters` | `src/components/public/PublicJobFilters.tsx` | Public job query controls matching OpenAPI query parameters. | keyword, location, categoryId, skillIds, workMode, jobType. | surface, input, ring. | Six-column desktop, two-column tablet, stacked mobile. | Labels are present through `sr-only`; native selects and inputs. |
+| `PublicJobPagination` | `src/components/public/PublicJobPagination.tsx` | Static Spring-style pagination control. | Previous/next with disabled first/last states. | surface, border. | Stacks summary/actions on mobile. | `nav` landmark with `aria-label`; disabled buttons reflect first/later pages. |
+| `PublicJobList` | `src/components/public/PublicJobList.tsx` | Job result renderer for populated, empty, loading, and error states. | State-driven. | Delegates to shared `LoadingState`, `EmptyState`, `ErrorState`. | Fills parent width. | Error state uses `role="alert"`. |
+| `PublicJobDetails` | `src/components/public/PublicJobDetails.tsx` | Public job detail screen from `PublicJobResponse`. | Main detail and related jobs. | canvas, surface, border, brand, brand-tint. | Two-column desktop, stacked mobile. | Semantic sections/headings and company/job links. |
+| `ApplyJobDialog` | `src/components/public/ApplyJobDialog.tsx` | Static apply preview matching `JobApplicationCreateRequest`. | Open/closed state. | surface, border, brand-tint, shadow-dropdown. | Centered modal capped to viewport. | `role="dialog"`, `aria-modal`, labelled title, close button. |
+| `PublicCompanySummary` | `src/components/public/PublicCompanySummary.tsx` | Conditional public company page using only `PublicJobResponse` data. | Jobs present and empty states. | canvas, surface, border, brand-tint. | Stacked content with responsive job cards. | Avoids private company fields; semantic headings and links. |
+| `AuthShell` | `src/components/auth/AuthShell.tsx` | Shared login/register split-panel auth layout. | Login/register content slot. | canvas, surface, border, brand, shadow-dropdown. | Illustration hides on small screens; form remains centered. | Main landmark, semantic headings, decorative illustration icons hidden. |
+| `PasswordInput` | `src/components/auth/PasswordInput.tsx` | Password field with visibility control. | Hidden/visible state, optional error. | input, ring, error. | Full-width by parent. | Label, `aria-invalid`, and labelled show/hide button. |
+| `RoleSelector` | `src/components/auth/RoleSelector.tsx` | `SEEKER`/`RECRUITER` selection matching OpenAPI role enum. | Selected/unselected cards. | surface, border, brand, brand-tint, error. | Two-column desktop/tablet, stacked mobile. | Fieldset/legend, `aria-pressed`, keyboard-accessible buttons. |
+| `LoginForm` | `src/components/auth/LoginForm.tsx` | Static login form because OpenAPI has no login endpoint. | Remember-me and social visual buttons. | brand, border, surface. | Social buttons wrap to one/two columns. | Labels, checkbox, correct button types, no fake submit. |
+| `RegisterForm` | `src/components/auth/RegisterForm.tsx` | Static `RegisterRequest` form with local validation. | Required/optional fields and loading demonstration. | brand, input, error. | Two-column fields collapse on mobile. | Human-readable validation, required indicators, labels, `role="alert"`. |
+
+## Batch 2 Legacy Component Classification
+
+| Component area | Classification | Notes |
+| --- | --- | --- |
+| `src/components/landingPage.tsx` | Replace | Active homepage is now componentized under `src/components/public`; legacy file retained until deletion is separately confirmed. |
+| `src/components/navbar.tsx` | Replace | Active public navigation uses `PublicShell`; legacy file retained because deletion was not requested. |
+| `src/components/footer.tsx` | Replace | Active public footer uses `PublicFooter`; legacy file retained because deletion was not requested. |
+| `src/components/auth/AuthLayout.tsx` | Replace | Active auth pages use `AuthShell`; legacy layout retained for now. |
+| `src/components/auth/LoginIllustration.tsx` | Keep | Useful teammate illustration concept, but active auth shell uses tokenized CSS illustration to avoid temporary MCP assets. |
+| `src/components/auth/LoginForm.tsx` | Refactor | Replaced file implementation with static login UI and kept default export for inactive legacy layout compatibility. |
+| `src/components/auth/RegisterForm.tsx` | Refactor | Replaced file implementation with `RegisterRequest`-aligned static form. |

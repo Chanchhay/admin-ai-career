@@ -51,6 +51,9 @@
 - Fixed lint warnings in retained legacy components without deleting useful teammate UI.
 - Completed Batch 1 visual foundation: normalized design tokens, centralized public/job-seeker/recruiter navigation, refactored public and role layouts, added responsive mobile navigation drawers, and added shared page-pattern components.
 - Created `docs/ui-registry.md` with consolidated reusable component records and Batch 1 component classifications.
+- Completed Batch 2 public and authentication static UI for `/`, `/jobs`, `/jobs/[jobId]`, `/companies/[companyId]`, `/login`, and `/register`.
+- Replaced placeholder public page implementations with componentized public/auth surfaces that reuse Batch 1 primitives and API-shaped mocks.
+- Extended `src/mocks/api/public.ts` with additional `PublicJobResponse` records, including `/jobs/1` and `/companies/1` manual-check coverage.
 
 ## Files Deleted
 
@@ -76,6 +79,7 @@
 - Retained older local types under `src/types` for legacy component compilation until those components are replaced or removed.
 - Retained monolithic public/auth visual components as reusable teammate UI until the visual implementation phase confirms replacements.
 - No inactive legacy files were removed in Batch 1.
+- No inactive legacy files were removed in Batch 2.
 
 ## Validation Snapshot
 
@@ -83,6 +87,7 @@
 - `npx next typegen`: passes.
 - `npx tsc --noEmit`: passes.
 - `npm run build`: sandbox run is blocked by Turbopack creating a process and binding to a port; the same command passes outside the sandbox.
+- Batch 2 manual route check from `next start -p 3020`: `/`, `/jobs`, `/jobs/1`, `/companies/1`, `/login`, and `/register` all return HTTP 200.
 
 ## Batch 1 Figma Frames Inspected
 
@@ -91,6 +96,27 @@
 - `96:5106` candidate dashboard.
 - `1414:6003` favorite jobs / job-seeker sidebar metadata.
 - `1087:29152` dashboard/profile shell; used only for generic geometry and tokens because it contains excluded finance/admin content.
+
+## Batch 2 Figma Frames Inspected
+
+- `/` homepage: public navbar `278:16635`, public footer `1248:8023`, and public job/card metadata from `1414:6003`; full homepage node was not separately available before the Figma MCP Starter plan rate limit.
+- `/jobs`: public job-list metadata from `1414:6003`; `get_design_context` was blocked by the Figma MCP Starter plan rate limit after metadata inspection.
+- `/jobs/[jobId]`: public job-detail metadata from `917:26398`, `917:26353`, and related job section metadata under `917:26382`; `get_design_context` was blocked by the same Figma MCP rate limit before a full-detail call.
+- `/companies/[companyId]`: no dedicated public company-detail frame was copied; page uses the public job-detail/company metadata only and is restricted to `PublicJobResponse` fields.
+- `/login`: login frame `1417:6271`.
+- `/register`: create-account frame `1417:6270`.
+- Public navbar/footer: `278:16635` and `1248:8023`.
+
+## Batch 2 Page Records
+
+| Page | Route | Figma node | OpenAPI endpoint | Mock used | Components created | Components reused | Components removed | Remaining visual differences |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Homepage | `/` | `278:16635`, `1248:8023`, `1414:6003` metadata | `/api/v1/public/jobs`, `/api/v1/public/job-categories`, `/api/v1/public/industries`, `/api/v1/public/skills` | `publicJobsResponse`, `publicJobCategoriesResponse`, `publicIndustriesResponse`, `publicSkillsResponse` | `HeroSection`, `CategorySection`, `FeaturedJobs` | `PublicShell`, `PublicFooter`, `Button`, `Input`, `SectionHeader` | None | Full homepage frame was not available before MCP rate limit; layout is adapted from public nav/footer and job-list visual references. |
+| Public job listing | `/jobs` | `1414:6003` metadata | `/api/v1/public/jobs` plus public lookup endpoints | `publicJobsResponse`, `publicJobCategoriesResponse`, `publicSkillsResponse` | `PublicJobExplorer`, `PublicJobFilters`, `PublicJobList`, `PublicJobPagination`, `PublicJobCard` | `PageContainer`, `FilterBar`, `SearchInput`, `LoadingState`, `EmptyState`, `ErrorState`, `Button`, `Input`, `Card` | None | Static local-state filters replace real backend pagination until backend integration. |
+| Public job detail | `/jobs/[jobId]` | `917:26398`, `917:26353`, `917:26382` metadata | `/api/v1/public/jobs/{jobId}` and static apply preview for `JobApplicationCreateRequest` | `publicJobs` | `PublicJobDetails`, `ApplyJobDialog` | `PublicShell`, `PublicFooter`, `Button`, `Input`, `Textarea`, `Card` | None | Apply dialog is static and does not infer authenticated role. |
+| Public company detail | `/companies/[companyId]` | public job/company metadata from job-detail frame | No dedicated public endpoint | `publicJobs` filtered by `companyId` | `PublicCompanySummary` | `PublicShell`, `PublicFooter`, `EmptyState`, `SectionHeader`, `Button`, `Card`, `PublicJobCard` | None | Limited to company ID/name and jobs because OpenAPI has no public company-detail endpoint. |
+| Login | `/login` | `1417:6271` | No login endpoint | None | `AuthShell`, `LoginForm`, `PasswordInput` | `PublicShell`, `PublicFooter`, `Button`, `Input` | None | Static-only; social buttons are visual and do not initiate OAuth. |
+| Register | `/register` | `1417:6270` | `/api/v1/auth/register` | None | `RegisterForm`, `RoleSelector`, `PasswordInput` | `AuthShell`, `PublicShell`, `PublicFooter`, `Button`, `Input` | None | Figma showed fewer fields, so required `RegisterRequest` fields were added from OpenAPI. |
 
 ## Next Implementation Steps
 
