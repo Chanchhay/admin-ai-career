@@ -1094,7 +1094,7 @@ export default function LandingPage() {
                                     </span>{" "}
                                     is a good website for learning IT with a
                                     great environment and mentors. A perfect
-                                    place to start your IT career."
+                                    place to start your IT career.&quot;
                                 </blockquote>
                             </div>
                         </div>

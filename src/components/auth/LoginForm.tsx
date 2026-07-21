@@ -144,7 +144,7 @@ export default function LoginForm() {
 
         <p className="mt-8 text-center">
 
-          Don't have an account?
+          Don&apos;t have an account?
 
           <Link
             href="/auth/register"
