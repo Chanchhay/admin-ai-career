@@ -131,15 +131,6 @@ export default function LoginForm() {
           <button type="button" className="rounded-lg border p-3 flex items-center justify-center">
             <Image src="/images/github.png" alt="GitHub" width={30} height={30} />
           </button>
-{/* 
-          <button className="rounded-lg border p-3">
-            LinkedIn
-          </button>
-
-          <button className="rounded-lg border p-3">
-            Microsoft
-          </button> */}
-
         </div>
 
         <p className="mt-8 text-center">
@@ -147,7 +138,7 @@ export default function LoginForm() {
           Don&apos;t have an account?
 
           <Link
-            href="/auth/register"
+            href="/register"
             className="ml-2 text-green-600 font-semibold"
           >
             Register

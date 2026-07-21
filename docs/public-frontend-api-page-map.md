@@ -1,6 +1,6 @@
 # Public Frontend API Page Map
 
-OpenAPI source: `/home/chanchhay/Downloads/api-docs.json`.
+OpenAPI source: `docs/api/openapi.json`.
 
 The API includes moderator endpoints. They are intentionally excluded from this public frontend repository.
 

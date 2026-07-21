@@ -68,7 +68,7 @@ export function Sidebar({ onNavigate, className }: SidebarProps) {
             className={cn("flex h-full flex-col gap-8 px-3 py-6", className)}
         >
             <Link
-                href="/landing-page"
+                href="/"
                 onClick={onNavigate}
                 className="flex items-center gap-2.5 px-3"
                 aria-label="TalentPulse home"

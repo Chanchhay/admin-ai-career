@@ -61,3 +61,5 @@ export type Gender = "MALE" | "FEMALE" | "OTHER" | "UNSPECIFIED";
 export type SalaryVisibility = "PRIVATE" | "RECRUITERS_ONLY" | "PUBLIC";
 
 export type ApiVoid = Record<string, never>;
+
+export type ApiResponseVoid = ApiResponse<ApiVoid>;

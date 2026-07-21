@@ -1,20 +1,18 @@
 # Public Frontend Audit
 
-Audit source: `build-plan/build-plan1.md`, `build-plan/public-frontend-project-structure.md`, local Next docs in `node_modules/next/dist/docs/01-app/index.md`, current checkout, teammate branches, and `/home/chanchhay/Downloads/api-docs.json`.
+Audit source: `build-plan/build-plan1.md`, `build-plan/public-frontend-project-structure.md`, local Next docs in `node_modules/next/dist/docs/01-app/index.md`, current checkout, teammate branches, and `docs/api/openapi.json`.
 
 ## Repository State
 
-- Current branch: `chanchhay-dev`.
+- Current branch: `frontend/public-ui-consolidation`.
 - Remote: `origin https://github.com/Year2Semester2/findjob-ui.git`.
 - Branches inspected: `chanchhay-dev`, `main`, `kanhchana`, `origin/Lyna-dev`, `origin/chanchhay-dev`, `origin/kanhchana`, `origin/main`.
-- Existing local changes before consolidation:
-  - `README.md` is emptied.
-  - `src/components/landingPage.tsx` has a small quote escape edit.
-  - `build-plan/` is untracked.
+- Pre-existing local changes before consolidation:
+  - `README.md` is emptied relative to `main`.
 
 ## Branch Findings
 
-### Current `chanchhay-dev`
+### Original `chanchhay-dev` Snapshot
 
 Current code mixes:
 
@@ -111,7 +109,20 @@ Do not merge the full branch.
 - Moderator, admin, or finance routes/components if introduced later.
 - `src/app/api/*` route handlers after replacing them with static API-shaped mocks for the no-backend phase.
 
-## Current Validation
+## Deleted-File Review
+
+| Deleted file group | Reason | Replacement | Useful UI or logic lost | Active imports |
+| --- | --- | --- | --- | --- |
+| `src/app/(dashboard)/ats/page.tsx`, `watchlist/page.tsx`, `verification/page.tsx`, `(dashboard)/page.tsx` | Obsolete flat recruiter dashboard routes and placeholder screens outside the target route tree. | `/recruiter/dashboard`, `/recruiter/forwarded-candidates`, `/recruiter/company`. | No confirmed feature loss; these were placeholders or wrong-scope surfaces. | None. |
+| `src/app/(dashboard)/discovery/new/page.tsx` | Wrong route/name for company setup. | `/recruiter/company`. | Company form component was retained separately. | None. |
+| `src/app/(dashboard)/jobs/new/page.tsx` | Wrong flat route. | `/recruiter/jobs/new`. | Job form component was retained separately. | None. |
+| `src/app/(dashboard)/profile/page.tsx`, `(dashboard)/layout.tsx` | Replaced by role-scoped recruiter shell/routes. | `/recruiter/profile`, `src/components/layout/RoleShell.tsx`. | Useful shell/profile patterns retained in components. | None. |
+| `src/app/api/**/route.ts`, `src/app/api/loading.tsx` | Obsolete fake backend route handlers for the no-backend consolidation phase. | API-shaped static data in `src/mocks/api`. | No frontend UI lost; fake backend behavior intentionally removed. | None. |
+| `src/app/auth/**`, `src/app/landing-page/page.tsx` | Routes moved to target public routes. | `/login`, `/register`, `/`. | Auth and landing visual components retained. | None. |
+| Empty shared/auth/company components | Files had no implementation. | Current page-local UI and retained primitives. | None. | None. |
+| Legacy mock files in `src/mocks/*.mock.ts` and `src/mocks/delay.ts` | Superseded by `src/mocks/api` and not imported by active pages. | `src/mocks/api/common.ts`, `public.ts`, `job-seeker.ts`, `recruiter.ts`. | No useful active mock behavior lost. | None. |
+
+## Pre-Consolidation Validation
 
 `npm run lint` fails.
 
@@ -125,6 +136,17 @@ Main errors:
 `npx tsc --noEmit` fails because stale `.next` validator files reference old flat app paths.
 
 `npm run build` fails because `next/font/google` cannot fetch Inter in the restricted environment. This is an environment/font dependency blocker, separate from app-code lint failures.
+
+## Post-Consolidation Validation
+
+- `npm run lint`: passes with zero warnings.
+- `npx next typegen`: passes.
+- `npx tsc --noEmit`: passes.
+- `npm run build`: sandbox run is blocked by Turbopack trying to create a process and bind to a port; the same command passes outside the sandbox.
+- Current route tree contains 31 active page routes: the 30 required routes plus `/companies/[companyId]`, which is backed only by `PublicJobResponse` data.
+- Current route tree contains 3 layouts and 0 route handlers.
+- Active contracts are limited to auth, common, public, job-seeker, and recruiter modules.
+- Active mocks use the `ApiResponse<T>` wrapper and Spring pagination property names.
 
 ## Consolidation Rules
 
