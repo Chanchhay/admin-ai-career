@@ -1,5 +1,7 @@
-import { PublicShell } from "@/components/layout/PublicShell";
+import { PublicFooter, PublicShell } from "@/components/layout/PublicShell";
 import { PageIntro, PlainCard } from "@/components/shared/ApiCards";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const fields = [
   "username",
@@ -24,14 +26,14 @@ export default function RegisterPage() {
           <form className="grid gap-4 sm:grid-cols-2">
             <label className="block text-sm font-medium text-heading">
               Role
-              <select className="mt-1 h-10 w-full rounded-md border border-slate-300 px-3">
+              <select className="mt-1 h-11 w-full rounded-md border border-input bg-surface px-3 text-sm">
                 <option value="SEEKER">SEEKER</option>
                 <option value="RECRUITER">RECRUITER</option>
               </select>
             </label>
             <label className="block text-sm font-medium text-heading">
               Gender
-              <select className="mt-1 h-10 w-full rounded-md border border-slate-300 px-3">
+              <select className="mt-1 h-11 w-full rounded-md border border-input bg-surface px-3 text-sm">
                 <option value="UNSPECIFIED">UNSPECIFIED</option>
                 <option value="MALE">MALE</option>
                 <option value="FEMALE">FEMALE</option>
@@ -41,21 +43,22 @@ export default function RegisterPage() {
             {fields.map((field) => (
               <label key={field} className="block text-sm font-medium text-heading">
                 {field}
-                <input
+                <Input
                   type={field.toLowerCase().includes("password") ? "password" : "text"}
-                  className="mt-1 h-10 w-full rounded-md border border-slate-300 px-3"
+                  className="mt-1"
                 />
               </label>
             ))}
-            <button
+            <Button
               type="button"
-              className="h-10 rounded-md bg-brand text-sm font-semibold text-white sm:col-span-2"
+              className="sm:col-span-2"
             >
               Create account
-            </button>
+            </Button>
           </form>
         </PlainCard>
       </main>
+      <PublicFooter />
     </PublicShell>
   );
 }

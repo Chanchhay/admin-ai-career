@@ -6,17 +6,24 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import {
   Bell,
-  Briefcase,
-  Building2,
-  FileText,
-  FolderKanban,
-  LayoutGrid,
+  LogOut,
+  Menu,
   Search,
-  Settings,
-  UserRound,
-  UsersRound,
   type LucideIcon,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  jobSeekerNavigation,
+  recruiterNavigation,
+} from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 type RoleShellProps = {
@@ -28,56 +35,144 @@ type RoleShellProps = {
 
 export function RoleShell({ role, title, links, children }: RoleShellProps) {
   const pathname = usePathname();
+  const homeHref = role === "job-seeker" ? "/job-seeker/dashboard" : "/recruiter/dashboard";
 
   return (
-    <div className="min-h-screen bg-[#d0e1fb] text-[#0b1c30]">
-      <div className="mx-auto grid min-h-screen max-w-[1440px] gap-0 p-0 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="relative px-2 py-6">
-          <Link
-            href="/"
-            className="flex h-[82px] items-center px-3"
-            aria-label="AI Career home"
-          >
-            <Image
-              src="/figma/brand-logo.png"
-              alt="AI Career"
-              width={155}
-              height={84}
-              className="h-[70px] w-[128px] object-contain object-left"
-              priority
-            />
-          </Link>
-          <p className="mt-12 px-3 text-[12px] font-bold uppercase text-[#464343]/60">
-            Main menu
-          </p>
-          <nav
-            aria-label={`${title} navigation`}
-            className="mt-5 flex flex-col gap-1"
-          >
-            {links.map((link) => (
-              <SidebarLink
-                key={link.href}
-                href={link.href}
-                icon={link.icon}
-                active={
-                  link.href === `/${role}/dashboard`
-                    ? pathname === link.href
-                    : pathname.startsWith(link.href)
-                }
-              >
-                {link.label}
-              </SidebarLink>
-            ))}
-          </nav>
+    <div className="min-h-screen overflow-x-hidden bg-background text-heading">
+      <div className="mx-auto grid min-h-screen max-w-[1440px] lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="sticky top-0 hidden h-screen px-2 py-6 lg:block">
+          <DashboardNavigation
+            title={title}
+            links={links}
+            pathname={pathname}
+            homeHref={homeHref}
+          />
         </aside>
-        <main className="p-4 lg:py-[23px] lg:pr-[54px]">
-          <div className="min-h-[calc(100vh-46px)] rounded-[30px] bg-white p-6 shadow-sm lg:p-12">
+
+        <div className="min-w-0">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-surface px-4 lg:hidden">
+            <Link href={homeHref} className="flex items-center" aria-label={`${title} home`}>
+              <Image
+                src="/figma/brand-logo.png"
+                alt="AI Career"
+                width={155}
+                height={84}
+                className="h-12 w-24 object-contain object-left"
+                priority
+              />
+            </Link>
+            <Sheet>
+              <SheetTrigger render={<Button variant="ghost" size="icon" />}>
+                <Menu aria-hidden="true" />
+                <span className="sr-only">Open navigation</span>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[min(22rem,calc(100vw-2rem))]">
+                <SheetHeader>
+                  <SheetTitle>{title}</SheetTitle>
+                </SheetHeader>
+                <nav aria-label={`${title} mobile navigation`} className="grid gap-1 px-4">
+                  {links.map((link) => (
+                    <SheetClose key={link.href} render={<Link href={link.href} />}>
+                      <span
+                        className={cn(
+                          "flex h-11 items-center gap-3 rounded-md px-3 text-sm font-medium text-body hover:bg-surface-muted hover:text-heading",
+                          isActivePath(pathname, link.href, role) && "bg-primary-tint text-brand",
+                        )}
+                      >
+                        <link.icon aria-hidden="true" className="size-4" />
+                        {link.label}
+                      </span>
+                    </SheetClose>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </header>
+
+          <main className="p-4 lg:py-6 lg:pr-10">
+            <div className="min-h-[calc(100vh-48px)] rounded-lg bg-surface p-5 shadow-[var(--shadow-card)] lg:p-8">
+              <div className="mb-8 hidden items-center justify-between border-b border-border pb-5 lg:flex">
+                <div>
+                  <p className="text-sm font-medium text-body">{title}</p>
+                  <h1 className="text-2xl font-semibold text-heading">Workspace</h1>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="relative hidden sm:block">
+                    <Search
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-fg"
+                    />
+                    <input
+                      type="search"
+                      placeholder="Search"
+                      className="h-10 w-64 rounded-md border border-border bg-surface pl-9 pr-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+                    />
+                  </div>
+                  <Button variant="outline" size="icon" aria-label="Notifications">
+                    <Bell aria-hidden="true" className="size-4" />
+                  </Button>
+                </div>
+              </div>
             {children}
-          </div>
-        </main>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );
+}
+
+function DashboardNavigation({
+  title,
+  links,
+  pathname,
+  homeHref,
+}: {
+  title: string;
+  links: { href: string; label: string; icon: LucideIcon }[];
+  pathname: string;
+  homeHref: string;
+}) {
+  return (
+    <div className="flex h-full flex-col">
+      <Link href={homeHref} className="flex h-20 items-center px-3" aria-label={`${title} home`}>
+        <Image
+          src="/figma/brand-logo.png"
+          alt="AI Career"
+          width={155}
+          height={84}
+          className="h-16 w-32 object-contain object-left"
+          priority
+        />
+      </Link>
+      <p className="mt-12 px-3 text-xs font-bold uppercase text-body/70">
+        Main menu
+      </p>
+      <nav aria-label={`${title} navigation`} className="mt-5 flex flex-col gap-1">
+        {links.map((link) => (
+          <SidebarLink
+            key={link.href}
+            href={link.href}
+            icon={link.icon}
+            active={isActivePath(pathname, link.href, title === "Job seeker" ? "job-seeker" : "recruiter")}
+          >
+            {link.label}
+          </SidebarLink>
+        ))}
+      </nav>
+      <Link
+        href="/login"
+        className="mt-auto flex h-11 items-center gap-3 rounded-md px-4 text-sm font-medium text-body transition-colors hover:bg-surface/70 hover:text-heading"
+      >
+        <LogOut aria-hidden="true" className="size-4" />
+        Sign out
+      </Link>
+    </div>
+  );
+}
+
+function isActivePath(pathname: string, href: string, role: "job-seeker" | "recruiter") {
+  return href === `/${role}/dashboard` ? pathname === href : pathname.startsWith(href);
 }
 
 function SidebarLink({
@@ -96,10 +191,10 @@ function SidebarLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex h-[41px] items-center gap-[18px] rounded-l-[30px] px-4 text-[14px] font-semibold transition-colors",
+        "flex h-11 items-center gap-3 rounded-md px-4 text-sm font-medium transition-colors",
         active
-          ? "bg-white text-[#006e2f]"
-          : "text-[#464343] hover:bg-white/60 hover:text-[#006e2f]",
+          ? "bg-surface text-brand shadow-[inset_3px_0_0_var(--info)]"
+          : "text-body hover:bg-surface/70 hover:text-heading",
       )}
     >
       <Icon className="size-5 shrink-0" aria-hidden="true" />
@@ -109,24 +204,9 @@ function SidebarLink({
 }
 
 export const jobSeekerLinks = [
-  { href: "/job-seeker/dashboard", label: "Overview", icon: LayoutGrid },
-  { href: "/job-seeker/profile", label: "Profile", icon: UserRound },
-  { href: "/job-seeker/resumes", label: "Resumes", icon: FileText },
-  { href: "/job-seeker/portfolios", label: "Portfolios", icon: FolderKanban },
-  { href: "/job-seeker/applications", label: "Applications", icon: Briefcase },
-  { href: "/job-seeker/interviews", label: "AI Interviews", icon: Bell },
-];
+  ...jobSeekerNavigation,
+] satisfies { href: string; label: string; icon: LucideIcon }[];
 
 export const recruiterLinks = [
-  { href: "/recruiter/dashboard", label: "Overview", icon: LayoutGrid },
-  { href: "/recruiter/company", label: "Company", icon: Building2 },
-  { href: "/recruiter/jobs", label: "Jobs", icon: Briefcase },
-  { href: "/recruiter/talent", label: "Talent", icon: Search },
-  {
-    href: "/recruiter/forwarded-candidates",
-    label: "Forwarded",
-    icon: UsersRound,
-  },
-  { href: "/recruiter/company/documents", label: "Documents", icon: FileText },
-  { href: "/recruiter/profile", label: "Settings", icon: Settings },
-];
+  ...recruiterNavigation,
+] satisfies { href: string; label: string; icon: LucideIcon }[];

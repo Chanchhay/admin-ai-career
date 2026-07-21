@@ -83,7 +83,8 @@ Do not merge the full branch.
 - `src/components/landingPage.tsx`: useful visual content, but monolithic and contains inline mock data, manual SVG icons, raw `img`, hardcoded categories/jobs, and public route mismatch.
 - `src/components/navbar.tsx`, `src/components/footer.tsx`: useful public shell direction, but need Next `Link`/`Image`, target routes, and role-safe navigation.
 - `src/components/auth/LoginForm.tsx`, `RegisterForm.tsx`, `AuthLayout.tsx`, `LoginIllustration.tsx`: useful visual direction, but route paths and API fields need alignment.
-- `src/components/layout/*`: useful recruiter shell, but must move under `/recruiter` and remove wrong-role entries.
+- `src/components/layout/PublicShell.tsx`, `src/components/layout/RoleShell.tsx`: refactored in Batch 1 for shared public and role layouts.
+- Inactive `src/components/layout/AppShell.tsx`, `MobileNav.tsx`, `Sidebar.tsx`, `Topbar.tsx`: useful recruiter-era shell work, but deferred until replacement is confirmed.
 - `src/components/jobs/*`: useful recruiter create-job form pieces, but current fields must align to `JobPostRequest`.
 - `src/components/company/*`: useful company form/document pieces, but current fields must align to `CompanyCreateRequest`, `CompanyUpdateRequest`, and `CompanyDocumentRequest`.
 - `src/components/profile/*`: useful recruiter profile display patterns, but current data shape does not match `RecruiterProfileResponse`.
@@ -147,6 +148,15 @@ Main errors:
 - Current route tree contains 3 layouts and 0 route handlers.
 - Active contracts are limited to auth, common, public, job-seeker, and recruiter modules.
 - Active mocks use the `ApiResponse<T>` wrapper and Spring pagination property names.
+
+## Batch 1 Validation
+
+- `npm run lint`: passes with zero warnings.
+- `npx next typegen`: passes.
+- `npx tsc --noEmit`: passes.
+- `npm run build`: sandbox run is blocked by Turbopack trying to create a process and bind to a port; the same command passes outside the sandbox.
+- Public, job-seeker, and recruiter navigation definitions are centralized in `src/lib/navigation.ts`.
+- Batch 1 did not add admin, moderator, or finance routes.
 
 ## Consolidation Rules
 

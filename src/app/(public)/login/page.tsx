@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { PublicShell } from "@/components/layout/PublicShell";
+import { PublicFooter, PublicShell } from "@/components/layout/PublicShell";
 import { PageIntro, PlainCard } from "@/components/shared/ApiCards";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function LoginPage() {
   return (
@@ -15,21 +17,18 @@ export default function LoginPage() {
           <form className="space-y-4">
             <label className="block text-sm font-medium text-heading">
               Email
-              <input className="mt-1 h-10 w-full rounded-md border border-slate-300 px-3" />
+              <Input className="mt-1" />
             </label>
             <label className="block text-sm font-medium text-heading">
               Password
-              <input
-                type="password"
-                className="mt-1 h-10 w-full rounded-md border border-slate-300 px-3"
-              />
+              <Input type="password" className="mt-1" />
             </label>
-            <button
+            <Button
               type="button"
-              className="h-10 w-full rounded-md bg-brand text-sm font-semibold text-white"
+              className="w-full"
             >
               Continue
-            </button>
+            </Button>
           </form>
           <p className="mt-4 text-center text-sm text-slate-500">
             Need an account?{" "}
@@ -39,6 +38,7 @@ export default function LoginPage() {
           </p>
         </PlainCard>
       </main>
+      <PublicFooter />
     </PublicShell>
   );
 }

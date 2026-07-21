@@ -1,0 +1,22 @@
+:root {
+  --background: #eff4ff;
+  --surface: #ffffff;
+  --surface-muted: #f1f2f4;
+  --border: #e4e5e8;
+  --text-primary: #18191c;
+  --text-secondary: #5e6670;
+  --text-muted: #9199a3;
+  --primary: #1fa628;
+  --primary-hover: #0c8b00;
+  --primary-tint: #e7f0fa;
+  --primary-foreground: #ffffff;
+  --success: #0ba02c;
+  --warning: #f3c623;
+  --error: #e05151;
+  --info: #0a65cc;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-card: 0 12px 24px rgba(0, 44, 109, 0.08);
+  --shadow-dropdown: 0 18px 40px rgba(24, 25, 28, 0.14);
+}

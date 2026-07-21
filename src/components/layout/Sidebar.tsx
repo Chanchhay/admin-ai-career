@@ -16,8 +16,8 @@ function isActive(pathname: string, href: string): boolean {
     // Dashboard must match exactly, or it lights up on every route.
     if (href === "/") return pathname === "/";
 
-    // Otherwise match by the first path segment:
-    // "/jobs/new" -> segment "/jobs" -> lights up the "Jobs" item ("/jobs/new").
+    // Otherwise match by the first path segment so nested recruiter routes keep
+    // the parent item active.
     const itemSegment = "/" + href.split("/")[1];
     const currentSegment = "/" + pathname.split("/")[1];
     return currentSegment === itemSegment;

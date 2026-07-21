@@ -49,6 +49,8 @@
 - Removed the Redux provider wrapper from the active root layout for the static UI phase.
 - Cleaned stale auth and sidebar links that pointed at removed routes.
 - Fixed lint warnings in retained legacy components without deleting useful teammate UI.
+- Completed Batch 1 visual foundation: normalized design tokens, centralized public/job-seeker/recruiter navigation, refactored public and role layouts, added responsive mobile navigation drawers, and added shared page-pattern components.
+- Created `docs/ui-registry.md` with consolidated reusable component records and Batch 1 component classifications.
 
 ## Files Deleted
 
@@ -73,6 +75,7 @@
 - Retained but inactive RTK Query and Redux files under `src/redux`; active root layout no longer depends on them.
 - Retained older local types under `src/types` for legacy component compilation until those components are replaced or removed.
 - Retained monolithic public/auth visual components as reusable teammate UI until the visual implementation phase confirms replacements.
+- No inactive legacy files were removed in Batch 1.
 
 ## Validation Snapshot
 
@@ -80,6 +83,14 @@
 - `npx next typegen`: passes.
 - `npx tsc --noEmit`: passes.
 - `npm run build`: sandbox run is blocked by Turbopack creating a process and binding to a port; the same command passes outside the sandbox.
+
+## Batch 1 Figma Frames Inspected
+
+- `278:16635` public navbar.
+- `1417:6271` login/auth form.
+- `96:5106` candidate dashboard.
+- `1414:6003` favorite jobs / job-seeker sidebar metadata.
+- `1087:29152` dashboard/profile shell; used only for generic geometry and tokens because it contains excluded finance/admin content.
 
 ## Next Implementation Steps
 
