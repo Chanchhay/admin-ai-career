@@ -1,99 +1,116 @@
 import Link from "next/link";
-import { Search, Sparkles } from "lucide-react";
-import type {
-  PublicIndustryResponse,
-  PublicJobCategoryResponse,
-  PublicJobResponse,
-} from "@/contracts";
+import { ChevronDown, Search, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-type HeroSectionProps = {
-  jobs: PublicJobResponse[];
-  categories: PublicJobCategoryResponse[];
-  industries: PublicIndustryResponse[];
-};
+const testimonials = [
+  "Superb job matching service",
+  "Found my perfect role fast",
+  "Helped me find work quickly",
+];
 
-export function HeroSection({ jobs, categories, industries }: HeroSectionProps) {
-  const recentJob = jobs[0];
+const quickLinks = [
+  { id: 1, name: "Remote", href: "/jobs?workMode=REMOTE" },
+  { id: 2, name: "Work from home", href: "/jobs?workMode=REMOTE" },
+  { id: 3, name: "Part-time", href: "/jobs?jobType=PART_TIME" },
+  { id: 4, name: "Design", href: "/jobs?keyword=design" },
+];
 
+/**
+ * The hand-drawn ribbons that frame the headline. Mirrored on the left so the
+ * two curves lean into the centre of the section.
+ */
+function HeroRibbon({ className }: { className?: string }) {
   return (
-    <section className="bg-canvas">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_430px] lg:px-8 lg:py-16">
-        <div className="flex flex-col justify-center">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-brand-tint px-3 py-1 text-sm font-medium text-brand">
-            <Sparkles aria-hidden="true" className="size-4" />
-            Public job discovery
-          </span>
-          <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-tight text-heading sm:text-5xl">
-            Find published roles that match your skills and career direction.
-          </h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-body">
-            Search API-shaped public jobs by keyword, location, category, skills,
-            work mode, and job type. No private company or application data is
-            shown on public routes.
-          </p>
-          <form action="/jobs" className="mt-8 grid gap-3 rounded-lg border border-border bg-surface p-3 shadow-[var(--shadow-card)] sm:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_auto]">
-            <label className="sr-only" htmlFor="home-keyword">
-              Keyword
-            </label>
-            <div className="relative">
-              <Search
-                aria-hidden="true"
-                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-fg"
-              />
-              <Input
-                id="home-keyword"
-                name="keyword"
-                placeholder="Job title or skill"
-                className="pl-9"
-              />
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 160 260"
+      fill="none"
+      className={className}
+    >
+      <path
+        d="M158 2C158 2 116 26 116 66c0 40 42 48 42 92 0 44-52 46-78 76-14 16-16 22-16 22"
+        stroke="url(#hero-ribbon)"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+      <defs>
+        <linearGradient id="hero-ribbon" x1="80" y1="0" x2="80" y2="260">
+          <stop stopColor="#22d3ee" />
+          <stop offset="1" stopColor="#22c55e" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+export function HeroSection() {
+  return (
+    <section className="relative overflow-hidden bg-linear-to-b from-landing-tint/60 via-surface to-surface pb-20 pt-16 sm:pt-20 lg:pb-24">
+      <HeroRibbon className="pointer-events-none absolute -right-10 top-10 hidden h-65 w-40 lg:block" />
+      <HeroRibbon className="pointer-events-none absolute -left-10 top-64 hidden h-65 w-40 -scale-x-100 lg:block" />
+
+      <div className="relative mx-auto max-w-[1240px] px-4 text-center sm:px-6 lg:px-8">
+        <h1 className="mx-auto max-w-[1200px] text-[clamp(3rem,7vw,6rem)] font-bold leading-[.98] tracking-[-0.045em]">
+          <span className="text-brand">Explore new </span>
+          <span className="text-warning">job vacancies all over the world</span>
+        </h1>
+        <p className="mx-auto mt-8 max-w-4xl text-base leading-7 text-muted-fg sm:text-xl sm:leading-8">
+          Our platform features more than 1.2 million job vacancies worldwide,
+          connecting you with employers who value your skills and experience.
+        </p>
+
+        <div className="mx-auto mt-14 grid max-w-160 gap-5 md:grid-cols-3">
+          {testimonials.map((testimonial) => (
+            <div
+              key={testimonial}
+              className="rounded-lg bg-landing-tint px-4 py-3 text-body"
+            >
+              <div className="mb-1.5 flex justify-center gap-1 text-warning">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Star key={index} aria-hidden="true" className="size-3.5 fill-current" />
+                ))}
+              </div>
+              <p className="text-sm">“{testimonial}”</p>
             </div>
-            <label className="sr-only" htmlFor="home-location">
-              Location
-            </label>
-            <Input id="home-location" name="location" placeholder="Location" />
-            <Button type="submit" size="lg">
-              Search jobs
-            </Button>
-          </form>
-          <div className="mt-6 flex flex-wrap gap-2 text-sm text-body">
-            {categories.slice(0, 3).map((category) => (
-              <Link
-                key={category.id}
-                href={`/jobs?categoryId=${category.id}`}
-                className="rounded-full border border-border bg-surface px-3 py-1.5 transition hover:border-brand hover:text-brand"
-              >
-                {category.name}
-              </Link>
-            ))}
-          </div>
+          ))}
         </div>
 
-        <aside className="rounded-lg border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
-          <p className="text-sm font-semibold text-brand">Featured opening</p>
-          <h2 className="mt-3 text-2xl font-semibold text-heading">{recentJob.title}</h2>
-          <p className="mt-2 text-sm leading-6 text-body">{recentJob.description}</p>
-          <dl className="mt-5 grid gap-3 text-sm">
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted-fg">Company</dt>
-              <dd className="font-medium text-heading">{recentJob.companyName}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted-fg">Location</dt>
-              <dd className="font-medium text-heading">{recentJob.location}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted-fg">Industry examples</dt>
-              <dd className="text-right font-medium text-heading">
-                {industries.slice(0, 2).map((item) => item.name).join(", ")}
-              </dd>
-            </div>
-          </dl>
-          <Button render={<Link href={`/jobs/${recentJob.id}`} />} className="mt-6 w-full">
-            View featured job
+        <form
+          action="/jobs"
+          className="mx-auto mt-14 grid max-w-[610px] gap-3 sm:grid-cols-[minmax(0,1fr)_130px]"
+        >
+          <div className="flex h-[60px] items-center rounded-xl bg-landing-tint px-5 text-body">
+            <Search aria-hidden="true" className="size-5 shrink-0 text-muted-fg" />
+            <label htmlFor="landing-keyword" className="sr-only">
+              Company, industry, or job title
+            </label>
+            <Input
+              id="landing-keyword"
+              name="keyword"
+              placeholder="Company or industry"
+              className="h-full border-0 bg-transparent px-3 shadow-none focus-visible:ring-0 dark:bg-transparent"
+            />
+            <span className="hidden h-7 w-px bg-muted-fg/50 sm:block" />
+            <span className="hidden whitespace-nowrap px-3 text-sm sm:inline">20 mi</span>
+            <ChevronDown aria-hidden="true" className="hidden size-5 sm:block" />
+          </div>
+          <Button type="submit" className="h-[60px] rounded-xl text-base">
+            Search
           </Button>
-        </aside>
+        </form>
+
+        <div className="mt-12 flex flex-wrap justify-center gap-3">
+          {quickLinks.map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              className="rounded-md bg-landing-tint px-4 py-1.5 text-sm font-medium text-brand transition hover:bg-brand hover:text-white"
+            >
+              {item.name}
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );

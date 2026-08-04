@@ -1,19 +1,17 @@
+"use client";
+
 import { PageIntro, PlainCard } from "@/components/shared/ApiCards";
+import { JobForm } from "@/components/recruiter/JobForm";
 
 export default function NewRecruiterJobPage() {
   return (
     <>
       <PageIntro
-        eyebrow="POST /api/v1/recruiter/jobs"
-        title="Create job draft"
-        description="JobPostRequest requires title and description, with optional sections and skills."
+        title="Create job"
+        description="New posts start as a draft. Publish it once the details are right."
       />
       <PlainCard>
-        <form className="grid gap-4">
-          <input className="h-10 rounded-md border px-3" placeholder="title" />
-          <textarea className="min-h-28 rounded-md border px-3 py-2" placeholder="description" />
-          <input className="h-10 rounded-md border px-3" placeholder="location" />
-        </form>
+        <JobForm />
       </PlainCard>
     </>
   );

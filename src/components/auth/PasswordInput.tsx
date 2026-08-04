@@ -26,7 +26,7 @@ export function PasswordInput({ label, id, error, className, ...props }: Passwor
           id={inputId}
           type={visible ? "text" : "password"}
           aria-invalid={Boolean(error)}
-          className={cn("pr-11", className)}
+          className={cn("rounded-xl pr-11", className)}
           {...props}
         />
         <Button

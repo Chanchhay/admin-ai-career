@@ -47,14 +47,14 @@ export function RoleSelector({ value, onChange }: RoleSelectorProps) {
               aria-pressed={selected}
               onClick={() => onChange(role.value)}
               className={cn(
-                "rounded-md border p-4 text-center outline-none transition focus-visible:ring-2 focus-visible:ring-ring",
+                "rounded-2xl border p-4 text-left outline-none transition focus-visible:ring-2 focus-visible:ring-ring",
                 selected
-                  ? "border-brand bg-brand-tint text-brand"
+                  ? "border-brand bg-landing-tint text-brand"
                   : "border-border bg-surface text-body hover:border-brand/50",
               )}
             >
-              <Icon aria-hidden="true" className="mx-auto size-7" />
-              <span className="mt-2 block text-sm font-semibold">{role.title}</span>
+              <Icon aria-hidden="true" className="size-7" />
+              <span className="mt-3 block text-sm font-semibold">{role.title}</span>
               <span className="mt-1 block text-xs leading-5">{role.description}</span>
             </button>
           );

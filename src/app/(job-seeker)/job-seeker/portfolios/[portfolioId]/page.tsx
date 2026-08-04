@@ -1,19 +1,17 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useParams } from "next/navigation";
 import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { portfolios } from "@/mocks/api";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetPortfolioQuery } from "@/services/jobSeekerApi";
 
-export function generateStaticParams() {
-  return portfolios.map((portfolio) => ({ portfolioId: String(portfolio.id) }));
-}
-
-export default async function PortfolioDetailPage({
-  params,
-}: {
-  params: Promise<{ portfolioId: string }>;
-}) {
-  const { portfolioId } = await params;
-  const portfolio = portfolios.find((item) => item.id === Number(portfolioId));
-  if (!portfolio) notFound();
+export default function PortfolioDetailPage() {
+  const { portfolioId } = useParams<{ portfolioId: string }>();
+  const portfolioQuery = useGetPortfolioQuery(portfolioId);
+  if (portfolioQuery.isLoading) return <LoadingState rows={5} />;
+  if (portfolioQuery.isError || !portfolioQuery.data) return <ErrorState message="Unable to load this portfolio." />;
+  const portfolio = portfolioQuery.data;
 
   return (
     <>

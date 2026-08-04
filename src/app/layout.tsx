@@ -1,30 +1,37 @@
 import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { StoreProvider } from "@/store/StoreProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI Career Platform",
-  description:
-    "Public jobs, job seeker workspace, and recruiter hiring tools for the AI Career Platform.",
+    title: "AI Career Platform",
+    description:
+        "Public jobs, job seeker workspace, and recruiter hiring tools for the AI Career Platform.",
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en">
-      <body className="min-h-screen bg-canvas">
-        {children}
-        <Toaster
-          richColors
-          position="top-right"
-          toastOptions={{
-            classNames: {
-              success: "!bg-brand !text-white !border-brand",
-            },
-          }}
-        />
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <body className="min-h-screen bg-canvas">
+                <ThemeProvider>
+                    <StoreProvider>
+                        {children}
+                        <Toaster
+                            richColors
+                            position="top-right"
+                            toastOptions={{
+                                classNames: {
+                                    success:
+                                        "!bg-brand !text-white !border-brand",
+                                },
+                            }}
+                        />
+                    </StoreProvider>
+                </ThemeProvider>
+            </body>
+        </html>
+    );
 }

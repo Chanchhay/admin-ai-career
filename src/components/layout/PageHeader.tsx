@@ -1,43 +1,55 @@
-import type { ReactNode } from "react";
-import { Folder } from "lucide-react";
+"use client";
 
-type PageHeaderProps = {
-  eyebrow?: string;
-  title: string;
-  subtitle?: string;
-  actions?: ReactNode;
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+export type PageHeading = { title: string; description?: string };
+
+type PageHeadingStore = {
+  heading: PageHeading | null;
+  setHeading: (heading: PageHeading | null) => void;
 };
 
-export function PageHeader({
-  eyebrow,
-  title,
-  subtitle,
-  actions,
-}: PageHeaderProps) {
+const PageHeadingContext = createContext<PageHeadingStore | null>(null);
+
+/**
+ * Lets a page declare its title/description while the shell renders them in the
+ * header, next to the search and account controls, instead of the page body.
+ */
+export function PageHeadingProvider({ children }: { children: ReactNode }) {
+  const [heading, setHeading] = useState<PageHeading | null>(null);
+  const value = useMemo(() => ({ heading, setHeading }), [heading]);
+
   return (
-    <div className="flex flex-col gap-4 pb-6 md:flex-row md:items-start md:justify-between">
-      <div className="space-y-1.5">
-        {eyebrow ? (
-          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-brand">
-            <Folder aria-hidden="true" className="size-3.5" />
-            {eyebrow}
-          </p>
-        ) : null}
-
-        <h1 className="text-2xl font-bold tracking-tight text-heading">
-          {title}
-        </h1>
-
-        {subtitle ? (
-          <p className="max-w-xl text-sm leading-relaxed text-slate-500">
-            {subtitle}
-          </p>
-        ) : null}
-      </div>
-
-      {actions ? (
-        <div className="flex shrink-0 items-center gap-2.5">{actions}</div>
-      ) : null}
-    </div>
+    <PageHeadingContext.Provider value={value}>
+      {children}
+    </PageHeadingContext.Provider>
   );
+}
+
+export function usePageHeading() {
+  return useContext(PageHeadingContext)?.heading ?? null;
+}
+
+/**
+ * Publishes a heading for as long as the calling page is mounted. Only the
+ * strings are tracked, so an unstable `action` element can never loop renders.
+ */
+export function useSetPageHeading(title: string, description?: string) {
+  const store = useContext(PageHeadingContext);
+  const setHeading = store?.setHeading;
+  const clear = useCallback(() => setHeading?.(null), [setHeading]);
+
+  useEffect(() => {
+    if (!setHeading) return;
+    setHeading({ title, description });
+    return clear;
+  }, [title, description, setHeading, clear]);
 }

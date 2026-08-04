@@ -5,7 +5,6 @@ import type {
   PublicationVisibility,
   SalaryVisibility,
 } from "./common";
-import type { PublicJobResponse } from "./public";
 
 export type ResumeCreateRequest = {
   title: string;
@@ -196,15 +195,6 @@ export type JobSeekerProfileResponse = JobSeekerProfileUpdateRequest & {
   status: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED";
   createdAt: string;
   updatedAt: string;
-};
-
-export type JobSeekerDashboardMock = {
-  profile: JobSeekerProfileResponse;
-  resumes: ResumeResponse[];
-  portfolios: PortfolioResponse[];
-  applications: JobApplicationResponse[];
-  interviews: AiInterviewSessionResponse[];
-  recommendedJobs: PublicJobResponse[];
 };
 
 export type ApiResponseResumeResponse = ApiResponse<ResumeResponse>;

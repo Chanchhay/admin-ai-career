@@ -1,39 +1,52 @@
+"use client";
+
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { aiInterviews } from "@/mocks/api";
+import { useParams } from "next/navigation";
+import { PageIntro } from "@/components/shared/ApiCards";
+import { AiInterviewRunner } from "@/components/job-seeker/AiInterviewRunner";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetAiInterviewQuery } from "@/services/jobSeekerApi";
 
-export function generateStaticParams() {
-  return aiInterviews.map((interview) => ({ sessionId: String(interview.id) }));
-}
+export default function InterviewSessionPage() {
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const interviewQuery = useGetAiInterviewQuery(sessionId);
+  const interview = interviewQuery.data;
 
-export default async function InterviewSessionPage({
-  params,
-}: {
-  params: Promise<{ sessionId: string }>;
-}) {
-  const { sessionId } = await params;
-  const interview = aiInterviews.find((item) => item.id === Number(sessionId));
-  if (!interview) notFound();
+  // Question generation happens server-side. A second subscription to the same
+  // cache entry polls it, and only while generation is actually running.
+  useGetAiInterviewQuery(sessionId, {
+    pollingInterval: 3000,
+    skipPollingIfUnfocused: true,
+    skip: interview?.status !== "PREPARING",
+  });
+
+  if (interviewQuery.isLoading) return <LoadingState rows={5} />;
+  if (interviewQuery.isError || !interview)
+    return (
+      <ErrorState
+        message="Unable to load this interview."
+        onRetry={() => interviewQuery.refetch()}
+      />
+    );
 
   return (
     <>
       <PageIntro
-        eyebrow="GET /api/v1/job-seeker/ai-interviews/{sessionId}"
         title={interview.jobTitle}
-        description="Start, answer, and complete actions are static previews here."
-        action={<Link className="text-sm font-semibold text-brand" href={`/job-seeker/interviews/${interview.id}/result`}>View result</Link>}
+        description="Answer each question, then submit the interview for AI scoring."
+        action={
+          interview.status === "COMPLETED" ? (
+            <Link
+              className="text-sm font-semibold text-brand"
+              href={`/job-seeker/interviews/${interview.id}/result`}
+            >
+              View result
+            </Link>
+          ) : null
+        }
       />
-      <div className="grid gap-4">
-        {interview.questions.map((question) => (
-          <PlainCard key={question.id}>
-            <div className="flex justify-between gap-3">
-              <h2 className="font-semibold text-heading">{question.questionText}</h2>
-              <StatusPill>{question.questionType}</StatusPill>
-            </div>
-          </PlainCard>
-        ))}
-      </div>
+      <AiInterviewRunner session={interview} />
     </>
   );
 }

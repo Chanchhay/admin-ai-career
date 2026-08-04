@@ -11,6 +11,7 @@
   --color-brand: var(--primary);
   --color-brand-hover: var(--primary-hover);
   --color-brand-tint: var(--primary-tint);
+  --color-landing-tint: var(--landing-tint);
 
   /* Surfaces */
   --color-canvas: var(--background);
@@ -79,5 +80,205 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 28%, transparent);
+  }
+}
+
+@layer components {
+  /*
+   * Shared by the editor surface and the published view, so authored content
+   * renders identically in both.
+   */
+  .rich-text {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    /* Long URLs and unbroken strings wrap instead of widening the card. */
+    overflow-wrap: break-word;
+  }
+
+  .rich-text > * + * {
+    margin-top: 0.85em;
+  }
+
+  .rich-text h1,
+  .rich-text h2,
+  .rich-text h3 {
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .rich-text h1 {
+    font-size: 1.375rem;
+  }
+
+  .rich-text h2 {
+    font-size: 1.15rem;
+  }
+
+  .rich-text h3 {
+    font-size: 1rem;
+  }
+
+  .rich-text h1:not(:first-child),
+  .rich-text h2:not(:first-child),
+  .rich-text h3:not(:first-child) {
+    margin-top: 1.5em;
+  }
+
+  .rich-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .rich-text a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .rich-text ul,
+  .rich-text ol {
+    padding-left: 1.35rem;
+  }
+
+  .rich-text ul {
+    list-style: disc;
+  }
+
+  .rich-text ol {
+    list-style: decimal;
+  }
+
+  .rich-text li::marker {
+    color: var(--text-muted);
+  }
+
+  .rich-text li + li {
+    margin-top: 0.35em;
+  }
+
+  .rich-text li > ul,
+  .rich-text li > ol {
+    margin-top: 0.35em;
+  }
+
+  .rich-text blockquote {
+    border-left: 3px solid var(--border);
+    padding-left: 1rem;
+    color: var(--text-muted);
+  }
+
+  .rich-text code {
+    background: var(--surface-muted);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.35em;
+    font-size: 0.875em;
+  }
+
+  /*
+   * Wrapped, never scrolled: a job description is prose, and indented pasted
+   * text becomes a code block whether the author meant it to or not.
+   */
+  .rich-text pre {
+    background: var(--surface-muted);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .rich-text pre code {
+    background: none;
+    padding: 0;
+  }
+
+  .rich-text hr {
+    border-color: var(--border);
+  }
+
+  .rich-text table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Fixed layout so columns share the width rather than forcing a scrollbar. */
+    table-layout: fixed;
+  }
+
+  .rich-text th,
+  .rich-text td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+
+  .rich-text th {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* Placeholder shown on the empty first line of the editor. */
+  .rich-text p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: var(--text-muted);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* Sidebar rail: gradient panel the active tab is carved out of. */
+  .sidebar-rail {
+    background: linear-gradient(
+      155deg,
+      var(--sidebar-from) 0%,
+      var(--sidebar-via) 55%,
+      var(--sidebar-to) 100%
+    );
+  }
+
+  /*
+   * The active tab flows into the content area: it sits flush with the rail's
+   * right edge, and the two pseudo-elements paint the concave corners that make
+   * the rail appear to curve away above and below it.
+   */
+  .sidebar-tab-indicator {
+    background: var(--sidebar-active);
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+  }
+
+  .sidebar-tab-indicator::before,
+  .sidebar-tab-indicator::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+  }
+
+  .sidebar-tab-indicator::before {
+    top: -24px;
+    background: radial-gradient(
+      circle 24px at 0 0,
+      transparent 0 99%,
+      var(--sidebar-active) 100%
+    );
+  }
+
+  .sidebar-tab-indicator::after {
+    bottom: -24px;
+    background: radial-gradient(
+      circle 24px at 0 100%,
+      transparent 0 99%,
+      var(--sidebar-active) 100%
+    );
   }
 }

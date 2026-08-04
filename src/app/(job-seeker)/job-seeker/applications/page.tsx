@@ -1,8 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { applications } from "@/mocks/api";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetApplicationsQuery } from "@/services/jobSeekerApi";
 
 export default function ApplicationsPage() {
+  const applicationsQuery = useGetApplicationsQuery();
+  if (applicationsQuery.isLoading) return <LoadingState rows={5} />;
+  if (applicationsQuery.isError) return <ErrorState message="Unable to load applications." />;
+  const applications = applicationsQuery.data ?? [];
+
   return (
     <>
       <PageIntro

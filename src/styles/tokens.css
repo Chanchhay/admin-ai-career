@@ -9,14 +9,58 @@
   --primary: #1fa628;
   --primary-hover: #0c8b00;
   --primary-tint: #e7f0fa;
+  --landing-tint: #eef8ed;
   --primary-foreground: #ffffff;
   --success: #0ba02c;
   --warning: #f3c623;
   --error: #e05151;
   --info: #0a65cc;
+  /* App shell: a rounded card floating on a neutral canvas. */
+  --shell-canvas: #ececf0;
+  --shell-card: #ffffff;
+  --shell-radius: 28px;
+  /* Sidebar rail gradient. */
+  --sidebar-from: #c7dbf6;
+  --sidebar-via: #dde9fa;
+  --sidebar-to: #f4f8fe;
+  --sidebar-fg: #1c2b3a;
+  --sidebar-muted-fg: #5b6b7d;
+  /* Content canvas. The active tab is painted in it so the tab flows into the page. */
+  --content-bg: #f7f9fd;
+  --sidebar-active: var(--content-bg);
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --shadow-card: 0 12px 24px rgba(0, 44, 109, 0.08);
   --shadow-dropdown: 0 18px 40px rgba(24, 25, 28, 0.14);
+}
+
+.dark {
+  --background: #101610;
+  --surface: #171e17;
+  --surface-muted: #202920;
+  --border: #334033;
+  --text-primary: #f4f7f4;
+  --text-secondary: #c4cdc4;
+  --text-muted: #8f9a8f;
+  --primary: #27b733;
+  --primary-hover: #3bc846;
+  --primary-tint: #17361a;
+  --landing-tint: #17361a;
+  --primary-foreground: #ffffff;
+  --success: #35c84a;
+  --warning: #f3c623;
+  --error: #ff7777;
+  --info: #6aaeff;
+  --shell-canvas: #0b0f0b;
+  --shell-card: var(--surface);
+  --sidebar-from: #16202b;
+  --sidebar-via: #131b24;
+  --sidebar-to: #10161e;
+  --sidebar-fg: #e7eef6;
+  --sidebar-muted-fg: #9fb0c2;
+  --content-bg: var(--surface);
+  --sidebar-active: var(--content-bg);
+  --shadow-card: 0 12px 24px rgba(0, 0, 0, 0.22);
+  --shadow-dropdown: 0 18px 40px rgba(0, 0, 0, 0.38);
 }

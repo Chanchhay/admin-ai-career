@@ -1,8 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { portfolios } from "@/mocks/api";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetPortfoliosQuery } from "@/services/jobSeekerApi";
 
 export default function PortfoliosPage() {
+  const portfoliosQuery = useGetPortfoliosQuery();
+  if (portfoliosQuery.isLoading) return <LoadingState rows={5} />;
+  if (portfoliosQuery.isError) return <ErrorState message="Unable to load portfolios." />;
+  const portfolios = portfoliosQuery.data ?? [];
+
   return (
     <>
       <PageIntro eyebrow="GET /api/v1/job-seeker/portfolios" title="Portfolios" />

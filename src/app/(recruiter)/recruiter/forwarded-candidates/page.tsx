@@ -1,8 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { forwardedApplications } from "@/mocks/api";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetForwardedApplicationsQuery } from "@/services/recruiterApi";
 
 export default function ForwardedCandidatesPage() {
+  const applicationsQuery = useGetForwardedApplicationsQuery();
+  if (applicationsQuery.isLoading) return <LoadingState rows={5} />;
+  if (applicationsQuery.isError) return <ErrorState message="Unable to load forwarded candidates." />;
+  const forwardedApplications = applicationsQuery.data ?? [];
+
   return (
     <>
       <PageIntro

@@ -1,8 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useSetPageHeading } from "@/components/layout/PageHeader";
 
+/**
+ * Declares the page title/description. The shell renders them in the header row
+ * beside the search and account controls, so only the action stays in the body.
+ */
 export function PageIntro({
-  eyebrow,
   title,
   description,
   action,
@@ -12,24 +18,21 @@ export function PageIntro({
   description?: string;
   action?: ReactNode;
 }) {
+  useSetPageHeading(title, description);
+
+  if (!action) return null;
+
+  return <div className="mb-6 flex justify-end">{action}</div>;
+}
+
+/** Small capitalised section heading with the brand underline. */
+export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div>
-        {eyebrow ? (
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand">
-            {eyebrow}
-          </p>
-        ) : null}
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-heading">
-          {title}
-        </h1>
-        {description ? (
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-            {description}
-          </p>
-        ) : null}
-      </div>
-      {action}
+    <div className="mb-6">
+      <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-heading">
+        {children}
+      </h2>
+      <span aria-hidden="true" className="mt-2 block h-0.5 w-10 bg-brand" />
     </div>
   );
 }
@@ -44,10 +47,12 @@ export function MetricCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <p className="text-xs font-semibold uppercase text-slate-500">{label}</p>
+    <div className="rounded-xl border border-border bg-surface p-5">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-fg">
+        {label}
+      </p>
       <p className="mt-2 text-2xl font-bold text-heading">{value}</p>
-      {hint ? <p className="mt-1 text-sm text-slate-500">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-sm text-body">{hint}</p> : null}
     </div>
   );
 }
@@ -70,16 +75,17 @@ export function PrimaryLink({
   return (
     <Link
       href={href}
-      className="inline-flex h-10 items-center justify-center rounded-md bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-hover"
+      className="inline-flex h-11 items-center justify-center rounded-lg bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
     >
       {children}
     </Link>
   );
 }
 
+/** The main content panel: a white card on the shell's surface. */
 export function PlainCard({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] lg:p-8">
       {children}
     </div>
   );

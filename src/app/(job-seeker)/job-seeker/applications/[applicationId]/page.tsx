@@ -1,21 +1,18 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useParams } from "next/navigation";
 import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { applications } from "@/mocks/api";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { StartApplicationInterviewButton } from "@/components/job-seeker/StartApplicationInterviewButton";
+import { useGetApplicationQuery } from "@/services/jobSeekerApi";
 
-export function generateStaticParams() {
-  return applications.map((application) => ({
-    applicationId: String(application.id),
-  }));
-}
-
-export default async function ApplicationDetailPage({
-  params,
-}: {
-  params: Promise<{ applicationId: string }>;
-}) {
-  const { applicationId } = await params;
-  const application = applications.find((item) => item.id === Number(applicationId));
-  if (!application) notFound();
+export default function ApplicationDetailPage() {
+  const { applicationId } = useParams<{ applicationId: string }>();
+  const applicationQuery = useGetApplicationQuery(applicationId);
+  if (applicationQuery.isLoading) return <LoadingState rows={4} />;
+  if (applicationQuery.isError || !applicationQuery.data) return <ErrorState message="Unable to load this application." />;
+  const application = applicationQuery.data;
 
   return (
     <>
@@ -23,6 +20,7 @@ export default async function ApplicationDetailPage({
         eyebrow="GET /api/v1/job-seeker/applications/{applicationId}"
         title={application.jobTitle}
         description="Withdrawal is POST /api/v1/job-seeker/applications/{applicationId}/withdraw."
+        action={<StartApplicationInterviewButton applicationId={applicationId} />}
       />
       <PlainCard>
         <StatusPill>{application.status}</StatusPill>

@@ -45,7 +45,7 @@ export function PublicCompanySummary({ companyId, jobs }: PublicCompanySummaryPr
       <section>
         <SectionHeader
           title="Published jobs from this company"
-          description="Only jobs available in public mocks are shown here."
+          description="Only jobs returned by the public jobs API are shown here."
           action={
             <Button render={<Link href="/jobs" />} variant="outline">
               Browse all jobs
@@ -58,7 +58,7 @@ export function PublicCompanySummary({ companyId, jobs }: PublicCompanySummaryPr
           ) : (
             <EmptyState
               title="No public jobs for this company"
-              description="The company exists only when it appears in PublicJobResponse mock data."
+              description="No published jobs were returned for this company."
             />
           )}
         </div>

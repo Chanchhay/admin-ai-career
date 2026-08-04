@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import type { PublicJobCategoryResponse, PublicJobResponse, PublicSkillResponse } from "@/contracts";
 import { SectionHeader } from "@/components/shared/SectionHeader";
-import { Button } from "@/components/ui/button";
 import { PublicJobFilters, type PublicJobFilterValues } from "./PublicJobFilters";
 import { PublicJobList } from "./PublicJobList";
 import { PublicJobPagination } from "./PublicJobPagination";
@@ -28,7 +27,6 @@ const pageSize = 3;
 export function PublicJobExplorer({ jobs, categories, skills }: PublicJobExplorerProps) {
   const [filters, setFilters] = useState(emptyFilters);
   const [page, setPage] = useState(0);
-  const [demoState, setDemoState] = useState<"populated" | "loading" | "error">("populated");
 
   const filteredJobs = useMemo(() => {
     const keyword = filters.keyword.trim().toLowerCase();
@@ -64,12 +62,7 @@ export function PublicJobExplorer({ jobs, categories, skills }: PublicJobExplore
   const safePage = Math.min(page, totalPages - 1);
   const visibleJobs = filteredJobs.slice(safePage * pageSize, safePage * pageSize + pageSize);
   const hasActiveFilters = Object.values(filters).some(Boolean);
-  const listState =
-    demoState === "loading" || demoState === "error"
-      ? demoState
-      : visibleJobs.length === 0
-        ? "empty"
-        : "populated";
+  const listState = visibleJobs.length === 0 ? "empty" : "populated";
 
   const updateFilters = (nextFilters: PublicJobFilterValues) => {
     setFilters(nextFilters);
@@ -80,35 +73,7 @@ export function PublicJobExplorer({ jobs, categories, skills }: PublicJobExplore
     <div className="space-y-6">
       <SectionHeader
         title="Published jobs"
-        description="Static filters represent keyword, location, categoryId, skillIds, workMode, jobType, and pagination."
-        action={
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant={demoState === "populated" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setDemoState("populated")}
-            >
-              Populated
-            </Button>
-            <Button
-              type="button"
-              variant={demoState === "loading" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setDemoState("loading")}
-            >
-              Loading
-            </Button>
-            <Button
-              type="button"
-              variant={demoState === "error" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setDemoState("error")}
-            >
-              Error
-            </Button>
-          </div>
-        }
+        description="Filter published jobs by keyword, location, category, skill, work mode, and job type."
       />
       <PublicJobFilters
         values={filters}
@@ -126,7 +91,7 @@ export function PublicJobExplorer({ jobs, categories, skills }: PublicJobExplore
         </p>
       ) : null}
       <PublicJobList jobs={visibleJobs} state={listState} />
-      {demoState === "populated" && visibleJobs.length > 0 ? (
+      {visibleJobs.length > 0 ? (
         <PublicJobPagination
           page={safePage}
           totalPages={totalPages}

@@ -4,6 +4,14 @@ import type { PublicJobCategoryResponse, PublicSkillResponse } from "@/contracts
 import { FilterBar } from "@/components/shared/FilterBar";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type PublicJobFilterValues = {
   keyword: string;
@@ -48,73 +56,85 @@ export function PublicJobFilters({
       </label>
       <label>
         <span className="sr-only">Location</span>
-        <input
+        <Input
           value={values.location}
           onChange={(event) => update("location", event.target.value)}
           placeholder="Location"
-          className="h-11 w-full rounded-md border border-input bg-surface px-3 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-11 bg-surface"
         />
       </label>
       <label>
         <span className="sr-only">Category</span>
-        <select
-          value={values.categoryId}
-          onChange={(event) => update("categoryId", event.target.value)}
-          className="h-11 w-full rounded-md border border-input bg-surface px-3 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        <Select
+          value={values.categoryId || null}
+          onValueChange={(value) => update("categoryId", value ?? "")}
         >
-          <option value="">All categories</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="h-11 w-full bg-surface">
+            <SelectValue placeholder="All categories" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category.id} value={String(category.id)}>
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </label>
       <label>
         <span className="sr-only">Skill</span>
-        <select
-          value={values.skillId}
-          onChange={(event) => update("skillId", event.target.value)}
-          className="h-11 w-full rounded-md border border-input bg-surface px-3 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        <Select
+          value={values.skillId || null}
+          onValueChange={(value) => update("skillId", value ?? "")}
         >
-          <option value="">All skills</option>
-          {skills.map((skill) => (
-            <option key={skill.id} value={skill.id}>
-              {skill.name}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="h-11 w-full bg-surface">
+            <SelectValue placeholder="All skills" />
+          </SelectTrigger>
+          <SelectContent>
+            {skills.map((skill) => (
+              <SelectItem key={skill.id} value={String(skill.id)}>
+                {skill.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </label>
       <div className="grid grid-cols-[1fr_1fr_auto] gap-2 md:col-span-2 lg:col-span-6">
         <label>
           <span className="sr-only">Work mode</span>
-          <select
-            value={values.workMode}
-            onChange={(event) => update("workMode", event.target.value)}
-            className="h-11 w-full rounded-md border border-input bg-surface px-3 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          <Select
+            value={values.workMode || null}
+            onValueChange={(value) => update("workMode", value ?? "")}
           >
-            <option value="">Work mode</option>
-            {workModes.map((mode) => (
-              <option key={mode} value={mode}>
-                {mode}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="h-11 w-full bg-surface">
+              <SelectValue placeholder="Work mode" />
+            </SelectTrigger>
+            <SelectContent>
+              {workModes.map((mode) => (
+                <SelectItem key={mode} value={mode}>
+                  {mode}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </label>
         <label>
           <span className="sr-only">Job type</span>
-          <select
-            value={values.jobType}
-            onChange={(event) => update("jobType", event.target.value)}
-            className="h-11 w-full rounded-md border border-input bg-surface px-3 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          <Select
+            value={values.jobType || null}
+            onValueChange={(value) => update("jobType", value ?? "")}
           >
-            <option value="">Job type</option>
-            {jobTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="h-11 w-full bg-surface">
+              <SelectValue placeholder="Job type" />
+            </SelectTrigger>
+            <SelectContent>
+              {jobTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </label>
         <Button type="button" variant="outline" onClick={onClear}>
           Clear

@@ -13,7 +13,7 @@ export function PublicJobList({ jobs, state = "populated" }: PublicJobListProps)
   if (state === "loading") return <LoadingState rows={4} />;
 
   if (state === "error") {
-    return <ErrorState message="Static public job data could not be displayed." />;
+    return <ErrorState message="Public jobs could not be loaded." />;
   }
 
   if (state === "empty" || jobs.length === 0) {

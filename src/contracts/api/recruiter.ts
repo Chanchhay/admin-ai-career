@@ -233,14 +233,6 @@ export type ForwardedApplicationResponse = {
   forwardedAt: string;
 };
 
-export type RecruiterDashboardMock = {
-  profile: RecruiterProfileResponse;
-  company: CompanyResponse;
-  jobs: JobPostResponse[];
-  forwardedApplications: ForwardedApplicationResponse[];
-  talent: PublicTalentListItemResponse[];
-};
-
 export type ApiResponseJobPostResponse = ApiResponse<JobPostResponse>;
 export type ApiResponseListJobPostResponse = ApiResponse<JobPostResponse[]>;
 export type ApiResponseCompanyResponse = ApiResponse<CompanyResponse>;
