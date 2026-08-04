@@ -1,164 +1,153 @@
 "use client";
 
-import Image from "next/image";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type DragEvent,
-  type KeyboardEvent,
-} from "react";
-import { FileUp, X } from "lucide-react";
-import {
-  ACCEPTED_LOGO_EXTENSIONS,
-  ACCEPTED_LOGO_TYPES,
-  MAX_LOGO_SIZE_BYTES,
-  MAX_LOGO_SIZE_MB,
-} from "@/lib/constants";
+import { useRef, useState, type DragEvent } from "react";
+import { FileCheck2, Loader2, UploadCloud, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type FileDropzoneProps = {
-  value: File | null;
-  onChange: (file: File | null) => void;
-  error?: string;
+  /** URL of the already-uploaded file, if any. */
+  value?: string;
+  onChange: (url: string) => void;
+  accept?: string;
+  hint?: string;
+  className?: string;
 };
 
-function formatSize(bytes: number) {
-  return `${(bytes / 1024).toFixed(0)} KB`;
-}
+const DEFAULT_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.svg";
 
-export function FileDropzone({ value, onChange, error }: FileDropzoneProps) {
+export function FileDropzone({
+  value,
+  onChange,
+  accept = DEFAULT_ACCEPT,
+  hint = "PDF, PNG, JPG, WebP or SVG up to 5 MB.",
+  className,
+}: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [localError, setLocalError] = useState<string | null>(null);
-  const previewUrl = useMemo(
-    () => (value ? URL.createObjectURL(value) : null),
-    [value],
-  );
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
+  const upload = async (file: File) => {
+    setError(null);
+    setIsUploading(true);
 
-  const accept = (file: File | undefined) => {
-    if (!file) return;
-    if (!(ACCEPTED_LOGO_TYPES as readonly string[]).includes(file.type)) {
-      setLocalError(`Only ${ACCEPTED_LOGO_EXTENSIONS} files are allowed.`);
-      onChange(null);
-      return;
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const response = await fetch("/api/uploads", { method: "POST", body });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload?.message ?? "Upload failed.");
+      }
+
+      setFileName(payload.name ?? file.name);
+      onChange(payload.url);
+    } catch (uploadError) {
+      setError(
+        uploadError instanceof Error ? uploadError.message : "Upload failed.",
+      );
+    } finally {
+      setIsUploading(false);
     }
-    if (file.size > MAX_LOGO_SIZE_BYTES) {
-      setLocalError(`Logo must be ${MAX_LOGO_SIZE_MB}MB or smaller.`);
-      onChange(null);
-      return;
-    }
-    setLocalError(null);
-    onChange(file);
   };
 
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+  const onDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
-    accept(event.dataTransfer.files[0]);
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      inputRef.current?.click();
-    }
+    const file = event.dataTransfer.files?.[0];
+    if (file) void upload(file);
   };
 
   const clear = () => {
-    setLocalError(null);
-    onChange(null);
+    setFileName(null);
+    setError(null);
+    onChange("");
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const visibleError = error ?? localError;
-
   return (
-    <div className="space-y-2">
+    <div className={className}>
       <div
         role="button"
         tabIndex={0}
-        aria-label="Upload company logo"
+        aria-label="Upload a file"
         onClick={() => inputRef.current?.click()}
-        onKeyDown={handleKeyDown}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
         onDragOver={(event) => {
           event.preventDefault();
           setIsDragging(true);
         }}
         onDragLeave={() => setIsDragging(false)}
-        onDrop={handleDrop}
+        onDrop={onDrop}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 px-4 py-10 text-center transition-all duration-200",
-          "hover:border-brand/50 hover:bg-slate-50/70",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2",
-          isDragging && "border-brand bg-brand-tint",
-          visibleError && "border-red-300 bg-red-50/50",
+          "flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-4 py-8 text-center transition-colors",
+          isDragging
+            ? "border-brand bg-brand-tint"
+            : "border-border bg-surface-muted/40 hover:border-brand/40",
         )}
       >
-        {value && previewUrl ? (
-          <div className="flex w-full items-center gap-3 px-2">
-            <span className="relative size-12 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
-              <Image
-                src={previewUrl}
-                alt={`${value.name} preview`}
-                fill
-                unoptimized
-                className="object-contain p-1"
-              />
-            </span>
-            <span className="min-w-0 flex-1 text-left">
-              <span className="block truncate text-sm font-semibold text-heading">
-                {value.name}
-              </span>
-              <span className="block text-xs text-slate-500">
-                {formatSize(value.size)}
-              </span>
-            </span>
-            <button
-              type="button"
-              aria-label="Remove logo"
-              onClick={(event) => {
-                event.stopPropagation();
-                clear();
-              }}
-              className="flex size-7 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-slate-100 hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
-            >
-              <X className="size-4" aria-hidden="true" />
-            </button>
-          </div>
-        ) : (
-          <>
-            <span className="mb-3 flex size-11 items-center justify-center rounded-full bg-brand-tint">
-              <FileUp aria-hidden="true" className="size-5 text-brand" />
-            </span>
-            <p className="text-sm font-semibold text-heading">
-              Click to upload or drag and drop
-            </p>
-            <p className="mt-1 text-xs text-slate-400">
-              {ACCEPTED_LOGO_EXTENSIONS} (max. 800x400px)
-            </p>
-          </>
-        )}
+        <span className="flex size-11 items-center justify-center rounded-full bg-surface text-brand shadow-sm">
+          {isUploading ? (
+            <Loader2 aria-hidden="true" className="size-5 animate-spin" />
+          ) : value ? (
+            <FileCheck2 aria-hidden="true" className="size-5" />
+          ) : (
+            <UploadCloud aria-hidden="true" className="size-5" />
+          )}
+        </span>
+        <p className="mt-3 text-sm font-medium text-heading">
+          {isUploading
+            ? "Uploading…"
+            : value
+              ? (fileName ?? "File uploaded")
+              : "Drag and drop, or click to browse"}
+        </p>
+        <p className="mt-1 text-xs text-body">{hint}</p>
 
         <input
           ref={inputRef}
           type="file"
+          accept={accept}
           className="sr-only"
-          tabIndex={-1}
-          accept={ACCEPTED_LOGO_TYPES.join(",")}
-          onChange={(event) => accept(event.target.files?.[0])}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void upload(file);
+          }}
         />
       </div>
 
-      {visibleError ? (
-        <p className="text-xs font-medium text-red-600">{visibleError}</p>
+      {value ? (
+        <div className="mt-2 flex items-center justify-between gap-3 text-xs">
+          <a
+            href={value}
+            target="_blank"
+            rel="noreferrer"
+            className="truncate text-body underline-offset-2 hover:text-brand hover:underline"
+          >
+            {value}
+          </a>
+          <button
+            type="button"
+            onClick={clear}
+            className="inline-flex shrink-0 items-center gap-1 font-medium text-body hover:text-destructive"
+          >
+            <X aria-hidden="true" className="size-3.5" />
+            Remove
+          </button>
+        </div>
+      ) : null}
+
+      {error ? (
+        <p role="alert" className="mt-2 text-sm font-medium text-destructive">
+          {error}
+        </p>
       ) : null}
     </div>
   );

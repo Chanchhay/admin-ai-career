@@ -1,52 +1,27 @@
-import Image from "next/image";
+"use client";
+
 import Link from "next/link";
 import {
-  Bell,
   BriefcaseBusiness,
   CheckCircle2,
-  ChevronRight,
-  Clock3,
   FileText,
   KeyRound,
-  Mail,
   MapPin,
   Pencil,
   ShieldCheck,
   UserRound,
   UsersRound,
 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetCurrentUserQuery } from "@/services/authApi";
 import {
-  company,
-  companyDocuments,
-  forwardedApplications,
-  recruiterJobs,
-  recruiterProfile,
-} from "@/mocks/api";
-
-const recentActivity = [
-  {
-    title: "Published job: Frontend Developer",
-    time: "Today, 09:15 AM",
-    tone: "success",
-  },
-  {
-    title: "Company verification approved",
-    time: "Yesterday, 03:40 PM",
-    tone: "info",
-  },
-  {
-    title: "Forwarded candidate received",
-    time: "Jul 20, 2026, 08:00 AM",
-    tone: "warning",
-  },
-  {
-    title: "Document pending review",
-    time: "Jul 18, 2026, 11:30 AM",
-    tone: "muted",
-  },
-];
+  useGetCompanyDocumentsQuery,
+  useGetForwardedApplicationsQuery,
+  useGetRecruiterCompanyQuery,
+  useGetRecruiterJobsQuery,
+} from "@/services/recruiterApi";
 
 const permissions = [
   { label: "Company Jobs", icon: BriefcaseBusiness },
@@ -55,6 +30,35 @@ const permissions = [
 ];
 
 export default function RecruiterDashboardPage() {
+  const currentUserQuery = useGetCurrentUserQuery();
+  const companyQuery = useGetRecruiterCompanyQuery();
+  const jobsQuery = useGetRecruiterJobsQuery();
+  const forwardedQuery = useGetForwardedApplicationsQuery();
+  const documentsQuery = useGetCompanyDocumentsQuery(companyQuery.data?.id ?? 0, {
+    skip: !companyQuery.data,
+  });
+
+  const queries = [
+    currentUserQuery,
+    companyQuery,
+    jobsQuery,
+    forwardedQuery,
+    documentsQuery,
+  ];
+  if (queries.some((query) => query.isLoading)) return <LoadingState rows={8} />;
+  if (
+    queries.some((query) => query.isError) ||
+    !currentUserQuery.data ||
+    !companyQuery.data
+  ) {
+    return <ErrorState message="Unable to load the recruiter dashboard." />;
+  }
+
+  const currentUser = currentUserQuery.data;
+  const company = companyQuery.data;
+  const recruiterJobs = jobsQuery.data ?? [];
+  const forwardedApplications = forwardedQuery.data ?? [];
+  const companyDocuments = documentsQuery.data ?? [];
   const publishedJobs = recruiterJobs.filter(
     (job) => job.status === "PUBLISHED",
   );
@@ -63,23 +67,14 @@ export default function RecruiterDashboardPage() {
   );
 
   return (
-    <div className="mx-auto max-w-[1060px]">
-      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-[14px] font-medium text-[#3d4a3d]">
-            <span>Dashboard</span>
-            <ChevronRight className="size-4" aria-hidden="true" />
-            <span className="font-bold text-[#006e2f]">Recruiter Overview</span>
-          </div>
-          <h1 className="mt-2 text-[32px] font-bold leading-10 tracking-[-0.64px] text-[#0b1c30]">
-            Recruiter Dashboard
-          </h1>
-        </div>
+    <div>
+      {/* Title and description come from the shell header via PageIntro. */}
+      <div className="mb-6 flex justify-end">
         <Link
           href="/recruiter/profile"
-          className="inline-flex h-10 items-center gap-2 rounded-[8px] bg-[#006e2f] px-6 text-[12px] font-medium text-white shadow-[0_10px_15px_-3px_rgba(0,110,47,0.2),0_4px_6px_-4px_rgba(0,110,47,0.2)]"
+          className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
         >
-          <Pencil className="size-3.5" aria-hidden="true" />
+          <Pencil className="size-4" aria-hidden="true" />
           Edit Profile
         </Link>
       </div>
@@ -89,32 +84,26 @@ export default function RecruiterDashboardPage() {
           <section className="relative overflow-hidden rounded-[12px] bg-white p-8 shadow-[0_0_0_1px_rgba(188,203,185,0.16)]">
             <div className="absolute right-[-64px] top-[-64px] size-64 rounded-full bg-[#006e2f]/5 blur-[32px]" />
             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
-              <div className="relative size-32 shrink-0 overflow-hidden rounded-[24px] shadow-[0_0_0_4px_rgba(34,197,94,0.2)]">
-                <Image
-                  src="/figma/profile-longg.png"
-                  alt="Recruiter profile"
-                  fill
-                  sizes="128px"
-                  className="object-cover"
-                  priority
-                />
-                <span className="absolute bottom-[-8px] right-[-8px] flex size-8 items-center justify-center rounded-[8px] border-4 border-white bg-[#006e2f] text-white">
-                  <CheckCircle2 className="size-4" aria-hidden="true" />
-                </span>
+              <div className="relative flex size-32 shrink-0 items-center justify-center rounded-[24px] bg-[#eff4ff] text-4xl font-bold text-[#006e2f] shadow-[0_0_0_4px_rgba(34,197,94,0.2)]">
+                {company.name.charAt(0).toUpperCase()}
+                {company.verificationStatus === "APPROVED" ? (
+                  <span className="absolute bottom-[-8px] right-[-8px] flex size-8 items-center justify-center rounded-[8px] border-4 border-white bg-[#006e2f] text-white">
+                    <CheckCircle2 className="size-4" aria-hidden="true" />
+                  </span>
+                ) : null}
               </div>
               <div className="min-w-0 flex-1">
                 <h2 className="text-[24px] font-semibold leading-8 tracking-[-0.24px] text-[#0b1c30]">
                   {company.name}
                 </h2>
                 <p className="mt-1 text-[16px] leading-6 text-[#3d4a3d]">
-                  {recruiterProfile.position}{" "}
+                  {currentUser.fullName}{" "}
                   <span className="font-semibold text-[#006e2f]">
                     - {company.industryName}
                   </span>
                 </p>
                 <div className="mt-3 flex flex-wrap gap-3">
-                  <InfoPill icon={MapPin}>Phnom Penh, Cambodia</InfoPill>
-                  <InfoPill icon={Clock3}>GMT +7 Local Time</InfoPill>
+                  <InfoPill icon={MapPin}>{company.address}</InfoPill>
                 </div>
               </div>
             </div>
@@ -182,56 +171,6 @@ export default function RecruiterDashboardPage() {
         </div>
 
         <aside className="space-y-10 pt-5">
-          <section>
-            <h2 className="text-[20px] font-semibold text-[#0b1c30]">
-              Notification Preferences
-            </h2>
-            <div className="mt-5 space-y-4">
-              <ToggleRow icon={Mail} label="Email Notifications" checked />
-              <ToggleRow icon={Bell} label="Forwarded Candidate Alerts" checked />
-              <ToggleRow icon={FileText} label="Document Alerts" />
-            </div>
-          </section>
-
-          <section>
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-[20px] font-semibold text-[#0b1c30]">
-                Recent Activity
-              </h2>
-              <Link
-                href="/recruiter/jobs"
-                className="text-[12px] font-bold text-[#006e2f]"
-              >
-                View All
-              </Link>
-            </div>
-            <ol className="space-y-5">
-              {recentActivity.map((item) => (
-                <li key={item.title} className="flex gap-3">
-                  <span
-                    className={cn(
-                      "mt-1 flex size-5 shrink-0 items-center justify-center rounded-full",
-                      item.tone === "success" && "bg-[#22c55e] text-white",
-                      item.tone === "info" && "bg-[#2d7ff9] text-white",
-                      item.tone === "warning" && "bg-[#ff6b6b] text-[#0b1c30]",
-                      item.tone === "muted" && "bg-[#eff4ff] text-[#9da3bb]",
-                    )}
-                  >
-                    <CheckCircle2 className="size-3" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <p className="text-[13px] font-semibold leading-5 text-[#0b1c30]">
-                      {item.title}
-                    </p>
-                    <p className="text-[12px] leading-5 text-[#3d4a3d]">
-                      {item.time}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </section>
-
           <section className="grid gap-3">
             <SummaryStrip
               label="Published Jobs"
@@ -326,26 +265,6 @@ function StatusRow({
         className={cn("size-5", success ? "text-[#006e2f]" : "text-[#9da3bb]")}
         aria-hidden="true"
       />
-    </div>
-  );
-}
-
-function ToggleRow({
-  icon: Icon,
-  label,
-  checked = false,
-}: {
-  icon: typeof Mail;
-  label: string;
-  checked?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex min-w-0 items-center gap-3">
-        <Icon className="size-5 shrink-0 text-[#3d4a3d]" aria-hidden="true" />
-        <span className="truncate text-[14px] text-[#3d4a3d]">{label}</span>
-      </div>
-      <Switch checked={checked} aria-label={label} />
     </div>
   );
 }

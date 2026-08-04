@@ -1,7 +1,16 @@
+"use client";
+
 import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { jobSeekerProfile } from "@/mocks/api";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetJobSeekerProfileQuery } from "@/services/jobSeekerApi";
 
 export default function JobSeekerProfilePage() {
+  const profile = useGetJobSeekerProfileQuery();
+  if (profile.isLoading) return <LoadingState rows={4} />;
+  if (profile.isError || !profile.data) return <ErrorState message="Unable to load your profile." />;
+  const jobSeekerProfile = profile.data;
+
   return (
     <>
       <PageIntro

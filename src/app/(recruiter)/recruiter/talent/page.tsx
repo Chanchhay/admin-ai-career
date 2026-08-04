@@ -1,8 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { publicTalent } from "@/mocks/api";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetTalentQuery } from "@/services/recruiterApi";
 
 export default function TalentPage() {
+  const talentQuery = useGetTalentQuery({ size: 100 });
+  if (talentQuery.isLoading) return <LoadingState rows={5} />;
+  if (talentQuery.isError) return <ErrorState message="Unable to load public talent." />;
+  const publicTalent = talentQuery.data;
+
   return (
     <>
       <PageIntro
@@ -11,7 +20,7 @@ export default function TalentPage() {
         description="This is separate from private applications. It only shows published job-seeker profile data."
       />
       <div className="grid gap-4">
-        {publicTalent.map((talent) => (
+        {(publicTalent?.content ?? []).map((talent) => (
           <Link key={talent.profileId} href={`/recruiter/talent/${talent.publicProfileSlug}`}>
             <PlainCard>
               <div className="flex justify-between gap-3">

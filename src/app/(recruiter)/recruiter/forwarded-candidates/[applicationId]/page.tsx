@@ -1,23 +1,17 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useParams } from "next/navigation";
 import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { forwardedApplications } from "@/mocks/api";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetForwardedApplicationQuery } from "@/services/recruiterApi";
 
-export function generateStaticParams() {
-  return forwardedApplications.map((item) => ({
-    applicationId: String(item.application.id),
-  }));
-}
-
-export default async function ForwardedCandidateDetailPage({
-  params,
-}: {
-  params: Promise<{ applicationId: string }>;
-}) {
-  const { applicationId } = await params;
-  const forwarded = forwardedApplications.find(
-    (item) => item.application.id === Number(applicationId),
-  );
-  if (!forwarded) notFound();
+export default function ForwardedCandidateDetailPage() {
+  const { applicationId } = useParams<{ applicationId: string }>();
+  const forwardedQuery = useGetForwardedApplicationQuery(applicationId);
+  if (forwardedQuery.isLoading) return <LoadingState rows={5} />;
+  if (forwardedQuery.isError || !forwardedQuery.data) return <ErrorState message="Unable to load this forwarded candidate." />;
+  const forwarded = forwardedQuery.data;
 
   return (
     <>

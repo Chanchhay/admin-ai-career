@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BriefcaseBusiness, CalendarDays, MapPin } from "lucide-react";
 import type { PublicJobResponse } from "@/contracts";
+import { markdownToPlainText } from "@/lib/markdown";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -73,7 +74,9 @@ export function PublicJobCard({ job, compact = false, className }: PublicJobCard
         </div>
 
         {!compact ? (
-          <p className="line-clamp-2 text-sm leading-6 text-body">{job.description}</p>
+          <p className="line-clamp-2 text-sm leading-6 text-body">
+            {markdownToPlainText(job.description)}
+          </p>
         ) : null}
 
         <div className="flex flex-wrap gap-2">

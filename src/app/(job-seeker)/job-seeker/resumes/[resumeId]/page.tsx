@@ -1,19 +1,17 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useParams } from "next/navigation";
 import { PageIntro, PlainCard, StatusPill } from "@/components/shared/ApiCards";
-import { resumes } from "@/mocks/api";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useGetResumeQuery } from "@/services/jobSeekerApi";
 
-export function generateStaticParams() {
-  return resumes.map((resume) => ({ resumeId: String(resume.id) }));
-}
-
-export default async function ResumeDetailPage({
-  params,
-}: {
-  params: Promise<{ resumeId: string }>;
-}) {
-  const { resumeId } = await params;
-  const resume = resumes.find((item) => item.id === Number(resumeId));
-  if (!resume) notFound();
+export default function ResumeDetailPage() {
+  const { resumeId } = useParams<{ resumeId: string }>();
+  const resumeQuery = useGetResumeQuery(resumeId);
+  if (resumeQuery.isLoading) return <LoadingState rows={4} />;
+  if (resumeQuery.isError || !resumeQuery.data) return <ErrorState message="Unable to load this resume." />;
+  const resume = resumeQuery.data;
 
   return (
     <>

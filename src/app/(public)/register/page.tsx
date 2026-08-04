@@ -6,9 +6,9 @@ export default function RegisterPage() {
   return (
     <PublicShell>
       <AuthShell
-        title="Create Account"
-        description="Choose your account type and complete the fields defined by RegisterRequest."
-        className="lg:grid-cols-[minmax(0,0.82fr)_minmax(520px,1fr)]"
+        title="Create your account"
+        description="Choose how you will use the platform, then tell us the essentials to get started."
+        className="lg:grid-cols-[minmax(0,.72fr)_minmax(570px,1.28fr)]"
       >
         <RegisterForm />
       </AuthShell>

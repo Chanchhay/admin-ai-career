@@ -2,7 +2,7 @@
 
 A multi-role career platform that combines public job discovery, recruiter job management, candidate preparation, AI interview simulation, moderator verification, and controlled candidate forwarding.
 
-This README currently focuses on the **frontend static UI implementation**.
+This README focuses on the current frontend implementation.
 
 ---
 
@@ -58,8 +58,13 @@ Recruiter may discover the published content
 - Next.js with App Router
 - React and TypeScript
 - Tailwind CSS
+- shadcn UI primitives
+- Redux Toolkit for global UI state
+- RTK Query for API state and requests
+- Better Auth with Keycloak/OIDC
+- Same-origin backend-for-frontend routes for protected API calls
 - Reusable design tokens and shared UI components
-- OpenAPI-shaped frontend types and mock data
+- OpenAPI-shaped frontend contracts and live API data
 - Figma as the visual design reference
 - Spring Boot OpenAPI contract as the field and workflow reference
 
@@ -82,7 +87,7 @@ Recruiter may discover the published content
 Overall frontend static UI progress: approximately 60%
 ```
 
-This percentage measures visible static interfaces only. It excludes backend integration, authentication functionality, persistence, file storage, AI processing, and production deployment.
+This percentage measures visible interface coverage only. Backend capabilities remain limited to operations exposed by the current OpenAPI contract.
 
 ---
 
@@ -99,7 +104,7 @@ This percentage measures visible static interfaces only. It excludes backend int
 - Tables and pagination
 - Search and filter controls
 - Loading, empty, and error states
-- API-shaped mocks and frontend models
+- RTK Query API integration and frontend contracts
 - Responsive foundation
 
 ### Public and authentication pages
@@ -111,7 +116,7 @@ This percentage measures visible static interfaces only. It excludes backend int
 - Public job detail
 - Public company information page
 - Job search and filter interface
-- Static application action/dialog presentation
+- API-backed job application dialog
 
 The implemented public pages are API-aligned and responsive. Some final Figma visual polishing remains.
 
@@ -126,17 +131,17 @@ The implemented public pages are API-aligned and responsive. Some final Figma vi
 - [x] Job listing page
 - [x] Job detail page
 - [x] Public company information
-- [x] Static job filters
+- [x] Job filters
 - [ ] Final Figma comparison and polish
 
 ### Authentication
 
 - [x] Login UI
 - [x] Registration UI
-- [ ] Real Keycloak login connection
-- [ ] Session and role redirect behavior
+- [x] Better Auth Keycloak login integration
+- [x] Session and role redirect behavior
 
-Real authentication is outside the static UI estimate.
+Runtime authentication requires the Better Auth and Keycloak environment values documented in `.env.example`.
 
 ### Job seeker
 
@@ -195,7 +200,7 @@ Frontend implementation should follow this order of authority:
 
 1. Current OpenAPI contract
 2. Confirmed business workflows
-3. Existing API-shaped mocks and shared frontend types
+3. Existing RTK Query services and shared frontend contracts
 4. Existing reusable UI foundation
 5. Figma visual design
 
@@ -264,4 +269,3 @@ The frontend foundation is strong and the public/authentication static interface
 ```text
 Frontend static UI progress: approximately 60%
 ```
-
