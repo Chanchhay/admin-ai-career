@@ -15,24 +15,38 @@
   --warning: #f3c623;
   --error: #e05151;
   --info: #0a65cc;
-  /* App shell: a rounded card floating on a neutral canvas. */
-  --shell-canvas: #ececf0;
-  --shell-card: #ffffff;
-  --shell-radius: 28px;
-  /* Sidebar rail gradient. */
-  --sidebar-from: #c7dbf6;
-  --sidebar-via: #dde9fa;
-  --sidebar-to: #f4f8fe;
-  --sidebar-fg: #1c2b3a;
-  --sidebar-muted-fg: #5b6b7d;
-  /* Content canvas. The active tab is painted in it so the tab flows into the page. */
-  --content-bg: #f7f9fd;
-  --sidebar-active: var(--content-bg);
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --shadow-card: 0 12px 24px rgba(0, 44, 109, 0.08);
   --shadow-dropdown: 0 18px 40px rgba(24, 25, 28, 0.14);
+
+  /*
+   * Workspace surface. A rail and a single rounded panel float on the canvas;
+   * inside the panel everything is a soft card, never a bordered table row.
+   */
+  --ws-canvas: #e8e8ea;
+  --ws-panel: #ffffff;
+  --ws-card: #f5f5f6;
+  --ws-card-hover: #ececee;
+  --ws-line: #e5e5e8;
+  --ws-fg: #18191c;
+  --ws-muted: #6e6e74;
+  --ws-faint: #a6a6ad;
+
+  /*
+   * Chips are brand-only: one solid fill, one tint, one neutral. Hue carries no
+   * meaning here — weight does — so nothing needs a colour of its own.
+   * `alert` is the single exception, and it reuses the existing --error token.
+   */
+  --chip-solid: var(--primary);
+  --chip-solid-fg: var(--primary-foreground);
+  --chip-soft: color-mix(in oklab, var(--primary) 15%, #ffffff);
+  --chip-soft-fg: color-mix(in oklab, var(--primary) 78%, #000000);
+  --chip-quiet: #ececee;
+  --chip-quiet-fg: #5c5c64;
+  --chip-alert: color-mix(in oklab, var(--error) 14%, #ffffff);
+  --chip-alert-fg: color-mix(in oklab, var(--error) 72%, #000000);
 }
 
 .dark {
@@ -52,15 +66,24 @@
   --warning: #f3c623;
   --error: #ff7777;
   --info: #6aaeff;
-  --shell-canvas: #0b0f0b;
-  --shell-card: var(--surface);
-  --sidebar-from: #16202b;
-  --sidebar-via: #131b24;
-  --sidebar-to: #10161e;
-  --sidebar-fg: #e7eef6;
-  --sidebar-muted-fg: #9fb0c2;
-  --content-bg: var(--surface);
-  --sidebar-active: var(--content-bg);
   --shadow-card: 0 12px 24px rgba(0, 0, 0, 0.22);
   --shadow-dropdown: 0 18px 40px rgba(0, 0, 0, 0.38);
+
+  --ws-canvas: #080809;
+  --ws-panel: #131314;
+  --ws-card: #1c1c1e;
+  --ws-card-hover: #242427;
+  --ws-line: #2b2b2e;
+  --ws-fg: #f4f4f5;
+  --ws-muted: #9b9ba1;
+  --ws-faint: #6e6e75;
+
+  --chip-solid: var(--primary);
+  --chip-solid-fg: #08120a;
+  --chip-soft: color-mix(in oklab, var(--primary) 22%, #1c1c1e);
+  --chip-soft-fg: color-mix(in oklab, var(--primary) 62%, #ffffff);
+  --chip-quiet: #242427;
+  --chip-quiet-fg: #9b9ba1;
+  --chip-alert: color-mix(in oklab, var(--error) 20%, #1c1c1e);
+  --chip-alert-fg: color-mix(in oklab, var(--error) 68%, #ffffff);
 }
