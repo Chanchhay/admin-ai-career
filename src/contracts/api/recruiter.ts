@@ -136,6 +136,15 @@ export type RecruiterProfileResponse = {
   status: EntityStatus;
 };
 
+export type FindTalentParams = {
+  keyword?: string;
+  preferredLocation?: string;
+  availabilityStatus?: string;
+  page?: number;
+  size?: number;
+  sort?: string;
+};
+
 export type PublicTalentListItemResponse = {
   profileId: number;
   publicProfileSlug: string;
