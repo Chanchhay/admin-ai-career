@@ -12,11 +12,14 @@ import type {
   ApiResponseListResumeResponse,
   ApiResponsePortfolioResponse,
   ApiResponseResumeResponse,
+  ApiResponseVoid,
   JobApplicationResponse,
   JobApplicationCreateRequest,
   JobSeekerProfileResponse,
   PortfolioResponse,
+  ResumeCreateRequest,
   ResumeResponse,
+  ResumeUpdateRequest,
 } from "@/contracts";
 import { baseApi, unwrapApiResponse } from "./baseApi";
 
@@ -39,6 +42,56 @@ export const jobSeekerApi = baseApi.injectEndpoints({
       transformResponse: (response: ApiResponseResumeResponse) =>
         unwrapApiResponse(response),
       providesTags: (_result, _error, id) => [{ type: "Resumes", id }],
+    }),
+    createResume: builder.mutation<ResumeResponse, ResumeCreateRequest>({
+      query: (body) => ({
+        url: "/job-seeker/resumes",
+        method: "POST",
+        body,
+      }),
+      transformResponse: (response: ApiResponseResumeResponse) =>
+        unwrapApiResponse(response),
+      invalidatesTags: ["Resumes"],
+    }),
+    setDefaultResume: builder.mutation<ResumeResponse, string | number>({
+      query: (resumeId) => ({
+        url: `/job-seeker/resumes/${resumeId}/default`,
+        method: "POST",
+      }),
+      transformResponse: (response: ApiResponseResumeResponse) =>
+        unwrapApiResponse(response),
+      invalidatesTags: ["Resumes"],
+    }),
+    updateResume: builder.mutation<
+      ResumeResponse,
+      { resumeId: string | number; body: ResumeUpdateRequest }
+    >({
+      query: ({ resumeId, body }) => ({
+        url: `/job-seeker/resumes/${resumeId}`,
+        method: "PATCH",
+        body,
+      }),
+      transformResponse: (response: ApiResponseResumeResponse) =>
+        unwrapApiResponse(response),
+      invalidatesTags: (_result, _error, { resumeId }) => [
+        "Resumes",
+        { type: "Resumes", id: resumeId },
+      ],
+    }),
+    deleteResume: builder.mutation<
+      ApiResponseVoid["data"],
+      string | number
+    >({
+      query: (resumeId) => ({
+        url: `/job-seeker/resumes/${resumeId}`,
+        method: "DELETE",
+      }),
+      transformResponse: (response: ApiResponseVoid) =>
+        unwrapApiResponse(response),
+      invalidatesTags: (_result, _error, resumeId) => [
+        "Resumes",
+        { type: "Resumes", id: resumeId },
+      ],
     }),
     getPortfolios: builder.query<PortfolioResponse[], void>({
       query: () => "/job-seeker/portfolios",
@@ -172,6 +225,10 @@ export const {
   useGetJobSeekerProfileQuery,
   useGetResumesQuery,
   useGetResumeQuery,
+  useCreateResumeMutation,
+  useSetDefaultResumeMutation,
+  useUpdateResumeMutation,
+  useDeleteResumeMutation,
   useGetPortfoliosQuery,
   useGetPortfolioQuery,
   useGetApplicationsQuery,
