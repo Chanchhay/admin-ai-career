@@ -48,6 +48,25 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* Workspace surface */
+  --color-ws-canvas: var(--ws-canvas);
+  --color-ws-panel: var(--ws-panel);
+  --color-ws-card: var(--ws-card);
+  --color-ws-card-hover: var(--ws-card-hover);
+  --color-ws-line: var(--ws-line);
+  --color-ws-fg: var(--ws-fg);
+  --color-ws-muted: var(--ws-muted);
+  --color-ws-faint: var(--ws-faint);
+
+  --color-chip-solid: var(--chip-solid);
+  --color-chip-solid-fg: var(--chip-solid-fg);
+  --color-chip-soft: var(--chip-soft);
+  --color-chip-soft-fg: var(--chip-soft-fg);
+  --color-chip-quiet: var(--chip-quiet);
+  --color-chip-quiet-fg: var(--chip-quiet-fg);
+  --color-chip-alert: var(--chip-alert);
+  --color-chip-alert-fg: var(--chip-alert-fg);
+
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
@@ -233,52 +252,31 @@
     pointer-events: none;
   }
 
-  /* Sidebar rail: gradient panel the active tab is carved out of. */
-  .sidebar-rail {
-    background: linear-gradient(
-      155deg,
-      var(--sidebar-from) 0%,
-      var(--sidebar-via) 55%,
-      var(--sidebar-to) 100%
+  /* Workspace panel: one flat rounded sheet. */
+  .ws-panel {
+    background: var(--ws-panel);
+  }
+
+  /* The unfilled remainder of the pipeline track: hatched, never a hard bar. */
+  .ws-track-rest {
+    background-image: repeating-linear-gradient(
+      115deg,
+      var(--ws-line) 0 1px,
+      transparent 1px 7px
     );
   }
 
-  /*
-   * The active tab flows into the content area: it sits flush with the rail's
-   * right edge, and the two pseudo-elements paint the concave corners that make
-   * the rail appear to curve away above and below it.
-   */
-  .sidebar-tab-indicator {
-    background: var(--sidebar-active);
-    border-top-left-radius: 14px;
-    border-bottom-left-radius: 14px;
-  }
-
-  .sidebar-tab-indicator::before,
-  .sidebar-tab-indicator::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    width: 24px;
-    height: 24px;
-    pointer-events: none;
-  }
-
-  .sidebar-tab-indicator::before {
-    top: -24px;
-    background: radial-gradient(
-      circle 24px at 0 0,
-      transparent 0 99%,
-      var(--sidebar-active) 100%
+  /* Document thumbnail: ruled paper standing in for the file preview. */
+  .ws-paper {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--ws-faint) 45%, transparent) 0 1px,
+      transparent 1px 9px
     );
   }
 
-  .sidebar-tab-indicator::after {
-    bottom: -24px;
-    background: radial-gradient(
-      circle 24px at 0 100%,
-      transparent 0 99%,
-      var(--sidebar-active) 100%
-    );
+  .ws-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ws-line) transparent;
   }
 }

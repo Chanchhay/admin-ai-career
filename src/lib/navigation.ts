@@ -34,10 +34,14 @@ export const jobSeekerNavigation: RoleNavigationItem[] = [
     description: "An overview of your profile, applications, and interviews.",
   },
   {
-    href: "/jobs",
+    /*
+     * The in-workspace explorer, not the public /jobs page: a signed-in seeker
+     * applies and runs AI interviews here without leaving the shell.
+     */
+    href: "/job-seeker/jobs",
     label: "Find Jobs",
     icon: Search,
-    description: "Browse published roles and apply with a saved resume.",
+    description: "Browse published roles, apply, and practise AI interviews.",
   },
   {
     href: "/job-seeker/profile",

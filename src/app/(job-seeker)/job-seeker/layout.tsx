@@ -1,7 +1,4 @@
-import {
-  jobSeekerLinks,
-  RoleShell,
-} from "@/components/layout/RoleShell";
+import { jobSeekerLinks, WorkspaceShell } from "@/components/layout/WorkspaceShell";
 
 export default function JobSeekerLayout({
   children,
@@ -9,8 +6,8 @@ export default function JobSeekerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <RoleShell role="job-seeker" title="Job seeker" links={jobSeekerLinks}>
+    <WorkspaceShell role="job-seeker" title="Job seeker" links={jobSeekerLinks}>
       {children}
-    </RoleShell>
+    </WorkspaceShell>
   );
 }

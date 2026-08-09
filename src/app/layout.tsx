@@ -15,7 +15,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className="min-h-screen bg-canvas">
+            <body className="min-h-screen bg-canvas" suppressHydrationWarning>
                 <ThemeProvider>
                     <StoreProvider>
                         {children}

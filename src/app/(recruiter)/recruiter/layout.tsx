@@ -1,7 +1,7 @@
 import {
   recruiterLinks,
-  RoleShell,
-} from "@/components/layout/RoleShell";
+  WorkspaceShell,
+} from "@/components/layout/WorkspaceShell";
 
 export default function RecruiterLayout({
   children,
@@ -9,8 +9,8 @@ export default function RecruiterLayout({
   children: React.ReactNode;
 }) {
   return (
-    <RoleShell role="recruiter" title="Recruiter" links={recruiterLinks}>
+    <WorkspaceShell role="recruiter" title="Recruiter" links={recruiterLinks}>
       {children}
-    </RoleShell>
+    </WorkspaceShell>
   );
 }
