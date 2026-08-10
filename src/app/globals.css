@@ -280,3 +280,26 @@
     scrollbar-color: var(--ws-line) transparent;
   }
 }
+
+@media print {
+  body {
+    background: white !important;
+  }
+
+  aside[aria-label="Workspace navigation"],
+  nav[aria-label="Workspace navigation"],
+  .ws-panel > header {
+    display: none !important;
+  }
+
+  .ws-panel,
+  .ws-scroll,
+  main {
+    overflow: visible !important;
+    border-radius: 0 !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+}
