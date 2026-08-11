@@ -8,6 +8,11 @@ export const metadata: Metadata = {
     title: "AI Career Platform",
     description:
         "Public jobs, job seeker workspace, and recruiter hiring tools for the AI Career Platform.",
+    icons: {
+        icon: "/figma/brand-logo.png",
+        shortcut: "/figma/brand-logo.png",
+        apple: "/figma/brand-logo.png",
+    },
 };
 
 export default function RootLayout({

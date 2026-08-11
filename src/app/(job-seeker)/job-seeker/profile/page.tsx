@@ -6,6 +6,7 @@ import { PageIntro, StatusPill } from "@/components/shared/ApiCards";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ProfileForm } from "@/components/job-seeker/ProfileForm";
+import { ProfileHeaderCard } from "@/components/job-seeker/ProfileHeaderCard";
 import { ProfilePublicationCard } from "@/components/job-seeker/ProfilePublicationCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,6 +38,9 @@ export default function JobSeekerProfilePage() {
           <StatusPill>{profile.status}</StatusPill>
         </div>
       </div>
+
+      {/* Avatar, identity chips & profile strength */}
+      <ProfileHeaderCard profile={profile} />
 
       {/* Quick shortcuts to Resumes & Portfolios */}
       <div className="grid gap-4 sm:grid-cols-2">

@@ -124,15 +124,7 @@ export function FileDropzone({
       </div>
 
       {value ? (
-        <div className="mt-2 flex items-center justify-between gap-3 text-xs">
-          <a
-            href={value}
-            target="_blank"
-            rel="noreferrer"
-            className="truncate text-body underline-offset-2 hover:text-brand hover:underline"
-          >
-            {value}
-          </a>
+        <div className="mt-2 flex justify-end text-xs">
           <button
             type="button"
             onClick={clear}
