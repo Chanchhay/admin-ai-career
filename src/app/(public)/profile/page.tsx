@@ -80,17 +80,22 @@ function ProfileContent({
   jobSeekerProfile?: JobSeekerProfileResponse;
   image?: string | null;
 }) {
-  const isRecruiter = user.roles.some((role) =>
+  const isAdmin = currentUser.data?.roles.some((role) =>
+    role.toUpperCase().includes("ADMIN"),
+  );
+  const isRecruiter = currentUser.data?.roles.some((role) =>
     role.toUpperCase().includes("RECRUITER"),
   );
-  const isJobSeeker = user.roles.some((role) =>
+  const isJobSeeker = currentUser.data?.roles.some((role) =>
     role.toUpperCase().includes("SEEKER"),
   );
-  const workspaceHref = isRecruiter
-    ? "/recruiter/dashboard"
-    : isJobSeeker
-      ? "/job-seeker/dashboard"
-      : "/";
+  const workspaceHref = isAdmin
+    ? "/admin/dashboard"
+    : isRecruiter
+      ? "/recruiter/dashboard"
+      : isJobSeeker
+        ? "/job-seeker/dashboard"
+        : "/";
 
   return (
     <div className="space-y-6">

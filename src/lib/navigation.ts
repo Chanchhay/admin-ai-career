@@ -6,6 +6,7 @@ import {
   FolderKanban,
   LayoutGrid,
   Search,
+  ShieldCheck,
   UserRound,
   UsersRound,
   type LucideIcon,
@@ -111,5 +112,14 @@ export const recruiterNavigation: RoleNavigationItem[] = [
     label: "Recruiter Profile",
     icon: UserRound,
     description: "Manage the personal details of the business owner.",
+  },
+];
+
+export const adminNavigation: RoleNavigationItem[] = [
+  {
+    href: "/admin/dashboard",
+    label: "Admin Dashboard",
+    icon: ShieldCheck,
+    description: "Review company verification and manage trust decisions.",
   },
 ];

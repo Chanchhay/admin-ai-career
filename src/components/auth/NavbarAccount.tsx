@@ -142,6 +142,9 @@ function getInitials(name: string) {
 
 function getRoleLabel(roles?: string[]) {
   const normalizedRoles = roles?.map((role) => role.toUpperCase()) ?? [];
+  if (normalizedRoles.some((role) => role.includes("ADMIN"))) {
+    return "Admin";
+  }
   if (normalizedRoles.some((role) => role.includes("RECRUITER"))) {
     return "Recruiter";
   }

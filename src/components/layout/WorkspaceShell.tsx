@@ -17,7 +17,11 @@ import {
   usePageHeading,
 } from "@/components/layout/PageHeader";
 import { authClient } from "@/lib/auth-client";
-import { jobSeekerNavigation, recruiterNavigation } from "@/lib/navigation";
+import {
+  adminNavigation,
+  jobSeekerNavigation,
+  recruiterNavigation,
+} from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { useGetCurrentUserQuery } from "@/services/authApi";
 
@@ -28,7 +32,7 @@ type NavLink = {
   description?: string;
 };
 
-type Role = "job-seeker" | "recruiter";
+type Role = "job-seeker" | "recruiter" | "admin";
 
 type WorkspaceShellProps = {
   role: Role;
@@ -49,6 +53,11 @@ const quickActions: Record<Role, { search: string; create: string; alerts: strin
     search: "/recruiter/talent",
     create: "/recruiter/jobs/new",
     alerts: "/recruiter/forwarded-candidates",
+  },
+  admin: {
+    search: "/admin/dashboard",
+    create: "/admin/dashboard",
+    alerts: "/admin/dashboard",
   },
 };
 

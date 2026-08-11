@@ -37,7 +37,9 @@ function AuthContinue() {
 
     const roles = currentUser.data.roles.map((role) => role.toUpperCase());
     router.replace(
-      roles.some((role) => role.includes("RECRUITER"))
+      roles.some((role) => role.includes("ADMIN"))
+        ? "/admin/dashboard"
+        : roles.some((role) => role.includes("RECRUITER"))
         ? "/recruiter/dashboard"
         : "/job-seeker/dashboard",
     );

@@ -22,6 +22,7 @@ export const baseApi = createApi({
     "CompanyDocuments",
     "ForwardedApplications",
     "Talent",
+    "ModeratorCompanies",
   ],
   endpoints: () => ({}),
 });

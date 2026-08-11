@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 
 const PUBLIC_PREFIXES = ["public/"];
 const PUBLIC_PATHS = new Set(["auth/register"]);
-const PROTECTED_PREFIXES = ["job-seeker/", "recruiter/"];
+const PROTECTED_PREFIXES = ["job-seeker/", "recruiter/", "moderator/", "admin/"];
 const PROTECTED_PATHS = new Set(["me"]);
 
 function isAllowedPath(path: string) {
