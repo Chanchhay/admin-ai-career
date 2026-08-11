@@ -15,6 +15,7 @@ import type {
   CompanyDocumentResponse,
   CompanyResponse,
   CompanyUpdateRequest,
+  FindTalentParams,
   ForwardedApplicationResponse,
   JobPostRequest,
   JobPostResponse,
@@ -191,7 +192,7 @@ export const recruiterApi = baseApi.injectEndpoints({
     }),
     getTalent: builder.query<
       Page<PublicTalentListItemResponse>,
-      { page?: number; size?: number } | void
+      FindTalentParams | void
     >({
       query: (params) => ({
         url: "/recruiter/talent",

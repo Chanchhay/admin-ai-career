@@ -46,7 +46,7 @@ export const bottomMembers = [
       avatar: '/images/avatar/bunlong.jpg',
     },
     {
-      name: 'Man Tofary',
+      name: 'Man Tolfary',
       role: 'Member',
       avatar: '/images/avatar/fary.jpg',
     },
