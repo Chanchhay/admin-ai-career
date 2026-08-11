@@ -16,42 +16,11 @@ const quickLinks = [
   { id: 4, name: "Design", href: "/jobs?keyword=design" },
 ];
 
-/**
- * The hand-drawn ribbons that frame the headline. Mirrored on the left so the
- * two curves lean into the centre of the section.
- */
-function HeroRibbon({ className }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 160 260"
-      fill="none"
-      className={className}
-    >
-      <path
-        d="M158 2C158 2 116 26 116 66c0 40 42 48 42 92 0 44-52 46-78 76-14 16-16 22-16 22"
-        stroke="url(#hero-ribbon)"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <defs>
-        <linearGradient id="hero-ribbon" x1="80" y1="0" x2="80" y2="260">
-          <stop stopColor="#22d3ee" />
-          <stop offset="1" stopColor="#22c55e" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-}
-
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-linear-to-b from-landing-tint/60 via-surface to-surface pb-20 pt-16 sm:pt-20 lg:pb-24">
-      <HeroRibbon className="pointer-events-none absolute -right-10 top-10 hidden h-65 w-40 lg:block" />
-      <HeroRibbon className="pointer-events-none absolute -left-10 top-64 hidden h-65 w-40 -scale-x-100 lg:block" />
-
       <div className="relative mx-auto max-w-[1240px] px-4 text-center sm:px-6 lg:px-8">
-        <h1 className="mx-auto max-w-[1200px] text-[clamp(3rem,7vw,6rem)] font-bold leading-[.98] tracking-[-0.045em]">
+        <h1 className="mx-auto max-w-[1200px] text-[clamp(4rem,7vw,5rem)] font-bold leading-[.98] tracking-[-0.045em]">
           <span className="text-brand">Explore new </span>
           <span className="text-warning">job vacancies all over the world</span>
         </h1>
@@ -60,7 +29,7 @@ export function HeroSection() {
           connecting you with employers who value your skills and experience.
         </p>
 
-        <div className="mx-auto mt-14 grid max-w-160 gap-5 md:grid-cols-3">
+        {/* <div className="mx-auto mt-14 grid max-w-200 gap-5 md:grid-cols-3">
           {testimonials.map((testimonial) => (
             <div
               key={testimonial}
@@ -74,13 +43,46 @@ export function HeroSection() {
               <p className="text-sm">“{testimonial}”</p>
             </div>
           ))}
+        </div> */}
+
+        {/* Testimonial / Rating Cards */}
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6">
+          {/* Card 1 */}
+          <div className="w-72 rounded-2xl bg-[#E8F5E9]/60 py-4 px-6 text-center shadow-sm backdrop-blur-sm">
+            <div className="flex justify-center gap-1 text-[#F3C623]">
+              {'★'.repeat(5)}
+            </div>
+            <p className="mt-2 text-sm font-medium text-slate-600">
+              “Superb job matching service”
+            </p>
+          </div>
+
+          {/* Card 2 */}
+          <div className="w-72 rounded-2xl bg-[#E8F5E9]/60 py-4 px-6 text-center shadow-sm backdrop-blur-sm">
+            <div className="flex justify-center gap-1 text-[#F3C623]">
+              {'★'.repeat(5)}
+            </div>
+            <p className="mt-2 text-sm font-medium text-slate-600">
+              “Found my perfect role fast”
+            </p>
+          </div>
+
+          {/* Card 3 */}
+          <div className="w-72 rounded-2xl bg-[#E8F5E9]/60 py-4 px-6 text-center shadow-sm backdrop-blur-sm">
+            <div className="flex justify-center gap-1 text-[#F3C623]">
+              {'★'.repeat(5)}
+            </div>
+            <p className="mt-2 text-sm font-medium text-slate-600">
+              “Helped me find work quickly”
+            </p>
+          </div>
         </div>
 
         <form
           action="/jobs"
           className="mx-auto mt-14 grid max-w-[610px] gap-3 sm:grid-cols-[minmax(0,1fr)_130px]"
         >
-          <div className="flex h-[60px] items-center rounded-xl bg-landing-tint px-5 text-body">
+          <div className="flex h-[40px] items-center rounded-xl bg-landing-tint px-5 text-body">
             <Search aria-hidden="true" className="size-5 shrink-0 text-muted-fg" />
             <label htmlFor="landing-keyword" className="sr-only">
               Company, industry, or job title
@@ -95,7 +97,7 @@ export function HeroSection() {
             <span className="hidden whitespace-nowrap px-3 text-sm sm:inline">20 mi</span>
             <ChevronDown aria-hidden="true" className="hidden size-5 sm:block" />
           </div>
-          <Button type="submit" className="h-[60px] rounded-xl text-base">
+          <Button type="submit" className="h-[40px] rounded-xl text-base">
             Search
           </Button>
         </form>
