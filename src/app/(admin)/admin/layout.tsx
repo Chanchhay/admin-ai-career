@@ -1,5 +1,4 @@
-import { WorkspaceShell } from "@/components/layout/WorkspaceShell";
-import { adminNavigation } from "@/lib/navigation";
+import { adminLinks, WorkspaceShell } from "@/components/layout/WorkspaceShell";
 
 export default function AdminLayout({
   children,
@@ -7,7 +6,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <WorkspaceShell role="admin" title="Admin" links={adminNavigation}>
+    <WorkspaceShell role="admin" title="Admin" links={adminLinks}>
       {children}
     </WorkspaceShell>
   );

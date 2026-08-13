@@ -2,6 +2,7 @@ import {
   Bell,
   Briefcase,
   Building2,
+  CheckCircle2,
   FileText,
   FolderKanban,
   LayoutGrid,
@@ -119,7 +120,25 @@ export const adminNavigation: RoleNavigationItem[] = [
   {
     href: "/admin/dashboard",
     label: "Admin Dashboard",
+    icon: LayoutGrid,
+    description: "Monitor moderation health and trust signals at a glance.",
+  },
+  {
+    href: "/admin/reviews",
+    label: "Verification Reviews",
     icon: ShieldCheck,
-    description: "Review company verification and manage trust decisions.",
+    description: "Review pending company applications and approve or reject them.",
+  },
+  {
+    href: "/admin/approvals",
+    label: "Approvals",
+    icon: CheckCircle2,
+    description: "Track successfully approved companies and their verification state.",
+  },
+  {
+    href: "/admin/history",
+    label: "Moderation History",
+    icon: FileText,
+    description: "Review past moderator decisions and recent trust actions.",
   },
 ];

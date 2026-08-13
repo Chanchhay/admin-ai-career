@@ -80,13 +80,13 @@ function ProfileContent({
   jobSeekerProfile?: JobSeekerProfileResponse;
   image?: string | null;
 }) {
-  const isAdmin = currentUser.data?.roles.some((role) =>
+  const isAdmin = user.roles.some((role) =>
     role.toUpperCase().includes("ADMIN"),
   );
-  const isRecruiter = currentUser.data?.roles.some((role) =>
+  const isRecruiter = user.roles.some((role) =>
     role.toUpperCase().includes("RECRUITER"),
   );
-  const isJobSeeker = currentUser.data?.roles.some((role) =>
+  const isJobSeeker = user.roles.some((role) =>
     role.toUpperCase().includes("SEEKER"),
   );
   const workspaceHref = isAdmin
