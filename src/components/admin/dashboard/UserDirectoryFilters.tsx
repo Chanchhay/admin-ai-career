@@ -1,7 +1,6 @@
 "use client";
 
 import { Search, Download, Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export type RoleFilter = "all" | "Admin" | "Recruiter" | "Job Seeker" | "Moderator";
 export type StatusFilter = "all" | "Verified" | "Pending" | "Unverified";
@@ -14,6 +13,8 @@ interface UserDirectoryFiltersProps {
   onRoleChange: (role: RoleFilter) => void;
   onStatusChange: (status: StatusFilter) => void;
   onExport?: () => void;
+  showRoleFilter?: boolean;
+  showActions?: boolean;
 }
 
 const roles: { label: string; value: RoleFilter }[] = [
@@ -39,6 +40,8 @@ export function UserDirectoryFilters({
   onRoleChange,
   onStatusChange,
   onExport,
+  showRoleFilter = true,
+  showActions = true,
 }: UserDirectoryFiltersProps) {
   return (
     <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50">
@@ -57,7 +60,7 @@ export function UserDirectoryFilters({
       {/* Filters */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Role Filter */}
-        <div>
+        {showRoleFilter ? <div>
           <label className="mb-2 block text-xs font-semibold uppercase text-gray-600 dark:text-gray-400">
             Role
           </label>
@@ -72,7 +75,7 @@ export function UserDirectoryFilters({
               </option>
             ))}
           </select>
-        </div>
+        </div> : null}
 
         {/* Status Filter */}
         <div>
@@ -93,7 +96,7 @@ export function UserDirectoryFilters({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 sm:col-span-2 lg:col-span-2">
+        {showActions ? <div className="flex gap-2 sm:col-span-2 lg:col-span-2">
           <button
             onClick={onExport}
             className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -105,7 +108,7 @@ export function UserDirectoryFilters({
             <Settings className="h-4 w-4" />
             More
           </button>
-        </div>
+        </div> : null}
       </div>
     </div>
   );

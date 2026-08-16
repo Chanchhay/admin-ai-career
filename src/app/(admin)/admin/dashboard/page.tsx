@@ -2,16 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-  UsersRound,
-  UserCheck,
-  Clock,
-  AlertCircle,
-  TrendingUp,
-  Activity,
-  Shield,
-  Briefcase,
-} from "lucide-react";
+import { Clock } from "lucide-react";
 import { DashboardStats } from "@/components/admin/dashboard/DashboardStats";
 import { AdminWorkspace } from "@/components/admin/workspace/AdminWorkspace";
 import { useSetPageHeading } from "@/components/layout/PageHeader";
@@ -24,17 +15,14 @@ import type { CompanyVerificationStatus } from "@/contracts/api/common";
 
 export default function AdminDashboardPage() {
   useSetPageHeading("Dashboard");
-
   const [status, setStatus] = useState<CompanyVerificationStatus>("PENDING_VERIFICATION");
   const { data, isLoading, isError, refetch } = useGetModeratorCompaniesQuery({
     status,
     page: 0,
     size: 12,
   });
-
   const [approveCompany, { isLoading: isApproving }] = useApproveCompanyMutation();
   const [rejectCompany, { isLoading: isRejecting }] = useRejectCompanyMutation();
-
   const companies = data?.content ?? [];
   const totalCount = data?.totalElements ?? 0;
 
@@ -47,198 +35,33 @@ export default function AdminDashboardPage() {
         await rejectCompany(companyId).unwrap();
         toast.success("Company rejected.");
       }
-      await refetch();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unable to update verification status.";
-      toast.error(message);
+    } catch {
+      toast.error("Unable to update verification status.");
     }
   };
 
-  // Mock data for dashboard overview
-  const totalUsers = 24512;
-  const activeUsers = 18922;
-  const pendingVerification = 312;
-  const suspendedUsers = 145;
-
-  const stats = [
-    {
-      label: "Total Users",
-      value: totalUsers,
-      trend: 12.4,
-      trendLabel: "this month",
-      icon: <UsersRound className="h-5 w-5" />,
-      variant: "primary" as const,
-    },
-    {
-      label: "Active",
-      value: activeUsers,
-      trend: 7.2,
-      trendLabel: "activity rate",
-      icon: <UserCheck className="h-5 w-5" />,
-      variant: "success" as const,
-    },
-    {
-      label: "Pending",
-      value: pendingVerification,
-      trend: -2.1,
-      trendLabel: "since last week",
+  return <div className="space-y-8">
+    <DashboardStats stats={[{
+      label: "Companies Pending Review",
+      value: totalCount,
       icon: <Clock className="h-5 w-5" />,
-      variant: "warning" as const,
-    },
-    {
-      label: "Suspended",
-      value: suspendedUsers,
-      trend: 3.5,
-      trendLabel: "since last week",
-      icon: <AlertCircle className="h-5 w-5" />,
-      variant: "error" as const,
-    },
-  ];
-
-  return (
-    <div className="space-y-8">
-      {/* Main Statistics */}
-      <DashboardStats stats={stats} />
-
-      {/* Grid of Overview Cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Quick Stats */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
-            <Activity className="h-5 w-5 text-green-600 dark:text-green-400" />
-            Quick Overview
-          </h3>
-
-          <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">New Users (Today)</span>
-              <span className="text-lg font-semibold text-gray-900 dark:text-white">24</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Verification Rate</span>
-              <span className="text-lg font-semibold text-gray-900 dark:text-white">98.7%</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Support Tickets</span>
-              <span className="text-lg font-semibold text-gray-900 dark:text-white">12</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Platform Uptime</span>
-              <span className="text-lg font-semibold text-green-600 dark:text-green-400">99.9%</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Platform Health */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
-            <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            Platform Health
-          </h3>
-
-          <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">CPU Usage</span>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-32 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div className="h-full w-1/3 bg-green-500" />
-                </div>
-                <span className="text-sm font-medium">35%</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Memory Usage</span>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-32 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div className="h-full w-1/2 bg-green-500" />
-                </div>
-                <span className="text-sm font-medium">52%</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Disk Usage</span>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-32 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div className="h-full w-2/3 bg-amber-500" />
-                </div>
-                <span className="text-sm font-medium">68%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Key Metrics</h3>
-
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-gray-400" />
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">
-                Admins
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">8</p>
-            <p className="text-xs text-gray-500 dark:text-gray-500">Active administrators</p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-gray-400" />
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">
-                Recruiters
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">1,248</p>
-            <p className="text-xs text-gray-500 dark:text-gray-500">Verified recruiters</p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <UserCheck className="h-4 w-4 text-gray-400" />
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">
-                Job Seekers
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">22,856</p>
-            <p className="text-xs text-gray-500 dark:text-gray-500">Active profiles</p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-gray-400" />
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">
-                Flagged
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">23</p>
-            <p className="text-xs text-gray-500 dark:text-gray-500">Under review</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Company Verification Section */}
-      <div className="mt-8 border-t border-gray-200 pt-8 dark:border-gray-800">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Company Verification Reviews
-        </h2>
-        <AdminWorkspace
-          companies={companies}
-          totalCount={totalCount}
-          status={status}
-          isLoading={isLoading}
-          isError={isError}
-          onStatusChange={setStatus}
-          onRefresh={() => void refetch()}
-          onApprove={(companyId) => void handleCompany(companyId, "approve")}
-          onReject={(companyId) => void handleCompany(companyId, "reject")}
-          isApproving={isApproving}
-          isRejecting={isRejecting}
-        />
-      </div>
+      variant: "warning",
+    }]} />
+    <div className="border-t border-gray-200 pt-8 dark:border-gray-800">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Company Verification Reviews</h2>
+      <AdminWorkspace
+        companies={companies}
+        totalCount={totalCount}
+        status={status}
+        isLoading={isLoading}
+        isError={isError}
+        onStatusChange={setStatus}
+        onRefresh={() => void refetch()}
+        onApprove={(companyId) => void handleCompany(companyId, "approve")}
+        onReject={(companyId) => void handleCompany(companyId, "reject")}
+        isApproving={isApproving}
+        isRejecting={isRejecting}
+      />
     </div>
-  );
+  </div>;
 }

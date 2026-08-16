@@ -40,12 +40,14 @@ interface UserDirectoryTableProps {
   users: UserDirectoryRow[];
   isLoading?: boolean;
   onUserAction?: (userId: number, action: string) => void;
+  showActions?: boolean;
 }
 
 export function UserDirectoryTable({
   users,
   isLoading = false,
   onUserAction,
+  showActions = true,
 }: UserDirectoryTableProps) {
   const getInitials = (name: string) => {
     return name
@@ -83,9 +85,9 @@ export function UserDirectoryTable({
             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
               Joined Date
             </th>
-            <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+            {showActions ? <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
               Actions
-            </th>
+            </th> : null}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
@@ -143,7 +145,7 @@ export function UserDirectoryTable({
               <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                 {user.joinedDate}
               </td>
-              <td className="px-6 py-4 text-right">
+              {showActions ? <td className="px-6 py-4 text-right">
                 <button
                   onClick={() => onUserAction?.(user.id, "menu")}
                   className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
@@ -151,7 +153,7 @@ export function UserDirectoryTable({
                 >
                   <MoreVertical className="h-4 w-4" />
                 </button>
-              </td>
+              </td> : null}
             </tr>
           ))}
         </tbody>
