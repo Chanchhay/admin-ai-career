@@ -2,6 +2,7 @@ import {
   Bell,
   Briefcase,
   Building2,
+  CheckCircle2,
   FileText,
   FolderKanban,
   LayoutGrid,
@@ -9,6 +10,10 @@ import {
   ShieldCheck,
   UserRound,
   UsersRound,
+  BarChart3,
+  Settings,
+  HelpCircle,
+  Shield,
   type LucideIcon,
 } from "lucide-react";
 
@@ -118,8 +123,68 @@ export const recruiterNavigation: RoleNavigationItem[] = [
 export const adminNavigation: RoleNavigationItem[] = [
   {
     href: "/admin/dashboard",
-    label: "Admin Dashboard",
+    label: "Dashboard",
+    icon: LayoutGrid,
+    description: "Overview of platform statistics and activity.",
+  },
+  {
+    href: "/admin/users",
+    label: "Users",
+    icon: UsersRound,
+    description: "Manage all platform users and their roles.",
+  },
+  {
+    href: "/admin/admins",
+    label: "Admins",
+    icon: Shield,
+    description: "Manage administrator accounts and permissions.",
+  },
+  {
+    href: "/admin/moderators",
+    label: "Moderators",
     icon: ShieldCheck,
-    description: "Review company verification and manage trust decisions.",
+    description: "Manage moderator accounts and reviews.",
+  },
+  {
+    href: "/admin/recruiters",
+    label: "Recruiters",
+    icon: Building2,
+    description: "Manage recruiter accounts and companies.",
+  },
+  {
+    href: "/admin/job-seekers",
+    label: "Job Seekers",
+    icon: Briefcase,
+    description: "Manage job seeker profiles and applications.",
+  },
+  {
+    href: "/admin/reviews",
+    label: "Verification Reviews",
+    icon: CheckCircle2,
+    description: "Review pending verifications.",
+  },
+  {
+    href: "/admin/finance",
+    label: "Finance",
+    icon: BarChart3,
+    description: "Revenue, payments, and billing information.",
+  },
+  {
+    href: "/admin/reports",
+    label: "Reports",
+    icon: FileText,
+    description: "Analytics and detailed platform reports.",
+  },
+  {
+    href: "/admin/settings",
+    label: "Settings",
+    icon: Settings,
+    description: "System settings and configuration.",
+  },
+  {
+    href: "/admin/help",
+    label: "Help Center",
+    icon: HelpCircle,
+    description: "Help and documentation resources.",
   },
 ];

@@ -333,3 +333,5 @@ function isActivePath(pathname: string, href: string) {
 export const jobSeekerLinks = [...jobSeekerNavigation] satisfies NavLink[];
 
 export const recruiterLinks = [...recruiterNavigation] satisfies NavLink[];
+
+export const adminLinks = [...adminNavigation] satisfies NavLink[];
