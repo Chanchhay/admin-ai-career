@@ -104,10 +104,18 @@ docker run --rm -p 8090:8090 --env-file .env \
 
 ## Things worth knowing
 
-**Your account needs `MODERATOR` or `SUPER_ADMIN`.** The backend enforces this
-in `SecurityConfig` — one list of URL rules, no controller annotations — over
-both `/api/v1/moderator/**` and `/api/v1/admin/**`. A seeker or recruiter
-account gets 403s on every screen here.
+**Your account needs `MODERATOR` or `SUPER_ADMIN`,** *and* rows in the API's
+database. Creating a user in Keycloak is only half of it — the API keeps its own
+`user_accounts` and profile rows, and staff accounts are not created by any
+registration flow. The backend repo's `docs/staff-accounts.md` has the runbook
+and the SQL.
+
+Which failure you get tells you which half is missing:
+
+| Response | Missing |
+| --- | --- |
+| `403` on every screen | the realm role in Keycloak |
+| `404` *Moderator profile was not found for authenticated user* | the database rows |
 
 **You are using production data.** The deployed API and real user accounts are
 live. Approving a company or forwarding a candidate is a real decision someone
@@ -130,4 +138,6 @@ you are sure nothing references the row.
 | `502` / connection refused under `/admin` | The dev server is not running, or it is not on port 3001. |
 | Every `/api/**` call returns `401` | The gateway session expired. Reload — you will be bounced through Keycloak and back. |
 | Every screen returns `403` | The signed-in account has neither `MODERATOR` nor `SUPER_ADMIN` in the Keycloak realm. |
+| `404` "Moderator profile was not found" on approve | The account exists in Keycloak but has no rows in the API database. Run the backend's `scripts/provision-staff-account.sql`. |
+| Role was granted but nothing changed | Roles come from the access token. Sign out and back in so a new one is issued. |
 | `Invalid parameter: redirect_uri` at Keycloak | Gateway is not on port 8090, or the client is missing the localhost redirect URI. |

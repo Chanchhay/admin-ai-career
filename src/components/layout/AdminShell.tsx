@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { adminNavigation, type NavigationItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { resolveFileUrl } from "@/lib/file-url";
+import { isStaff } from "@/lib/roles";
 import { useGetCurrentUserQuery, useGetSessionQuery } from "@/services/authApi";
 
 /**
@@ -167,9 +168,6 @@ function Account() {
 
 /* --------------------------------------------------------- role notice --- */
 
-/** Realm roles the backend's SecurityConfig admits to every console path. */
-const STAFF_ROLES = ["MODERATOR", "SUPER_ADMIN"];
-
 /**
  * The backend guards `/moderator/**` and `/admin/**` with `hasRole(MODERATOR)`,
  * which `SUPER_ADMIN` clears through its role hierarchy. An account with
@@ -188,7 +186,7 @@ function StaffRoleNotice() {
   // Silent until the roles are known: flashing a warning during the first
   // render would accuse every legitimate operator on the way in.
   if (!isSuccess) return null;
-  if (user.roles.some((role) => STAFF_ROLES.includes(role))) return null;
+  if (isStaff(user.roles)) return null;
 
   return (
     <div
