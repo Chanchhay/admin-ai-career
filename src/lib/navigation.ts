@@ -1,10 +1,10 @@
 import {
   Building2,
   BriefcaseBusiness,
+  ClipboardCheck,
   Layers,
   LayoutGrid,
   Tags,
-  UsersRound,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -37,10 +37,10 @@ export const adminNavigation: NavigationItem[] = [
   },
   {
     href: "/applications",
-    label: "Applications",
-    icon: UsersRound,
+    label: "Moderator results",
+    icon: ClipboardCheck,
     description:
-      "Review candidates, run human interviews, forward to recruiters.",
+      "View candidate results, run human interviews, and record decisions.",
   },
   {
     href: "/jobs",

@@ -36,6 +36,7 @@ import {
   useCompleteHumanInterviewMutation,
   useDecideApplicationMutation,
   useGetApplicationQuery,
+  useRescheduleHumanInterviewMutation,
   useScheduleHumanInterviewMutation,
 } from "@/services/moderationApi";
 
@@ -245,9 +246,16 @@ function HumanInterviews({
   const [complete, { isLoading: isCompleting }] =
     useCompleteHumanInterviewMutation();
   const [cancel, { isLoading: isCancelling }] = useCancelHumanInterviewMutation();
+  const [reschedule, { isLoading: isRescheduling }] =
+    useRescheduleHumanInterviewMutation();
 
   const [scheduledAt, setScheduledAt] = useState("");
   const [meetingUrl, setMeetingUrl] = useState("");
+  const [editingInterviewId, setEditingInterviewId] = useState<number | null>(
+    null,
+  );
+  const [rescheduledAt, setRescheduledAt] = useState("");
+  const [rescheduledMeetingUrl, setRescheduledMeetingUrl] = useState("");
 
   const book = async () => {
     if (!scheduledAt || !meetingUrl.trim()) {
@@ -286,7 +294,41 @@ function HumanInterviews({
     }
   };
 
-  const busy = isCompleting || isCancelling;
+  const startRescheduling = (interview: HumanInterviewResponse) => {
+    const parsed = new Date(interview.scheduledAt);
+    const localValue = Number.isNaN(parsed.getTime())
+      ? ""
+      : new Date(parsed.getTime() - parsed.getTimezoneOffset() * 60_000)
+          .toISOString()
+          .slice(0, 16);
+    setEditingInterviewId(interview.id);
+    setRescheduledAt(localValue);
+    setRescheduledMeetingUrl(interview.meetingUrl ?? "");
+  };
+
+  const saveReschedule = async (interviewId: number) => {
+    if (!rescheduledAt || !rescheduledMeetingUrl.trim()) {
+      toast.error("A date and a meeting link are both required.");
+      return;
+    }
+
+    try {
+      await reschedule({
+        interviewId,
+        applicationId,
+        body: {
+          scheduledAt: toInstant(rescheduledAt),
+          meetingUrl: rescheduledMeetingUrl.trim(),
+        },
+      }).unwrap();
+      setEditingInterviewId(null);
+      toast.success("Interview rescheduled.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Unable to reschedule the interview."));
+    }
+  };
+
+  const busy = isCompleting || isCancelling || isRescheduling;
 
   return (
     <Panel>
@@ -327,10 +369,58 @@ function HumanInterviews({
                 </p>
               ) : null}
 
+              {editingInterviewId === interview.id ? (
+                <div className="mt-3 grid gap-3 rounded-[16px] bg-ws-card p-3 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+                    New date and time
+                    <Input
+                      type="datetime-local"
+                      value={rescheduledAt}
+                      onChange={(event) => setRescheduledAt(event.target.value)}
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+                    Meeting link
+                    <Input
+                      type="url"
+                      value={rescheduledMeetingUrl}
+                      onChange={(event) =>
+                        setRescheduledMeetingUrl(event.target.value)
+                      }
+                    />
+                  </label>
+                  <div className="flex gap-2 sm:col-span-2">
+                    <Button
+                      size="sm"
+                      disabled={busy}
+                      onClick={() => void saveReschedule(interview.id)}
+                    >
+                      Save new time
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => setEditingInterviewId(null)}
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
               {/* Only a live interview can still be finished or called off. */}
               {interview.status === "COMPLETED" ||
               interview.status === "CANCELLED" ? null : (
                 <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() => startRescheduling(interview)}
+                  >
+                    Reschedule
+                  </Button>
                   <Button
                     size="sm"
                     disabled={busy}
