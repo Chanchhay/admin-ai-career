@@ -1,5 +1,6 @@
 import {
   Building2,
+  BriefcaseBusiness,
   Layers,
   LayoutGrid,
   Tags,
@@ -40,6 +41,12 @@ export const adminNavigation: NavigationItem[] = [
     icon: UsersRound,
     description:
       "Review candidates, run human interviews, forward to recruiters.",
+  },
+  {
+    href: "/jobs",
+    label: "Jobs",
+    icon: BriefcaseBusiness,
+    description: "Browse the jobs currently visible to candidates.",
   },
   {
     href: "/industries",

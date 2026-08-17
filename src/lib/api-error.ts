@@ -9,7 +9,13 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
   if (typeof error === "object" && error !== null && "data" in error) {
     const { data } = error as FetchBaseQueryError & { data?: unknown };
 
-    if (typeof data === "string" && data.trim()) return data;
+    if (typeof data === "string" && data.trim()) {
+      // Proxies and servlet containers sometimes answer with a complete HTML
+      // error document. Rendering it verbatim produces an enormous, useless
+      // toast; keep the friendly operation-specific fallback instead.
+      const trimmed = data.trim();
+      if (!/^<!doctype html|^<html/i.test(trimmed)) return trimmed;
+    }
 
     if (typeof data === "object" && data !== null) {
       const body = data as Record<string, unknown>;

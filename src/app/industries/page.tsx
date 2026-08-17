@@ -64,7 +64,9 @@ export default function IndustriesPage() {
         status: item.status ?? "ACTIVE",
       })}
       renderMeta={(item) =>
-        [humanizeEnum(item.status), item.description].filter(Boolean).join(" · ")
+        [item.status ? humanizeEnum(item.status) : "Active", item.description]
+          .filter(Boolean)
+          .join(" · ")
       }
       onCreate={(form) => create(form).unwrap()}
       onUpdate={(id, form) => update({ id, body: form }).unwrap()}

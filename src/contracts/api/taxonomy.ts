@@ -12,9 +12,10 @@ export type IndustryResponse = {
   id: number;
   name: string;
   description: string;
-  status: EntityStatus;
-  createdAt: string;
-  updatedAt: string;
+  /** Admin responses include these fields; public list responses may omit them. */
+  status?: EntityStatus;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type IndustryRequest = {
@@ -27,8 +28,8 @@ export type JobCategoryResponse = {
   id: number;
   name: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type JobCategoryRequest = {
@@ -41,8 +42,8 @@ export type SkillResponse = {
   name: string;
   /** Free text on the backend — "TECHNICAL", "SOFT", whatever was entered. */
   skillType: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type SkillRequest = {
