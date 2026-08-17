@@ -1,28 +1,9 @@
-import type { ApiResponse, Gender, RegistrationRole } from "./common";
+/**
+ * Identity. Registration lives in the main app, so the console only reads
+ * `/api/v1/me` — the roles it returns decide which sections are usable.
+ */
 
-export type RegisterRequest = {
-  username: string;
-  password: string;
-  confirmPassword: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  gender?: Gender;
-  role: RegistrationRole;
-  phoneNumber?: string;
-};
-
-export type RegisterResponse = {
-  id: string;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  gender: string;
-  role: RegistrationRole;
-  phoneNumber: string;
-  registrationSource: string;
-};
+import type { ApiResponse } from "./common";
 
 export type CurrentUserProfilesResponse = {
   jobSeekerProfileId?: number;
@@ -43,8 +24,18 @@ export type CurrentUserResponse = {
   gender: string;
   phoneNumber: string;
   registrationSource: string;
+  /** Keycloak realm roles, e.g. `["ADMIN", "MODERATOR"]`. */
   roles: string[];
+  /** App-relative avatar URL from whichever profile the account owns. */
+  avatarUrl?: string;
   profiles: CurrentUserProfilesResponse;
 };
 
 export type ApiResponseCurrentUserResponse = ApiResponse<CurrentUserResponse>;
+
+/** What the gateway reports about the current browser session. */
+export type SessionResponse = {
+  authenticated: boolean;
+  username: string | null;
+  email: string | null;
+};

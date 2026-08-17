@@ -3,10 +3,12 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 import { baseApi } from "@/services/baseApi";
 import uiReducer from "./uiSlice";
 
+// Side-effect imports: every slice injects its endpoints into `baseApi`, and a
+// slice nothing has imported yet would be missing from the store at first
+// render.
 import "@/services/authApi";
-import "@/services/jobSeekerApi";
-import "@/services/publicApi";
-import "@/services/recruiterApi";
+import "@/services/moderationApi";
+import "@/services/taxonomyApi";
 
 export const makeStore = () => {
   const store = configureStore({
