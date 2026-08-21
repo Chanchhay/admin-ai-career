@@ -76,7 +76,7 @@ export function Panel({
   return (
     <section
       className={cn(
-        "rounded-[22px] p-5",
+        "rounded-2xl border border-ws-line/80 p-5 shadow-[0_1px_2px_rgba(24,25,28,0.025)]",
         tone ? toneFill[tone] : "bg-ws-card text-ws-fg",
         className,
       )}
@@ -129,10 +129,10 @@ export function PillTabs<T extends string>({
           onClick={() => onChange(tab)}
           aria-pressed={value === tab}
           className={cn(
-            "shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors",
+            "shrink-0 rounded-lg px-4 py-2 text-[13px] font-semibold transition-all",
             value === tab
-              ? "bg-ws-panel text-ws-fg"
-              : "text-ws-faint hover:text-ws-fg",
+              ? "bg-ws-panel text-ws-fg shadow-sm"
+              : "text-ws-faint hover:bg-ws-panel/60 hover:text-ws-fg",
           )}
         >
           {tab}

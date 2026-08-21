@@ -1,44 +1,6 @@
 "use client";
 
-import { TaxonomyScreen, type TaxonomyField } from "@/components/console/TaxonomyScreen";
-import { useSetPageHeading } from "@/components/layout/PageHeader";
-import type { EntityStatus, IndustryResponse } from "@/contracts";
-import { humanizeEnum } from "@/lib/format";
-import {
-  useCreateIndustryMutation,
-  useDeleteIndustryMutation,
-  useGetIndustriesQuery,
-  useUpdateIndustryMutation,
-} from "@/services/taxonomyApi";
-
-type IndustryForm = {
-  name: string;
-  description: string;
-  status: EntityStatus;
-};
-
-const FIELDS: readonly TaxonomyField<IndustryForm>[] = [
-  { name: "name", label: "Name", required: true, placeholder: "Software" },
-  {
-    name: "status",
-    label: "Status",
-    kind: "select",
-    options: [
-      { value: "ACTIVE", label: "Active" },
-      { value: "INACTIVE", label: "Inactive" },
-      { value: "PENDING", label: "Pending" },
-      { value: "SUSPENDED", label: "Suspended" },
-    ],
-  },
-  {
-    name: "description",
-    label: "Description",
-    kind: "textarea",
-    placeholder: "What kind of companies belong here.",
-  },
-];
-
-const EMPTY: IndustryForm = { name: "", description: "", status: "ACTIVE" };
+import { TaxonomyWorkspace } from "@/components/console/TaxonomyWorkspace";
 
 export default function IndustriesPage() {
   useSetPageHeading("Industries");
@@ -73,5 +35,6 @@ export default function IndustriesPage() {
       onDelete={(id) => remove(id).unwrap()}
       isSaving={createState.isLoading || updateState.isLoading}
     />
+    <TaxonomyWorkspace initialTab="industries" />;
   );
 }

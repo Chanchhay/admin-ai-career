@@ -1,4 +1,5 @@
 import {
+  Bot,
   Building2,
   BriefcaseBusiness,
   ClipboardCheck,
@@ -65,5 +66,11 @@ export const adminNavigation: NavigationItem[] = [
     label: "Skills",
     icon: Wrench,
     description: "The skill vocabulary shared by jobs and resumes.",
+  },
+  {
+    href: "/ai-interview",
+    label: "AI interview",
+    icon: Bot,
+    description: "How many questions each AI interview asks, and of which types.",
   },
 ];

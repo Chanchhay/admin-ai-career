@@ -25,11 +25,11 @@
    * Workspace surface. A rail and a single rounded panel float on the canvas;
    * inside the panel everything is a soft card, never a bordered table row.
    */
-  --ws-canvas: #e8e8ea;
+  --ws-canvas: #edf1f7;
   --ws-panel: #ffffff;
-  --ws-card: #f5f5f6;
-  --ws-card-hover: #ececee;
-  --ws-line: #e5e5e8;
+  --ws-card: #f7f8fa;
+  --ws-card-hover: #eff1f4;
+  --ws-line: #e7e9ee;
   --ws-fg: #18191c;
   --ws-muted: #6e6e74;
   --ws-faint: #a6a6ad;

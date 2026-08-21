@@ -31,6 +31,7 @@ export const baseApi = createApi({
     "JobCategories",
     "Skills",
     "Jobs",
+    "AiInterviewConfig",
   ],
   endpoints: () => ({}),
 });
