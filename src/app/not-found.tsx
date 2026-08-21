@@ -1,30 +1,28 @@
 import Link from "next/link";
 import { Compass } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Panel } from "@/components/workspace/primitives";
 
 export default function NotFound() {
   return (
-    <div className="surface-card flex flex-col items-center justify-center px-6 py-20 text-center">
-      <span className="flex size-14 items-center justify-center rounded-2xl bg-brand-tint">
-        <Compass aria-hidden="true" className="size-6 text-brand" />
+    <Panel className="flex flex-col items-center justify-center px-6 py-16 text-center">
+      <span className="flex size-14 items-center justify-center rounded-2xl bg-chip-soft text-chip-soft-fg">
+        <Compass aria-hidden="true" className="size-6" />
       </span>
 
-      <h1 className="mt-5 text-lg font-bold text-heading">Page not found</h1>
+      <h1 className="mt-5 text-lg font-bold text-ws-fg">Page not found</h1>
 
-      <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-500">
-        The page you&apos;re looking for doesn&apos;t exist or may have moved.
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-ws-faint">
+        This console only covers company verification, candidate review, and
+        reference data. Everything else lives in the main app.
       </p>
 
+      {/* `basePath` makes this /admin, the console's own overview. */}
       <Link
         href="/"
-        className={cn(
-          "mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-brand px-4 text-sm font-semibold text-white",
-          "transition-colors duration-200 hover:bg-brand-hover",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2",
-        )}
+        className="mt-6 inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-hover"
       >
-        Back to dashboard
+        Back to overview
       </Link>
-    </div>
+    </Panel>
   );
 }
