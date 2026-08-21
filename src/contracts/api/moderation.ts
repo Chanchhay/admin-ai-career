@@ -13,7 +13,6 @@ import type {
   EntityStatus,
   InterviewResult,
   InterviewStatus,
-  Page,
   ProjectStatus,
   VisibilityStatus,
 } from "./common";
@@ -215,17 +214,28 @@ export type HumanInterviewCompleteRequest = {
 /* ----------------------------------------------------------- envelopes --- */
 
 export type ApiResponsePageModeratorCompanyListItem = ApiResponse<
-  Page<ModeratorCompanyListItem>
+  CompactPagePayload<ModeratorCompanyListItem>
 >;
 export type ApiResponseModeratorCompanyDetail =
   ApiResponse<ModeratorCompanyDetailResponse>;
 export type ApiResponseCompanyVerification =
   ApiResponse<CompanyVerificationResponse>;
 export type ApiResponsePageCandidateApplicationListItem = ApiResponse<
-  Page<CandidateApplicationListItem>
+  CompactPagePayload<CandidateApplicationListItem>
 >;
 export type ApiResponseCandidateApplicationDetail =
   ApiResponse<CandidateApplicationDetailResponse>;
 export type ApiResponseCandidateApplicationReview =
   ApiResponse<CandidateApplicationReviewResponse>;
 export type ApiResponseHumanInterview = ApiResponse<HumanInterviewResponse>;
+
+/** Compact pagination DTO returned by the moderator list endpoints. */
+export type CompactPagePayload<T> = {
+  content: T[];
+  page: {
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  };
+};

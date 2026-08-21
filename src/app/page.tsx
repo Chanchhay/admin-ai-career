@@ -95,9 +95,9 @@ export default function OverviewPage() {
             />
             <QueueLink
               href="/applications"
-              label="Candidate applications"
+              label="Moderator results"
               count={pendingApplications.data?.totalElements}
-              caption="Review, interview, and forward to recruiters."
+              caption="View candidate results, interview, and record decisions."
             />
           </div>
         </Panel>

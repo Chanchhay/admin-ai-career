@@ -39,6 +39,41 @@ export type PageParams = {
 
 const DEFAULT_PAGE_SIZE = 12;
 
+function normalizePage<T>(payload: {
+  content: T[];
+  page: {
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  };
+}): Page<T> {
+  const { number, size, totalElements, totalPages } = payload.page;
+  const numberOfElements = payload.content.length;
+  const emptySort = { empty: true, sorted: false, unsorted: true };
+
+  return {
+    content: payload.content,
+    number,
+    size,
+    totalElements,
+    totalPages,
+    numberOfElements,
+    first: number === 0,
+    last: totalPages === 0 || number >= totalPages - 1,
+    empty: numberOfElements === 0,
+    sort: emptySort,
+    pageable: {
+      offset: number * size,
+      paged: true,
+      pageNumber: number,
+      pageSize: size,
+      sort: emptySort,
+      unpaged: false,
+    },
+  };
+}
+
 function pageQuery(params: PageParams | undefined) {
   return {
     page: params?.page ?? 0,
@@ -63,7 +98,7 @@ export const moderationApi = baseApi.injectEndpoints({
         },
       }),
       transformResponse: (response: ApiResponsePageModeratorCompanyListItem) =>
-        unwrapApiResponse(response),
+        normalizePage(unwrapApiResponse(response)),
       providesTags: ["Companies"],
     }),
 
@@ -116,7 +151,7 @@ export const moderationApi = baseApi.injectEndpoints({
       }),
       transformResponse: (
         response: ApiResponsePageCandidateApplicationListItem,
-      ) => unwrapApiResponse(response),
+      ) => normalizePage(unwrapApiResponse(response)),
       providesTags: ["Applications"],
     }),
 
@@ -142,11 +177,20 @@ export const moderationApi = baseApi.injectEndpoints({
         body?: DecisionRequest;
       }
     >({
-      query: ({ applicationId, decision, body }) => ({
-        url: `/moderator/candidate-applications/${applicationId}/${decision}`,
-        method: "POST",
-        body: body ?? {},
-      }),
+      query: ({ applicationId, decision, body }) => {
+        const request: {
+          url: string;
+          method: "POST";
+          body?: DecisionRequest;
+        } = {
+          url: `/moderator/candidate-applications/${applicationId}/${decision}`,
+          method: "POST",
+        };
+
+        // `forward` has no request body in the OpenAPI contract.
+        if (decision !== "forward") request.body = body ?? {};
+        return request;
+      },
       transformResponse: (response: ApiResponseCandidateApplicationReview) =>
         unwrapApiResponse(response),
       invalidatesTags: (_result, _error, { applicationId }) => [
