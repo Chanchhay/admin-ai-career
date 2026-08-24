@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { FolderOpen, Layers, Pencil, Tags, Trash2 } from "lucide-react";
+import { FolderOpen, Layers, Pencil, Tags, Trash2, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { useSetPageHeading } from "@/components/layout/PageHeader";
 import { ErrorState } from "@/components/shared/ErrorState";
@@ -10,26 +10,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Panel, PillTabs } from "@/components/workspace/primitives";
-import type { EntityStatus, IndustryResponse, JobCategoryResponse } from "@/contracts";
+import type {
+  EntityStatus,
+  IndustryResponse,
+  JobCategoryResponse,
+  SkillResponse,
+} from "@/contracts";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";
-import { humanizeEnum } from "@/lib/format";
+import { humanizeEnum, orDash } from "@/lib/format";
 import {
   useCreateIndustryMutation,
   useCreateJobCategoryMutation,
+  useCreateSkillMutation,
   useDeleteIndustryMutation,
   useDeleteJobCategoryMutation,
+  useDeleteSkillMutation,
   useGetIndustriesQuery,
   useGetJobCategoriesQuery,
+  useGetSkillsQuery,
   useUpdateIndustryMutation,
   useUpdateJobCategoryMutation,
+  useUpdateSkillMutation,
 } from "@/services/taxonomyApi";
 
 /**
- * Industries and job categories are two independent taxonomies — a company
- * picks one industry, a job post picks one category — but they are edited by
- * the same person in the same sitting, so they live on one screen with a tab
- * switch instead of two separate nav destinations doing the same thing twice.
+ * Industries, job categories and skills are three independent taxonomies — a
+ * company picks one industry, a job post picks one category, a job or resume
+ * picks any number of skills — but they are edited by the same person in the
+ * same sitting, so they live on one screen with a tab switch instead of
+ * separate nav destinations doing the same thing three times over.
  */
 
 export type TaxonomyField<TForm> = {
@@ -43,17 +53,19 @@ export type TaxonomyField<TForm> = {
 
 type TaxonomyItem = { id: number; name: string };
 
-const TAB_KEYS = ["industries", "jobCategories"] as const;
+const TAB_KEYS = ["industries", "jobCategories", "skills"] as const;
 export type TaxonomyTab = (typeof TAB_KEYS)[number];
 
 const TAB_LABEL: Record<TaxonomyTab, string> = {
   industries: "Industries",
   jobCategories: "Job categories",
+  skills: "Skills",
 };
 
 const labelToTab: Record<string, TaxonomyTab> = {
   Industries: "industries",
   "Job categories": "jobCategories",
+  Skills: "skills",
 };
 
 const TAB_DESCRIPTION: Record<TaxonomyTab, string> = {
@@ -61,10 +73,13 @@ const TAB_DESCRIPTION: Record<TaxonomyTab, string> = {
     "Every company is classified by exactly one industry, so an entry removed here leaves those companies unclassified until a recruiter picks another.",
   jobCategories:
     "Recruiters file each job post under one category, and seekers filter by it. Keep the list short — a category nobody recognises is worse than none.",
+  skills:
+    "One shared vocabulary for job requirements and candidate resumes. Duplicates with different spellings split the matching, so rename rather than add.",
 };
 
 type IndustryForm = { name: string; description: string; status: EntityStatus };
 type JobCategoryForm = { name: string; description: string };
+type SkillForm = { name: string; skillType: string };
 
 const INDUSTRY_FIELDS: readonly TaxonomyField<IndustryForm>[] = [
   { name: "name", label: "Name", required: true, placeholder: "Software" },
@@ -97,8 +112,20 @@ const JOB_CATEGORY_FIELDS: readonly TaxonomyField<JobCategoryForm>[] = [
   },
 ];
 
+const SKILL_FIELDS: readonly TaxonomyField<SkillForm>[] = [
+  { name: "name", label: "Name", required: true, placeholder: "TypeScript" },
+  { name: "skillType", label: "Type", placeholder: "TECHNICAL" },
+];
+
 const EMPTY_INDUSTRY: IndustryForm = { name: "", description: "", status: "ACTIVE" };
 const EMPTY_JOB_CATEGORY: JobCategoryForm = { name: "", description: "" };
+const EMPTY_SKILL: SkillForm = { name: "", skillType: "" };
+
+const ADD_HINT: Record<string, string> = {
+  industry: "Define how companies are grouped.",
+  "job category": "Define how jobs are grouped.",
+  skill: "Define a term jobs and resumes can both reference.",
+};
 
 /** Shape a `<CategoryManager>` needs, regardless of which resource backs it. */
 type ManagerProps<TItem extends TaxonomyItem, TForm extends Record<string, string>> = {
@@ -122,7 +149,7 @@ type ManagerProps<TItem extends TaxonomyItem, TForm extends Record<string, strin
 export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
   useSetPageHeading(
     "Categories",
-    "The industry and job-category vocabulary the rest of the console selects from.",
+    "The industry, job-category and skill vocabulary the rest of the console selects from.",
   );
 
   const [tab, setTab] = useState<TaxonomyTab>(initialTab);
@@ -136,6 +163,11 @@ export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
   const [createJobCategory, createJobCategoryState] = useCreateJobCategoryMutation();
   const [updateJobCategory, updateJobCategoryState] = useUpdateJobCategoryMutation();
   const [deleteJobCategory] = useDeleteJobCategoryMutation();
+
+  const skills = useGetSkillsQuery();
+  const [createSkill, createSkillState] = useCreateSkillMutation();
+  const [updateSkill, updateSkillState] = useUpdateSkillMutation();
+  const [deleteSkill] = useDeleteSkillMutation();
 
   const industryProps: ManagerProps<IndustryResponse, IndustryForm> = {
     items: industries.data,
@@ -178,6 +210,24 @@ export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
     icon: <Tags aria-hidden="true" className="size-4" />,
   };
 
+  const skillProps: ManagerProps<SkillResponse, SkillForm> = {
+    items: skills.data,
+    isLoading: skills.isLoading,
+    isError: skills.isError,
+    refetch: skills.refetch,
+    fields: SKILL_FIELDS,
+    emptyForm: EMPTY_SKILL,
+    toForm: (item) => ({ name: item.name, skillType: item.skillType ?? "" }),
+    renderMeta: (item) => orDash(item.skillType),
+    onCreate: (form) => createSkill(form).unwrap(),
+    onUpdate: (id, form) => updateSkill({ id, body: form }).unwrap(),
+    onDelete: (id) => deleteSkill(id).unwrap(),
+    isSaving: createSkillState.isLoading || updateSkillState.isLoading,
+    singular: "skill",
+    plural: "skills",
+    icon: <Wrench aria-hidden="true" className="size-4" />,
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <Panel tone="soft">
@@ -192,8 +242,10 @@ export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
 
       {tab === "industries" ? (
         <CategoryManager key="industries" {...industryProps} />
-      ) : (
+      ) : tab === "jobCategories" ? (
         <CategoryManager key="jobCategories" {...jobCategoryProps} />
+      ) : (
+        <CategoryManager key="skills" {...skillProps} />
       )}
     </div>
   );
@@ -349,7 +401,7 @@ function CategoryManager<
           </h2>
           <p className="mt-1 text-xs text-ws-faint">
             {editingId === null
-              ? `Define how ${singular === "industry" ? "companies" : "jobs"} are grouped.`
+              ? ADD_HINT[singular] ?? `Define how ${singular} entries are grouped.`
               : "Update this entry — the row updates as soon as you save."}
           </p>
         </header>
