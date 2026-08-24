@@ -10,6 +10,7 @@ import {
   Eye,
   RotateCw,
   Send,
+  Sparkles,
   UsersRound,
   X,
 } from "lucide-react";
@@ -86,26 +87,36 @@ export default function ApplicationsPage() {
   const applications = data?.content ?? [];
 
   return (
-    <div className="flex flex-col gap-5">
-      <Panel tone="soft">
-        <p className="text-sm leading-6">
+    <div className="flex flex-col gap-4 text-sm">
+      <Panel tone="soft" className="flex items-start gap-3 px-5 py-4">
+        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-ws-card/80">
+          <Sparkles aria-hidden="true" className="size-4" />
+        </span>
+        <p className="max-w-5xl text-sm leading-6">
           Candidates reach this queue once their AI interview is done. Approve
           to clear them, schedule a human interview when the AI result is
           borderline, and forward to hand the recruiter the file.
         </p>
       </Panel>
 
-      <Panel>
+      <Panel className="p-4 sm:p-5">
         <PanelHeader
           title="Review queue"
           icon={<UsersRound aria-hidden="true" className="size-5" />}
+          action={
+            data ? (
+              <span className="rounded-full bg-ws-card-hover px-3 py-1 text-xs font-semibold text-ws-muted">
+                {data.totalElements} {data.totalElements === 1 ? "candidate" : "candidates"}
+              </span>
+            ) : null
+          }
         />
 
         <PillTabs
           tabs={TABS}
           value={tab}
           onChange={selectTab}
-          className="mb-4 rounded-full bg-ws-card-hover p-1"
+          className="mb-4 rounded-xl bg-ws-card-hover p-1.5"
         />
 
         {isLoading ? (
@@ -117,9 +128,9 @@ export default function ApplicationsPage() {
             Nothing in {tab.toLowerCase()}.
           </p>
         ) : (
-          <div className="ws-scroll overflow-x-auto">
-            <div className="min-w-[1180px]">
-              <div className="grid grid-cols-[1.35fr_1.35fr_.6fr_.8fr_1fr_1.15fr_2.2fr] gap-3 px-4 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-ws-faint">
+          <div className="ws-scroll overflow-x-auto rounded-xl border border-ws-line/80">
+            <div className="min-w-[1240px]">
+              <div className="grid grid-cols-[1.25fr_1.35fr_.55fr_.8fr_1fr_1.15fr_2.3fr] gap-4 bg-ws-card-hover/70 px-4 py-3 text-xs font-semibold text-ws-muted">
                 <span>Candidate</span>
                 <span>Job</span>
                 <span>AI score</span>
@@ -128,7 +139,7 @@ export default function ApplicationsPage() {
                 <span>Human interview</span>
                 <span>Actions</span>
               </div>
-              <ul className="flex flex-col gap-2">
+              <ul className="divide-y divide-ws-line/80">
                 {applications.map((item) => (
                   <CandidateReviewRow
                     key={item.application.id}
@@ -300,13 +311,13 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
     (latestInterview.status !== "COMPLETED" && latestInterview.status !== "CANCELLED");
 
   return (
-    <li className="rounded-[18px] bg-ws-card-hover px-4 py-3.5">
-      <div className="grid grid-cols-[1.35fr_1.35fr_.6fr_.8fr_1fr_1.15fr_2.2fr] items-center gap-3">
+    <li className="bg-ws-card px-4 py-4 transition-colors hover:bg-ws-card-hover/45">
+      <div className="grid grid-cols-[1.25fr_1.35fr_.55fr_.8fr_1fr_1.15fr_2.3fr] items-center gap-4">
         <span className="min-w-0">
           <span className="block truncate text-sm font-semibold text-ws-fg">
             {orDash(item.candidate?.headline)}
           </span>
-          <span className="block truncate text-xs text-ws-faint">
+          <span className="mt-0.5 block truncate text-sm text-ws-muted">
             {orDash(item.candidate?.currentPosition)}
           </span>
         </span>
@@ -315,7 +326,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
           <span className="block truncate text-sm font-medium text-ws-fg">
             {orDash(item.application.jobTitle)}
           </span>
-          <span className="block truncate text-xs text-ws-faint">
+          <span className="mt-0.5 block truncate text-sm text-ws-muted">
             {formatDateTime(item.application.appliedAt)}
           </span>
         </span>
@@ -338,16 +349,16 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
           {latestInterview ? (
             <span className="flex flex-col items-start gap-1">
               <InterviewStatusChip status={latestInterview.status} />
-              <span className="max-w-full truncate text-[11px] text-ws-faint">
+              <span className="max-w-full truncate text-sm text-ws-muted">
                 {formatDateTime(latestInterview.scheduledAt)}
               </span>
             </span>
           ) : (
-            <span className="text-xs text-ws-faint">Not scheduled</span>
+            <span className="text-sm text-ws-muted">Not scheduled</span>
           )}
         </span>
 
-        <span className="flex flex-wrap gap-1.5">
+        <span className="flex flex-wrap gap-2">
           <ActionButton label="Approve" icon={Check} onClick={approve} disabled={busy} />
           <ActionButton
             label="Reject"
@@ -478,13 +489,13 @@ function ActionLink({
       href={href}
       className={
         primary
-          ? "inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground"
+          ? "inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-hover"
           : tone === "danger"
-            ? "inline-flex items-center gap-1 rounded-full bg-chip-alert px-2.5 py-1.5 text-[11px] font-semibold text-chip-alert-fg"
-            : "inline-flex items-center gap-1 rounded-full bg-ws-card px-2.5 py-1.5 text-[11px] font-semibold text-ws-muted hover:text-ws-fg"
+            ? "inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-chip-alert px-3 py-1.5 text-sm font-semibold text-chip-alert-fg"
+            : "inline-flex min-h-8 items-center gap-1.5 rounded-lg border border-ws-line bg-ws-card px-3 py-1.5 text-sm font-semibold text-ws-muted hover:bg-ws-card-hover hover:text-ws-fg"
       }
     >
-      <Icon aria-hidden="true" className="size-3" />
+      <Icon aria-hidden="true" className="size-3.5" />
       {label}
     </Link>
   );
@@ -510,13 +521,13 @@ function ActionButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex min-h-8 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
         tone === "danger"
-          ? "bg-chip-alert text-chip-alert-fg"
-          : "bg-ws-card text-ws-muted hover:text-ws-fg",
+          ? "border-transparent bg-chip-alert text-chip-alert-fg hover:brightness-95"
+          : "border-ws-line bg-ws-card text-ws-muted hover:bg-ws-card-hover hover:text-ws-fg",
       )}
     >
-      <Icon aria-hidden="true" className="size-3" />
+      <Icon aria-hidden="true" className="size-3.5" />
       {label}
     </button>
   );
