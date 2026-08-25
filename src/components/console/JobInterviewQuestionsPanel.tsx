@@ -182,25 +182,45 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
           {drafts.map((draft, index) => (
             <li
               key={draft.key}
-              className="flex flex-col gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3.5"
+              className="flex flex-col gap-4 rounded-[18px] bg-ws-card-hover px-4 py-4"
             >
-              <div className="flex items-start gap-2">
-                <span className="mt-2.5 w-5 shrink-0 text-sm font-semibold text-ws-faint">
-                  {index + 1}.
+              <div className="flex flex-wrap items-end gap-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-ws-card text-sm font-bold text-ws-muted shadow-sm">
+                  {index + 1}
                 </span>
 
-                <Textarea
-                  value={draft.questionText}
-                  onChange={(event) =>
-                    update(draft.key, { questionText: event.target.value })
-                  }
-                  maxLength={2000}
-                  placeholder="What should the candidate be asked?"
-                  className="min-h-16 flex-1"
-                  aria-label={`Question ${index + 1}`}
-                />
+                <label className="flex min-w-44 flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-ws-muted">Type</span>
+                  <select
+                    value={draft.questionType}
+                    onChange={(event) =>
+                      update(draft.key, { questionType: event.target.value })
+                    }
+                    className="h-11 rounded-md border border-input bg-surface px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+                  >
+                    {set.availableTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {humanizeEnum(type)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-                <div className="flex shrink-0 flex-col gap-1">
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-ws-muted">Points</span>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={draft.maxScore}
+                    onChange={(event) =>
+                      update(draft.key, { maxScore: event.target.value })
+                    }
+                    className="w-24 dark:border-input dark:bg-surface"
+                  />
+                </label>
+
+                <div className="ml-auto flex shrink-0 items-center gap-1 self-end">
                   <IconButton
                     label={`Move question ${index + 1} up`}
                     disabled={index === 0}
@@ -224,41 +244,22 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-end gap-3 pl-7">
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold text-ws-muted">Type</span>
-                  <select
-                    value={draft.questionType}
-                    onChange={(event) =>
-                      update(draft.key, { questionType: event.target.value })
-                    }
-                    className="h-11 rounded-md border border-input bg-surface px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
-                  >
-                    {set.availableTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {humanizeEnum(type)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-ws-muted">Question</span>
+                <Textarea
+                  value={draft.questionText}
+                  onChange={(event) =>
+                    update(draft.key, { questionText: event.target.value })
+                  }
+                  maxLength={2000}
+                  placeholder="What should the candidate be asked?"
+                  className="min-h-20 dark:border-input dark:bg-surface"
+                  aria-label={`Question ${index + 1}`}
+                />
+              </label>
 
+              <div>
                 <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold text-ws-muted">
-                    Points
-                  </span>
-                  <Input
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={draft.maxScore}
-                    onChange={(event) =>
-                      update(draft.key, { maxScore: event.target.value })
-                    }
-                    className="w-24"
-                  />
-                </label>
-
-                <label className="flex min-w-56 flex-1 flex-col gap-1.5">
                   <span className="text-xs font-semibold text-ws-muted">
                     What a good answer covers (optional)
                   </span>
@@ -269,6 +270,7 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
                     }
                     maxLength={2000}
                     placeholder="Used as the scoring rubric"
+                    className="dark:border-input dark:bg-surface"
                   />
                 </label>
               </div>
@@ -278,7 +280,11 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Button variant="outline" onClick={add}>
+        <Button
+          variant="outline"
+          onClick={add}
+          className="dark:border-input dark:bg-surface dark:hover:bg-surface/80"
+        >
           <Plus aria-hidden="true" /> Add question
         </Button>
 

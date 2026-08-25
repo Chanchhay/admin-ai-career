@@ -1,6 +1,5 @@
 /**
- * Reference data is read from `/api/v1/public/{industries,job-categories,skills}`
- * and changed through `/api/v1/admin/**`.
+ * Reference data is read and changed through `/api/v1/admin/**`.
  *
  * All three resources expose the same list / create / update / delete shape, so
  * the console drives them from one screen; the endpoints stay separate because
@@ -28,7 +27,7 @@ export const taxonomyApi = baseApi.injectEndpoints({
     /* -------------------------------------------------------- industries --- */
 
     getIndustries: builder.query<IndustryResponse[], void>({
-      query: () => "/public/industries",
+      query: () => "/admin/industries",
       transformResponse: (response: ApiResponseListIndustry) =>
         unwrapApiResponse(response),
       providesTags: ["Industries"],
@@ -60,7 +59,7 @@ export const taxonomyApi = baseApi.injectEndpoints({
     /* ---------------------------------------------------- job categories --- */
 
     getJobCategories: builder.query<JobCategoryResponse[], void>({
-      query: () => "/public/job-categories",
+      query: () => "/admin/job-categories",
       transformResponse: (response: ApiResponseListJobCategory) =>
         unwrapApiResponse(response),
       providesTags: ["JobCategories"],
@@ -92,7 +91,7 @@ export const taxonomyApi = baseApi.injectEndpoints({
     /* ------------------------------------------------------------ skills --- */
 
     getSkills: builder.query<SkillResponse[], void>({
-      query: () => "/public/skills",
+      query: () => "/admin/skills",
       transformResponse: (response: ApiResponseListSkill) =>
         unwrapApiResponse(response),
       providesTags: ["Skills"],
