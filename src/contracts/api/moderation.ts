@@ -23,6 +23,12 @@ import type {
  * The list row. Deliberately narrower than the detail's `company` — the queue
  * shows identity and status only, and the full record costs a second call.
  */
+/**
+ * Whether candidates are told who a company is. Set by an administrator; the
+ * recruiter can read it but not change it.
+ */
+export type CompanyIdentityVisibility = "VISIBLE" | "MASKED";
+
 export type ModeratorCompanyListItem = {
   id: number;
   recruiterProfileId: number;
@@ -34,6 +40,7 @@ export type ModeratorCompanyListItem = {
   businessRegistrationNo: string;
   verificationStatus: CompanyVerificationStatus;
   status: EntityStatus;
+  identityVisibility: CompanyIdentityVisibility;
 };
 
 export type ModeratorCompany = {
@@ -51,6 +58,7 @@ export type ModeratorCompany = {
   businessRegistrationNo: string;
   verificationStatus: CompanyVerificationStatus;
   status: EntityStatus;
+  identityVisibility: CompanyIdentityVisibility;
 };
 
 export type CompanyDocumentResponse = {
@@ -239,3 +247,19 @@ export type CompactPagePayload<T> = {
     totalPages: number;
   };
 };
+
+/**
+ * Platform rules for applying — `/api/v1/admin/application-settings`.
+ *
+ * `reapplyCooldownDays` is how long a rejected candidate must wait before
+ * applying to the same job again. Zero switches it off, which is the default.
+ * Withdrawing is not subject to it.
+ */
+export type ApplicationSettingsResponse = {
+  reapplyCooldownDays: number;
+};
+
+export type ApplicationSettingsRequest = ApplicationSettingsResponse;
+
+export type ApiResponseApplicationSettings =
+  ApiResponse<ApplicationSettingsResponse>;

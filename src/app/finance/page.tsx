@@ -6,6 +6,7 @@ import { ChevronRight, Percent, ReceiptText, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { InvoiceStatusChip } from "@/components/console/InvoiceStatusChip";
 import { Pager } from "@/components/console/Pager";
+import { ReadyToBillPanel } from "@/components/finance/ReadyToBillPanel";
 import { useSetPageHeading } from "@/components/layout/PageHeader";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
@@ -53,6 +54,8 @@ export default function FinancePage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <ReadyToBillPanel />
+
       <SettingsPanel />
 
       <Panel>
@@ -77,7 +80,7 @@ export default function FinancePage() {
           <ErrorState message="Unable to load invoices." onRetry={refetch} />
         ) : invoices.length === 0 ? (
           <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            No invoices here. Bill a company from its confirmed hires.
+            No invoices here. Draft one from a company in Ready to bill above.
           </p>
         ) : (
           <ul className="flex flex-col gap-2">

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import type { NotificationResponse } from "@/contracts";
-import { useNotificationStream } from "@/hooks/useNotificationStream";
+import { useLiveUpdates } from "@/hooks/useLiveUpdates";
 import {
   useDeleteNotificationMutation,
   useGetNotificationsQuery,
@@ -32,7 +32,7 @@ export function NotificationBell({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useNotificationStream(true);
+  useLiveUpdates(true);
 
   const unread = useGetUnreadCountQuery();
   // The list is only fetched while the panel is open — the badge alone does not

@@ -7,11 +7,15 @@
  */
 
 import type {
+  ApiResponseApplicationSettings,
+  ApplicationSettingsRequest,
+  ApplicationSettingsResponse,
   ApiResponseCandidateApplicationDetail,
   ApiResponseCandidateApplicationReview,
   ApiResponseCompanyVerification,
   ApiResponseHumanInterview,
   ApiResponseModeratorCompanyDetail,
+  CompanyIdentityVisibility,
   ApiResponsePageCandidateApplicationListItem,
   ApiResponsePageModeratorCompanyListItem,
   CandidateApplicationDetailResponse,
@@ -49,6 +53,27 @@ function pageQuery(params: PageParams | undefined) {
 
 export const moderationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    /* ------------------------------------------- application settings --- */
+
+    getApplicationSettings: builder.query<ApplicationSettingsResponse, void>({
+      query: () => "/admin/application-settings",
+      transformResponse: (response: ApiResponseApplicationSettings) =>
+        unwrapApiResponse(response),
+      providesTags: ["ApplicationSettings"],
+    }),
+    updateApplicationSettings: builder.mutation<
+      ApplicationSettingsResponse,
+      ApplicationSettingsRequest
+    >({
+      query: (body) => ({
+        url: "/admin/application-settings",
+        method: "PUT",
+        body,
+      }),
+      transformResponse: (response: ApiResponseApplicationSettings) =>
+        unwrapApiResponse(response),
+      invalidatesTags: ["ApplicationSettings"],
+    }),
     /* --------------------------------------------------------- companies --- */
 
     getCompanies: builder.query<
@@ -98,6 +123,30 @@ export const moderationApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { companyId }) => [
         "Companies",
         { type: "CompanyDetail", id: companyId },
+      ],
+    }),
+
+    /**
+     * Shows or hides a company's identity from candidates.
+     *
+     * Invalidates the public job caches as well: masking changes what every one
+     * of that company's listings says, and the console renders those too.
+     */
+    setCompanyIdentityVisibility: builder.mutation<
+      ModeratorCompanyDetailResponse,
+      { companyId: number; visibility: CompanyIdentityVisibility }
+    >({
+      query: ({ companyId, visibility }) => ({
+        url: `/moderator/companies/${companyId}/identity-visibility`,
+        method: "PATCH",
+        body: { visibility },
+      }),
+      transformResponse: (response: ApiResponseModeratorCompanyDetail) =>
+        unwrapApiResponse(response),
+      invalidatesTags: (_result, _error, { companyId }) => [
+        "Companies",
+        { type: "CompanyDetail", id: companyId },
+        "Jobs",
       ],
     }),
 
@@ -240,6 +289,7 @@ export const moderationApi = baseApi.injectEndpoints({
 
 export const {
   useGetCompaniesQuery,
+  useSetCompanyIdentityVisibilityMutation,
   useGetCompanyQuery,
   useDecideCompanyMutation,
   useGetApplicationsQuery,
@@ -249,4 +299,6 @@ export const {
   useRescheduleHumanInterviewMutation,
   useCompleteHumanInterviewMutation,
   useCancelHumanInterviewMutation,
+  useGetApplicationSettingsQuery,
+  useUpdateApplicationSettingsMutation,
 } = moderationApi;

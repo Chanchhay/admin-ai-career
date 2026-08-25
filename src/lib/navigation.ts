@@ -1,5 +1,6 @@
 import {
   Bot,
+  Cpu,
   Building2,
   BriefcaseBusiness,
   ClipboardCheck,
@@ -88,5 +89,11 @@ export const adminNavigation: NavigationItem[] = [
     label: "AI interview",
     icon: Bot,
     description: "How many questions each AI interview asks, and of which types.",
+  },
+  {
+    href: "/ai-engine",
+    label: "AI engine",
+    icon: Cpu,
+    description: "The model, API key and tuning every AI feature runs on.",
   },
 ];
