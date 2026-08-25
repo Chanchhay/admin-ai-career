@@ -24,6 +24,22 @@ export type PageableObject = {
   unpaged: boolean;
 };
 
+/**
+ * What a paged endpoint actually sends: the API sets
+ * `pageSerializationMode = VIA_DTO`, so metadata is nested under `page`.
+ */
+export type PagedModel<T> = {
+  content: T[];
+  page: {
+    size: number;
+    /** Zero-based, as Spring numbers pages. */
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  };
+};
+
+/** The flattened shape the screens read, produced by `normalizePage`. */
 export type Page<T> = {
   totalElements: number;
   totalPages: number;

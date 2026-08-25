@@ -8,6 +8,7 @@ import {
   PageHeadingProvider,
   usePageHeading,
 } from "@/components/layout/PageHeader";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { adminNavigation, type NavigationItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -137,6 +138,21 @@ function TopBar({ title }: { title: string }) {
       </h1>
 
       <div className="ml-auto flex items-center gap-2">
+        {/*
+          * The console's own route prefixes. The inbox is shared with the
+          * candidate and recruiter app, so notifications aimed at those roles
+          * render as text rather than as links this app cannot serve. Role
+          * targeting means the two sets never actually collide in one inbox.
+          */}
+        <NotificationBell pathPrefixes={[
+            "/companies",
+            "/applications",
+            "/jobs",
+            "/users",
+            "/messages",
+            "/hires",
+            "/finance",
+          ]} />
         <ThemeToggle className="size-10 rounded-full bg-ws-card text-ws-muted hover:bg-ws-card-hover hover:text-ws-fg" />
         <Account />
       </div>
