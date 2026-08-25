@@ -1,3 +1,4 @@
+export * from "./api/ai-provider";
 export * from "./api/auth";
 export * from "./api/common";
 export * from "./api/interview-config";

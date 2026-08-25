@@ -15,6 +15,7 @@ import type {
   ApiResponseCompanyVerification,
   ApiResponseHumanInterview,
   ApiResponseModeratorCompanyDetail,
+  CompanyIdentityVisibility,
   ApiResponsePageCandidateApplicationListItem,
   ApiResponsePageModeratorCompanyListItem,
   CandidateApplicationDetailResponse,
@@ -122,6 +123,30 @@ export const moderationApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { companyId }) => [
         "Companies",
         { type: "CompanyDetail", id: companyId },
+      ],
+    }),
+
+    /**
+     * Shows or hides a company's identity from candidates.
+     *
+     * Invalidates the public job caches as well: masking changes what every one
+     * of that company's listings says, and the console renders those too.
+     */
+    setCompanyIdentityVisibility: builder.mutation<
+      ModeratorCompanyDetailResponse,
+      { companyId: number; visibility: CompanyIdentityVisibility }
+    >({
+      query: ({ companyId, visibility }) => ({
+        url: `/moderator/companies/${companyId}/identity-visibility`,
+        method: "PATCH",
+        body: { visibility },
+      }),
+      transformResponse: (response: ApiResponseModeratorCompanyDetail) =>
+        unwrapApiResponse(response),
+      invalidatesTags: (_result, _error, { companyId }) => [
+        "Companies",
+        { type: "CompanyDetail", id: companyId },
+        "Jobs",
       ],
     }),
 
@@ -264,6 +289,7 @@ export const moderationApi = baseApi.injectEndpoints({
 
 export const {
   useGetCompaniesQuery,
+  useSetCompanyIdentityVisibilityMutation,
   useGetCompanyQuery,
   useDecideCompanyMutation,
   useGetApplicationsQuery,

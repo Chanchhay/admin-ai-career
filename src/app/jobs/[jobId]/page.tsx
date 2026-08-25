@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { use } from "react";
 import { ArrowLeft, BriefcaseBusiness, Building2, MapPin } from "lucide-react";
+import { JobInterviewQuestionsPanel } from "@/components/console/JobInterviewQuestionsPanel";
 import { useSetPageHeading } from "@/components/layout/PageHeader";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
@@ -52,6 +53,7 @@ export default function JobDetailPage({ params }: PageProps<"/jobs/[jobId]">) {
             <PanelHeader title="Description" />
             <p className="whitespace-pre-wrap text-sm leading-7 text-ws-muted">{orDash(job.description)}</p>
           </Panel>
+          <JobInterviewQuestionsPanel jobId={id} />
           {sections.map((section) => (
             <Panel key={section.id}>
               <PanelHeader title={section.title || humanizeEnum(section.sectionType)} />

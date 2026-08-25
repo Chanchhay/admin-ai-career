@@ -9,6 +9,9 @@ import type {
   AiInterviewConfigRequest,
   AiInterviewConfigResponse,
   ApiResponseAiInterviewConfig,
+  ApiResponseJobInterviewQuestionSet,
+  JobInterviewQuestionSetRequest,
+  JobInterviewQuestionSetResponse,
 } from "@/contracts";
 import { baseApi, unwrapApiResponse } from "./baseApi";
 
@@ -33,10 +36,38 @@ export const interviewConfigApi = baseApi.injectEndpoints({
         unwrapApiResponse(response),
       invalidatesTags: ["AiInterviewConfig"],
     }),
+
+    /* ------------------- hand-written questions for one job --------------- */
+
+    getJobInterviewQuestions: builder.query<JobInterviewQuestionSetResponse, number>({
+      query: (jobId) => `/admin/jobs/${jobId}/interview-questions`,
+      transformResponse: (response: ApiResponseJobInterviewQuestionSet) =>
+        unwrapApiResponse(response),
+      providesTags: (_result, _error, jobId) => [
+        { type: "JobInterviewQuestions", id: jobId },
+      ],
+    }),
+    saveJobInterviewQuestions: builder.mutation<
+      JobInterviewQuestionSetResponse,
+      { jobId: number; body: JobInterviewQuestionSetRequest }
+    >({
+      query: ({ jobId, body }) => ({
+        url: `/admin/jobs/${jobId}/interview-questions`,
+        method: "PUT",
+        body,
+      }),
+      transformResponse: (response: ApiResponseJobInterviewQuestionSet) =>
+        unwrapApiResponse(response),
+      invalidatesTags: (_result, _error, { jobId }) => [
+        { type: "JobInterviewQuestions", id: jobId },
+      ],
+    }),
   }),
 });
 
 export const {
+  useGetJobInterviewQuestionsQuery,
+  useSaveJobInterviewQuestionsMutation,
   useGetAiInterviewConfigQuery,
   useUpdateAiInterviewConfigMutation,
 } = interviewConfigApi;

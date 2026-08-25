@@ -18,6 +18,7 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { CompanyIdentityPanel } from "@/components/console/CompanyIdentityPanel";
 import { BillCompanyPanel } from "@/components/finance/BillCompanyPanel";
 import { StartConversation } from "@/components/messages/StartConversation";
 import { Chip, GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
@@ -114,6 +115,12 @@ export default function CompanyDetailPage() {
           <Field label="Profile status" value={humanizeEnum(company.status)} />
         </dl>
       </Panel>
+
+      <CompanyIdentityPanel
+        companyId={id}
+        companyName={company.name}
+        visibility={company.identityVisibility}
+      />
 
       <Panel>
         <PanelHeader

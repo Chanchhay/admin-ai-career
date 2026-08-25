@@ -68,6 +68,8 @@ export const baseApi = createApi({
     "Skills",
     "Jobs",
     "AiInterviewConfig",
+    "JobInterviewQuestions",
+    "AiProviderConfig",
     "Users",
     "UserDetail",
     "HiringRecords",

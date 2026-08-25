@@ -36,3 +36,54 @@ export type AiInterviewConfigRequest = {
 };
 
 export type ApiResponseAiInterviewConfig = ApiResponse<AiInterviewConfigResponse>;
+
+/* --------------------------- hand-written job interview questions --------- */
+
+/**
+ * What a job's hand-written questions do to AI generation. Only consulted once
+ * the job actually has written questions.
+ */
+export type ManualQuestionMode = "MANUAL_ONLY" | "MANUAL_PLUS_AI";
+
+export type JobInterviewQuestionResponse = {
+  id: number;
+  displayOrder: number;
+  questionType: InterviewQuestionType;
+  questionText: string;
+  expectedAnswer: string | null;
+  maxScore: number;
+};
+
+/**
+ * A job's written questions plus the numbers needed to explain what will
+ * actually be asked. `generatedQuestionCount` is what the AI would add, given
+ * this set and mode — the backend works it out so the editor and the interview
+ * cannot disagree.
+ */
+export type JobInterviewQuestionSetResponse = {
+  jobId: number;
+  jobTitle: string;
+  mode: ManualQuestionMode;
+  targetQuestionCount: number;
+  defaultMaxScore: number;
+  generatedQuestionCount: number;
+  availableTypes: InterviewQuestionType[];
+  questions: JobInterviewQuestionResponse[];
+};
+
+/** `id` updates a question in place; null adds one. Omissions are deletions. */
+export type JobInterviewQuestionRequest = {
+  id: number | null;
+  questionText: string;
+  questionType: InterviewQuestionType;
+  expectedAnswer?: string;
+  maxScore?: number;
+};
+
+export type JobInterviewQuestionSetRequest = {
+  mode: ManualQuestionMode;
+  questions: JobInterviewQuestionRequest[];
+};
+
+export type ApiResponseJobInterviewQuestionSet =
+  ApiResponse<JobInterviewQuestionSetResponse>;
