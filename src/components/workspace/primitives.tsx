@@ -1,20 +1,36 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * The console's whole accent range. Emphasis comes from weight, not hue:
- * `solid` is the brand green, `soft` its tint, `quiet` a neutral. `alert` is
- * the one non-brand fill and exists only so a rejection reads as one.
+ * Chip range — small fills only. `solid` is the brand primary, `soft` the
+ * secondary surface, `quiet` a step below it, `alert` the one error fill. All
+ * flat and fully opaque: no gradients, and no brand tint at low alpha. The
+ * brand earns attention at this size; at panel size it shouts, which is what
+ * `NoteFill` is for.
  */
 export type Tone = "solid" | "soft" | "quiet" | "alert";
 
-const toneFill: Record<Tone, string> = {
+/**
+ * Note-card fills, kept separate from the chips on purpose: a note card is a
+ * big block of colour and must not be the brand green.
+ */
+export type NoteFill = "warm" | "cool" | "plain";
+
+export const toneFill: Record<Tone, string> = {
   solid: "bg-chip-solid text-chip-solid-fg",
   soft: "bg-chip-soft text-chip-soft-fg",
   quiet: "bg-chip-quiet text-chip-quiet-fg",
   alert: "bg-chip-alert text-chip-alert-fg",
+};
+
+/** The note fills, as the custom property the notched panel paints with. */
+const noteVar: Record<NoteFill, string> = {
+  warm: "[--panel-fill:var(--note-warm)] text-note-warm-fg",
+  cool: "[--panel-fill:var(--note-cool)] text-note-cool-fg",
+  plain: "[--panel-fill:var(--ws-card)] text-ws-fg",
 };
 
 export function Chip({
@@ -29,7 +45,7 @@ export function Chip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold",
+        "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold",
         toneFill[tone],
         className,
       )}
@@ -76,7 +92,7 @@ export function Panel({
   return (
     <section
       className={cn(
-        "rounded-2xl border border-ws-line/80 p-5 shadow-[0_1px_2px_rgba(24,25,28,0.025)]",
+        "rounded-[2rem] p-5",
         tone ? toneFill[tone] : "bg-ws-card text-ws-fg",
         className,
       )}
@@ -120,7 +136,10 @@ export function PillTabs<T extends string>({
 }) {
   return (
     <div
-      className={cn("ws-scroll flex items-center gap-1.5 overflow-x-auto", className)}
+      className={cn(
+        "ws-scroll flex items-center gap-1.5 overflow-x-auto",
+        className,
+      )}
     >
       {tabs.map((tab) => (
         <button
@@ -129,15 +148,178 @@ export function PillTabs<T extends string>({
           onClick={() => onChange(tab)}
           aria-pressed={value === tab}
           className={cn(
-            "shrink-0 rounded-lg px-4 py-2 text-[13px] font-semibold transition-all",
+            "shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors",
             value === tab
-              ? "bg-ws-panel text-ws-fg shadow-sm"
-              : "text-ws-faint hover:bg-ws-panel/60 hover:text-ws-fg",
+              ? "bg-ws-panel text-ws-fg"
+              : "text-ws-faint hover:text-ws-fg",
           )}
         >
           {tab}
         </button>
       ))}
     </div>
+  );
+}
+
+/**
+ * A panel whose top-right corner is cut away, with the header's round actions
+ * living in the cut. The title sits in the short strip beside it; everything
+ * else goes in the body below, which runs the panel's full width.
+ */
+export function NotchedPanel({
+  fill = "plain",
+  title,
+  icon,
+  actions,
+  className,
+  children,
+}: {
+  /** The card's block of colour; never a brand tone. */
+  fill?: NoteFill;
+  title: string;
+  icon?: ReactNode;
+  /** Round controls, rendered on the sheet inside the cut. */
+  actions?: ReactNode;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className={cn("ws-notch flex flex-col", noteVar[fill], className)}>
+      <header className="ws-notch__top flex shrink-0 items-center gap-2 px-5">
+        {icon}
+        <h2 className="truncate text-[15px] font-semibold tracking-tight">
+          {title}
+        </h2>
+      </header>
+
+      <span aria-hidden="true" className="ws-notch__joint" />
+
+      <div className="ws-notch__body flex-1 px-5 pb-5 pt-3">{children}</div>
+
+      {actions ? <div className="ws-notch__actions">{actions}</div> : null}
+    </section>
+  );
+}
+
+/**
+ * Tabs cut from the same sheet as the panel they open: the active one keeps its
+ * feet on the card below and fillets into it on both sides, the rest stay flat
+ * against the background. Render this directly above the panel it belongs to.
+ */
+export function FolderTabs<T extends string>({
+  tabs,
+  value,
+  onChange,
+  aside,
+}: {
+  tabs: readonly T[];
+  value: T;
+  onChange: (tab: T) => void;
+  /** Optional trailing note, kept clear of the tabs themselves. */
+  aside?: ReactNode;
+}) {
+  return (
+    <div className="flex items-end gap-3">
+      {/* The left pad lives on the scroller so the active tab's fillet has room
+          inside the scroll box — outside it, overflow would clip it away. */}
+      <div className="ws-scroll flex items-end gap-4 overflow-x-auto pl-12 pr-4 pt-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => onChange(tab)}
+            aria-pressed={value === tab}
+            className={cn(
+              "shrink-0 px-4 text-[13px] font-semibold transition-colors",
+              value === tab
+                ? "ws-foldertab pb-3 pt-2.5 text-ws-fg"
+                : "rounded-full py-2 text-ws-faint hover:bg-ws-card hover:text-ws-fg",
+            )}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {aside ? (
+        <span className="ml-auto hidden shrink-0 pb-3 pr-2 text-xs text-ws-faint sm:block">
+          {aside}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Pipeline bar: filled segments sized by share, with the remainder hatched so
+ * an empty queue still reads as a track rather than a broken progress bar.
+ */
+export function PipelineTrack({
+  segments,
+  restLabel,
+}: {
+  segments: { label: string; count: number; tone: Tone }[];
+  restLabel: string;
+}) {
+  const filled = segments.reduce((sum, segment) => sum + segment.count, 0);
+  const total = Math.max(filled, 1);
+
+  return (
+    <div className="flex flex-wrap items-stretch gap-2 sm:flex-nowrap">
+      {segments
+        .filter((segment) => segment.count > 0)
+        .map((segment) => (
+          <div
+            key={segment.label}
+            style={{ flexGrow: segment.count / total }}
+            className={cn(
+              "flex min-w-fit items-center justify-between gap-3 rounded-full px-5 py-3 text-[13px] font-semibold",
+              toneFill[segment.tone],
+            )}
+          >
+            <span className="truncate">{segment.label}</span>
+            <span className="tabular-nums opacity-70">{segment.count}</span>
+          </div>
+        ))}
+
+      <div className="ws-track-rest flex min-w-fit grow items-center justify-end rounded-full px-5 py-3 text-[13px] font-medium text-ws-faint">
+        {restLabel}
+      </div>
+    </div>
+  );
+}
+
+/** Round icon control used in panel headers — a link when given an href. */
+export function IconAction({
+  label,
+  href,
+  onClick,
+  className,
+  children,
+}: {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  className?: string;
+  children: ReactNode;
+}) {
+  const classes = cn(
+    "flex size-9 items-center justify-center rounded-full opacity-60 transition-all hover:bg-current/10 hover:opacity-100",
+    className,
+  );
+
+  return href ? (
+    <Link href={href} aria-label={label} className={classes}>
+      {children}
+    </Link>
+  ) : (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className={classes}
+    >
+      {children}
+    </button>
   );
 }
