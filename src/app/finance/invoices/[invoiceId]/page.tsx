@@ -90,7 +90,22 @@ export default function InvoiceDetailPage() {
         <InvoiceActions invoice={data} />
       </Panel>
 
-      {data.status !== "DRAFT" && data.status !== "CANCELLED" ? (
+      {/*
+        * A draft owes nothing, so there is nothing to pay against it yet — but
+        * saying so beats the panel simply not being there, which reads as a
+        * missing feature.
+        */}
+      {data.status === "DRAFT" ? (
+        <Panel>
+          <PanelHeader
+            title="Payments"
+            icon={<Wallet aria-hidden="true" className="size-5" />}
+          />
+          <p className="text-sm text-ws-faint">
+            Issue this invoice to record payments against it.
+          </p>
+        </Panel>
+      ) : data.status !== "CANCELLED" ? (
         <PaymentsPanel invoice={data} />
       ) : null}
     </div>

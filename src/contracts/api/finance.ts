@@ -43,6 +43,22 @@ export type CommissionRecordResponse = {
   invoiceNo: string | null;
 };
 
+/**
+ * A company holding commissions no invoice has picked up yet.
+ *
+ * One row per company *and* currency: an invoice carries a single currency, so
+ * two currencies mean two separate bills.
+ */
+export type BillableCompanyResponse = {
+  companyId: number;
+  companyName: string;
+  commissionCount: number;
+  totalAmount: number;
+  currency: string;
+  /** Earliest due date in the pool, or null if none of them carry one. */
+  oldestDueAt: string | null;
+};
+
 export type HiringRecordResponse = {
   id: number;
   applicationId: number;
@@ -149,4 +165,7 @@ export type ApiResponsePageCommission = ApiResponse<
   PagedModel<CommissionRecordResponse>
 >;
 export type ApiResponseListCommission = ApiResponse<CommissionRecordResponse[]>;
+export type ApiResponseListBillableCompany = ApiResponse<
+  BillableCompanyResponse[]
+>;
 export type ApiResponseFinanceSettings = ApiResponse<FinanceSettingsResponse>;

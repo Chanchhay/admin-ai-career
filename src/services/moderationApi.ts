@@ -7,6 +7,9 @@
  */
 
 import type {
+  ApiResponseApplicationSettings,
+  ApplicationSettingsRequest,
+  ApplicationSettingsResponse,
   ApiResponseCandidateApplicationDetail,
   ApiResponseCandidateApplicationReview,
   ApiResponseCompanyVerification,
@@ -49,6 +52,27 @@ function pageQuery(params: PageParams | undefined) {
 
 export const moderationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    /* ------------------------------------------- application settings --- */
+
+    getApplicationSettings: builder.query<ApplicationSettingsResponse, void>({
+      query: () => "/admin/application-settings",
+      transformResponse: (response: ApiResponseApplicationSettings) =>
+        unwrapApiResponse(response),
+      providesTags: ["ApplicationSettings"],
+    }),
+    updateApplicationSettings: builder.mutation<
+      ApplicationSettingsResponse,
+      ApplicationSettingsRequest
+    >({
+      query: (body) => ({
+        url: "/admin/application-settings",
+        method: "PUT",
+        body,
+      }),
+      transformResponse: (response: ApiResponseApplicationSettings) =>
+        unwrapApiResponse(response),
+      invalidatesTags: ["ApplicationSettings"],
+    }),
     /* --------------------------------------------------------- companies --- */
 
     getCompanies: builder.query<
@@ -249,4 +273,6 @@ export const {
   useRescheduleHumanInterviewMutation,
   useCompleteHumanInterviewMutation,
   useCancelHumanInterviewMutation,
+  useGetApplicationSettingsQuery,
+  useUpdateApplicationSettingsMutation,
 } = moderationApi;

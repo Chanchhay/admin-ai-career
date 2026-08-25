@@ -61,6 +61,7 @@ export const baseApi = createApi({
     "Companies",
     "CompanyDetail",
     "Applications",
+    "ApplicationSettings",
     "ApplicationDetail",
     "Industries",
     "JobCategories",

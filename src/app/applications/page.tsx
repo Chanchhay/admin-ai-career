@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Pager } from "@/components/console/Pager";
+import { ReapplyCooldownPanel } from "@/components/console/ReapplyCooldownPanel";
 import {
   InterviewStatusChip,
   ResultChip,
@@ -88,6 +89,8 @@ export default function ApplicationsPage() {
 
   return (
     <div className="flex flex-col gap-4 text-sm">
+      <ReapplyCooldownPanel />
+
       <Panel tone="soft" className="flex items-start gap-3 px-5 py-4">
         <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-ws-card/80">
           <Sparkles aria-hidden="true" className="size-4" />

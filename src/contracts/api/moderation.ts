@@ -239,3 +239,19 @@ export type CompactPagePayload<T> = {
     totalPages: number;
   };
 };
+
+/**
+ * Platform rules for applying — `/api/v1/admin/application-settings`.
+ *
+ * `reapplyCooldownDays` is how long a rejected candidate must wait before
+ * applying to the same job again. Zero switches it off, which is the default.
+ * Withdrawing is not subject to it.
+ */
+export type ApplicationSettingsResponse = {
+  reapplyCooldownDays: number;
+};
+
+export type ApplicationSettingsRequest = ApplicationSettingsResponse;
+
+export type ApiResponseApplicationSettings =
+  ApiResponse<ApplicationSettingsResponse>;

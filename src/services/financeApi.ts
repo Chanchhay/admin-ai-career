@@ -9,11 +9,13 @@
 
 import type {
   ApiResponseFinanceSettings,
+  ApiResponseListBillableCompany,
   ApiResponseHiringRecord,
   ApiResponseInvoice,
   ApiResponseListCommission,
   ApiResponsePageCommission,
   ApiResponsePageHiringRecord,
+  BillableCompanyResponse,
   ApiResponsePageInvoice,
   CommissionRecordResponse,
   CreateInvoiceRequest,
@@ -97,6 +99,19 @@ export const financeApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: ApiResponsePageCommission) =>
         normalizePage(unwrapApiResponse(response)),
+      providesTags: ["Commissions"],
+    }),
+    /**
+     * Every company with something billable — the finance desk's entry point.
+     *
+     * Shares the `Commissions` tag with the per-company pool, so creating or
+     * cancelling an invoice moves a company on and off this list without any
+     * extra invalidation.
+     */
+    getBillableCompanies: builder.query<BillableCompanyResponse[], void>({
+      query: () => "/finance/billable-companies",
+      transformResponse: (response: ApiResponseListBillableCompany) =>
+        unwrapApiResponse(response),
       providesTags: ["Commissions"],
     }),
     getUnbilledCommissions: builder.query<CommissionRecordResponse[], number>({
@@ -206,6 +221,7 @@ export const {
   useConfirmHireMutation,
   useRejectHireMutation,
   useGetCommissionsQuery,
+  useGetBillableCompaniesQuery,
   useGetUnbilledCommissionsQuery,
   useGetInvoicesQuery,
   useGetInvoiceQuery,
