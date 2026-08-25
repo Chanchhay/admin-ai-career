@@ -87,3 +87,20 @@
   --chip-alert: color-mix(in oklab, var(--error) 20%, #1c1c1e);
   --chip-alert-fg: color-mix(in oklab, var(--error) 68%, #ffffff);
 }
+
+/* Recruiter chrome uses a white accent against the charcoal workspace. */
+.ws-shell--recruiter {
+  --primary: #ffffff;
+  --primary-hover: #e5e7eb;
+  --primary-tint: #f3f4f6;
+  --primary-foreground: #151517;
+  --chip-soft: #f3f4f6;
+  --chip-soft-fg: #374151;
+}
+
+.dark .ws-shell--recruiter {
+  --primary-hover: #f3f4f6;
+  --primary-tint: #242427;
+  --chip-soft: #2a2a2d;
+  --chip-soft-fg: #f4f4f5;
+}

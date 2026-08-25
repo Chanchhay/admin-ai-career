@@ -135,7 +135,7 @@ export default function TalentDiscoveryPage() {
                     Clear Filters
                   </Button>
                 )}
-                <Button type="submit" size="sm" className="h-9 rounded-lg bg-brand px-5 text-white">
+                <Button type="submit" size="sm" className="h-9 rounded-lg bg-brand px-5 text-primary-foreground">
                   <Filter className="mr-1.5 size-3.5" />
                   Filter Candidates
                 </Button>
@@ -190,7 +190,7 @@ export default function TalentDiscoveryPage() {
                       )}
                       {talent.expectedSalaryMin || talent.expectedSalaryMax ? (
                         <span className="flex items-center gap-1">
-                          <DollarSign className="size-3.5 text-emerald-600" />
+                          <DollarSign className="size-3.5 text-slate-400" />
                           {formatSalaryRange(
                             talent.expectedSalaryMin,
                             talent.expectedSalaryMax,
