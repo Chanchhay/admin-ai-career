@@ -79,21 +79,9 @@ export const adminNavigation: NavigationItem[] = [
   },
   {
     href: "/industries",
-    label: "Industries",
+    label: "Categories",
     icon: Layers,
-    description: "The industry list companies are classified by.",
-  },
-  {
-    href: "/job-categories",
-    label: "Job categories",
-    icon: Tags,
-    description: "The categories recruiters file job posts under.",
-  },
-  {
-    href: "/skills",
-    label: "Skills",
-    icon: Wrench,
-    description: "The skill vocabulary shared by jobs and resumes.",
+    description: "The industry, job-category and skill vocabulary companies, jobs, and resumes draw from.",
   },
   {
     href: "/ai-interview",

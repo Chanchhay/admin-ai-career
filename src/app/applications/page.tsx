@@ -10,9 +10,11 @@ import {
   Eye,
   RotateCw,
   Send,
+  Sparkles,
   UsersRound,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Pager } from "@/components/console/Pager";
 import {
   InterviewStatusChip,
@@ -22,15 +24,25 @@ import {
 import { useSetPageHeading } from "@/components/layout/PageHeader";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Panel, PanelHeader, PillTabs } from "@/components/workspace/primitives";
 import type {
   CandidateApplicationListItem,
   CandidateApplicationReviewStatus,
+  InterviewResult,
 } from "@/contracts";
-import { formatDateTime, orDash } from "@/lib/format";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { formatDateTime, orDash, toInstant } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import {
+  useCancelHumanInterviewMutation,
+  useCompleteHumanInterviewMutation,
+  useDecideApplicationMutation,
   useGetApplicationQuery,
   useGetApplicationsQuery,
+  useRescheduleHumanInterviewMutation,
+  useScheduleHumanInterviewMutation,
 } from "@/services/moderationApi";
 
 const TABS = [
@@ -75,26 +87,36 @@ export default function ApplicationsPage() {
   const applications = data?.content ?? [];
 
   return (
-    <div className="flex flex-col gap-5">
-      <Panel tone="soft">
-        <p className="text-sm leading-6">
+    <div className="flex flex-col gap-4 text-sm">
+      <Panel tone="soft" className="flex items-start gap-3 px-5 py-4">
+        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-ws-card/80">
+          <Sparkles aria-hidden="true" className="size-4" />
+        </span>
+        <p className="max-w-5xl text-sm leading-6">
           Candidates reach this queue once their AI interview is done. Approve
           to clear them, schedule a human interview when the AI result is
           borderline, and forward to hand the recruiter the file.
         </p>
       </Panel>
 
-      <Panel>
+      <Panel className="p-4 sm:p-5">
         <PanelHeader
           title="Review queue"
           icon={<UsersRound aria-hidden="true" className="size-5" />}
+          action={
+            data ? (
+              <span className="rounded-full bg-ws-card-hover px-3 py-1 text-xs font-semibold text-ws-muted">
+                {data.totalElements} {data.totalElements === 1 ? "candidate" : "candidates"}
+              </span>
+            ) : null
+          }
         />
 
         <PillTabs
           tabs={TABS}
           value={tab}
           onChange={selectTab}
-          className="mb-4 rounded-full bg-ws-card-hover p-1"
+          className="mb-4 rounded-xl bg-ws-card-hover p-1.5"
         />
 
         {isLoading ? (
@@ -106,9 +128,9 @@ export default function ApplicationsPage() {
             Nothing in {tab.toLowerCase()}.
           </p>
         ) : (
-          <div className="ws-scroll overflow-x-auto">
-            <div className="min-w-[1180px]">
-              <div className="grid grid-cols-[1.35fr_1.35fr_.6fr_.8fr_1fr_1.15fr_2.2fr] gap-3 px-4 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-ws-faint">
+          <div className="ws-scroll overflow-x-auto rounded-xl border border-ws-line/80">
+            <div className="min-w-[1240px]">
+              <div className="grid grid-cols-[1.25fr_1.35fr_.55fr_.8fr_1fr_1.15fr_2.3fr] gap-4 bg-ws-card-hover/70 px-4 py-3 text-xs font-semibold text-ws-muted">
                 <span>Candidate</span>
                 <span>Job</span>
                 <span>AI score</span>
@@ -117,7 +139,7 @@ export default function ApplicationsPage() {
                 <span>Human interview</span>
                 <span>Actions</span>
               </div>
-              <ul className="flex flex-col gap-2">
+              <ul className="divide-y divide-ws-line/80">
                 {applications.map((item) => (
                   <CandidateReviewRow
                     key={item.application.id}
@@ -142,79 +164,309 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
   const interviews = detail?.humanInterviews ?? [];
   const latestInterview = interviews.at(-1);
   const detailHref = `/applications/${applicationId}`;
+  const candidateName = orDash(item.candidate?.headline);
+
+  const [decide, { isLoading: isDeciding }] = useDecideApplicationMutation();
+  const [scheduleInterview, { isLoading: isScheduling }] =
+    useScheduleHumanInterviewMutation();
+  const [rescheduleInterview, { isLoading: isRescheduling }] =
+    useRescheduleHumanInterviewMutation();
+  const [completeInterview, { isLoading: isCompleting }] =
+    useCompleteHumanInterviewMutation();
+  const [cancelInterview, { isLoading: isCancelling }] =
+    useCancelHumanInterviewMutation();
+  const busy =
+    isDeciding || isScheduling || isRescheduling || isCompleting || isCancelling;
+
+  const [panel, setPanel] = useState<"schedule" | "reschedule" | "complete" | null>(
+    null,
+  );
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [meetingUrl, setMeetingUrl] = useState("");
+
+  const approve = async () => {
+    if (!window.confirm(`Approve ${candidateName}?`)) return;
+    try {
+      await decide({ applicationId, decision: "approve" }).unwrap();
+      toast.success("Application approved.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Unable to approve this application."));
+    }
+  };
+
+  const reject = async () => {
+    const note = window.prompt(`Why is ${candidateName} being rejected?`);
+    if (note === null) return;
+    if (!note.trim()) {
+      toast.error("A rejection note is required.");
+      return;
+    }
+    try {
+      await decide({
+        applicationId,
+        decision: "reject",
+        body: { decisionNote: note.trim() },
+      }).unwrap();
+      toast.success("Application rejected.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Unable to reject this application."));
+    }
+  };
+
+  const forward = async () => {
+    if (!window.confirm(`Forward ${candidateName} to the recruiter?`)) return;
+    try {
+      await decide({ applicationId, decision: "forward" }).unwrap();
+      toast.success("Application forwarded.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Unable to forward this application."));
+    }
+  };
+
+  const cancel = async () => {
+    if (!latestInterview) return;
+    if (!window.confirm("Cancel this interview?")) return;
+    try {
+      await cancelInterview({
+        interviewId: latestInterview.id,
+        applicationId,
+      }).unwrap();
+      toast.success("Interview cancelled.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Unable to cancel the interview."));
+    }
+  };
+
+  const openSchedule = () => {
+    setScheduledAt("");
+    setMeetingUrl("");
+    setPanel("schedule");
+  };
+
+  const openReschedule = () => {
+    if (!latestInterview) return;
+    const parsed = new Date(latestInterview.scheduledAt);
+    const localValue = Number.isNaN(parsed.getTime())
+      ? ""
+      : new Date(parsed.getTime() - parsed.getTimezoneOffset() * 60_000)
+          .toISOString()
+          .slice(0, 16);
+    setScheduledAt(localValue);
+    setMeetingUrl(latestInterview.meetingUrl ?? "");
+    setPanel("reschedule");
+  };
+
+  const saveInterview = async () => {
+    if (!scheduledAt || !meetingUrl.trim()) {
+      toast.error("A date and a meeting link are both required.");
+      return;
+    }
+
+    const body = { scheduledAt: toInstant(scheduledAt), meetingUrl: meetingUrl.trim() };
+
+    try {
+      if (panel === "schedule") {
+        await scheduleInterview({ applicationId, body }).unwrap();
+        toast.success("Interview scheduled.");
+      } else if (panel === "reschedule" && latestInterview) {
+        await rescheduleInterview({
+          interviewId: latestInterview.id,
+          applicationId,
+          body,
+        }).unwrap();
+        toast.success("Interview rescheduled.");
+      }
+      setPanel(null);
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(
+          error,
+          panel === "schedule"
+            ? "Unable to schedule the interview."
+            : "Unable to reschedule the interview.",
+        ),
+      );
+    }
+  };
+
+  const finish = async (result: InterviewResult) => {
+    if (!latestInterview) return;
+    try {
+      await completeInterview({
+        interviewId: latestInterview.id,
+        applicationId,
+        body: { result },
+      }).unwrap();
+      toast.success(
+        `Interview marked ${result === "NEEDS_REVIEW" ? "needs review" : result.toLowerCase()}.`,
+      );
+      setPanel(null);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Unable to complete the interview."));
+    }
+  };
+
+  const interviewOpen =
+    !latestInterview ||
+    (latestInterview.status !== "COMPLETED" && latestInterview.status !== "CANCELLED");
 
   return (
-    <li className="grid grid-cols-[1.35fr_1.35fr_.6fr_.8fr_1fr_1.15fr_2.2fr] items-center gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3.5">
-      <span className="min-w-0">
-        <span className="block truncate text-sm font-semibold text-ws-fg">
-          {orDash(item.candidate?.headline)}
-        </span>
-        <span className="block truncate text-xs text-ws-faint">
-          {orDash(item.candidate?.currentPosition)}
-        </span>
-      </span>
-
-      <span className="min-w-0">
-        <span className="block truncate text-sm font-medium text-ws-fg">
-          {orDash(item.application.jobTitle)}
-        </span>
-        <span className="block truncate text-xs text-ws-faint">
-          {formatDateTime(item.application.appliedAt)}
-        </span>
-      </span>
-
-      <span className="text-sm font-bold tabular-nums text-ws-fg">
-        {isLoading ? "…" : (aiFeedback?.overallScore ?? "—")}
-      </span>
-
-      <span>{aiFeedback ? <ResultChip result={aiFeedback.result} /> : "—"}</span>
-
-      <span>
-        {item.review ? (
-          <ReviewStatusChip status={item.review.reviewStatus} />
-        ) : (
-          "—"
-        )}
-      </span>
-
-      <span className="min-w-0">
-        {latestInterview ? (
-          <span className="flex flex-col items-start gap-1">
-            <InterviewStatusChip status={latestInterview.status} />
-            <span className="max-w-full truncate text-[11px] text-ws-faint">
-              {formatDateTime(latestInterview.scheduledAt)}
-            </span>
+    <li className="bg-ws-card px-4 py-4 transition-colors hover:bg-ws-card-hover/45">
+      <div className="grid grid-cols-[1.25fr_1.35fr_.55fr_.8fr_1fr_1.15fr_2.3fr] items-center gap-4">
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-semibold text-ws-fg">
+            {orDash(item.candidate?.headline)}
           </span>
-        ) : (
-          <span className="text-xs text-ws-faint">Not scheduled</span>
-        )}
-      </span>
+          <span className="mt-0.5 block truncate text-sm text-ws-muted">
+            {orDash(item.candidate?.currentPosition)}
+          </span>
+        </span>
 
-      <span className="flex flex-wrap gap-1.5">
-        <ActionLink href={detailHref} label="Approve" icon={Check} />
-        <ActionLink href={detailHref} label="Reject" icon={X} tone="danger" />
-        <ActionLink href={detailHref} label="Forward" icon={Send} />
-        {!latestInterview ? (
-          <ActionLink
-            href={detailHref}
-            label="Schedule interview"
-            icon={CalendarClock}
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-medium text-ws-fg">
+            {orDash(item.application.jobTitle)}
+          </span>
+          <span className="mt-0.5 block truncate text-sm text-ws-muted">
+            {formatDateTime(item.application.appliedAt)}
+          </span>
+        </span>
+
+        <span className="text-sm font-bold tabular-nums text-ws-fg">
+          {isLoading ? "…" : (aiFeedback?.overallScore ?? "—")}
+        </span>
+
+        <span>{aiFeedback ? <ResultChip result={aiFeedback.result} /> : "—"}</span>
+
+        <span>
+          {item.review ? (
+            <ReviewStatusChip status={item.review.reviewStatus} />
+          ) : (
+            "—"
+          )}
+        </span>
+
+        <span className="min-w-0">
+          {latestInterview ? (
+            <span className="flex flex-col items-start gap-1">
+              <InterviewStatusChip status={latestInterview.status} />
+              <span className="max-w-full truncate text-sm text-ws-muted">
+                {formatDateTime(latestInterview.scheduledAt)}
+              </span>
+            </span>
+          ) : (
+            <span className="text-sm text-ws-muted">Not scheduled</span>
+          )}
+        </span>
+
+        <span className="flex flex-wrap gap-2">
+          <ActionButton label="Approve" icon={Check} onClick={approve} disabled={busy} />
+          <ActionButton
+            label="Reject"
+            icon={X}
+            tone="danger"
+            onClick={reject}
+            disabled={busy}
           />
-        ) : latestInterview.status !== "COMPLETED" &&
-          latestInterview.status !== "CANCELLED" ? (
-          <>
-            <ActionLink href={detailHref} label="Reschedule" icon={RotateCw} />
-            <ActionLink href={detailHref} label="Complete" icon={CircleCheck} />
-            <ActionLink
-              href={detailHref}
-              label="Cancel"
-              icon={X}
-              tone="danger"
+          <ActionButton label="Forward" icon={Send} onClick={forward} disabled={busy} />
+          {!latestInterview ? (
+            <ActionButton
+              label="Schedule interview"
+              icon={CalendarClock}
+              onClick={openSchedule}
+              disabled={busy}
             />
-          </>
-        ) : null}
-        <ActionLink href={detailHref} label="View details" icon={Eye} primary />
-      </span>
+          ) : interviewOpen ? (
+            <>
+              <ActionButton
+                label="Reschedule"
+                icon={RotateCw}
+                onClick={openReschedule}
+                disabled={busy}
+              />
+              <ActionButton
+                label="Complete"
+                icon={CircleCheck}
+                onClick={() => setPanel("complete")}
+                disabled={busy}
+              />
+              <ActionButton
+                label="Cancel"
+                icon={X}
+                tone="danger"
+                onClick={cancel}
+                disabled={busy}
+              />
+            </>
+          ) : null}
+          <ActionLink href={detailHref} label="View details" icon={Eye} primary />
+        </span>
+      </div>
+
+      {panel === "schedule" || panel === "reschedule" ? (
+        <div className="mt-3 grid gap-3 rounded-[16px] bg-ws-card p-3 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+            {panel === "schedule" ? "When (your local time)" : "New date and time"}
+            <Input
+              type="datetime-local"
+              value={scheduledAt}
+              onChange={(event) => setScheduledAt(event.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+            Meeting link
+            <Input
+              type="url"
+              value={meetingUrl}
+              onChange={(event) => setMeetingUrl(event.target.value)}
+              placeholder="https://meet.example.com/abc-defg"
+            />
+          </label>
+          <div className="flex gap-2 sm:col-span-2">
+            <Button size="sm" disabled={busy} onClick={() => void saveInterview()}>
+              {panel === "schedule" ? "Schedule" : "Save new time"}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={busy}
+              onClick={() => setPanel(null)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ) : panel === "complete" ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[16px] bg-ws-card p-3">
+          <span className="text-xs font-medium text-ws-muted">Mark interview as</span>
+          <Button size="sm" disabled={busy} onClick={() => void finish("PASSED")}>
+            Passed
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={busy}
+            onClick={() => void finish("NEEDS_REVIEW")}
+          >
+            Needs review
+          </Button>
+          <Button
+            size="sm"
+            variant="destructive"
+            disabled={busy}
+            onClick={() => void finish("FAILED")}
+          >
+            Failed
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={busy}
+            onClick={() => setPanel(null)}
+          >
+            Cancel
+          </Button>
+        </div>
+      ) : null}
     </li>
   );
 }
@@ -237,14 +489,46 @@ function ActionLink({
       href={href}
       className={
         primary
-          ? "inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground"
+          ? "inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-hover"
           : tone === "danger"
-            ? "inline-flex items-center gap-1 rounded-full bg-chip-alert px-2.5 py-1.5 text-[11px] font-semibold text-chip-alert-fg"
-            : "inline-flex items-center gap-1 rounded-full bg-ws-card px-2.5 py-1.5 text-[11px] font-semibold text-ws-muted hover:text-ws-fg"
+            ? "inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-chip-alert px-3 py-1.5 text-sm font-semibold text-chip-alert-fg"
+            : "inline-flex min-h-8 items-center gap-1.5 rounded-lg border border-ws-line bg-ws-card px-3 py-1.5 text-sm font-semibold text-ws-muted hover:bg-ws-card-hover hover:text-ws-fg"
       }
     >
-      <Icon aria-hidden="true" className="size-3" />
+      <Icon aria-hidden="true" className="size-3.5" />
       {label}
     </Link>
+  );
+}
+
+/** Same shape as `ActionLink`, but fires a mutation instead of navigating. */
+function ActionButton({
+  label,
+  icon: Icon,
+  onClick,
+  disabled,
+  tone,
+}: {
+  label: string;
+  icon: typeof ChevronRight;
+  onClick: () => void;
+  disabled?: boolean;
+  tone?: "danger";
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "inline-flex min-h-8 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        tone === "danger"
+          ? "border-transparent bg-chip-alert text-chip-alert-fg hover:brightness-95"
+          : "border-ws-line bg-ws-card text-ws-muted hover:bg-ws-card-hover hover:text-ws-fg",
+      )}
+    >
+      <Icon aria-hidden="true" className="size-3.5" />
+      {label}
+    </button>
   );
 }

@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Building2, Layers, Tags, UsersRound, Wrench } from "lucide-react";
+import {
+  Building2,
+  CircleCheck,
+  CircleX,
+  Layers,
+  Tags,
+  UsersRound,
+  Wrench,
+} from "lucide-react";
 import { StatTile } from "@/components/console/StatTile";
 import { useSetPageHeading } from "@/components/layout/PageHeader";
 import { Panel, PanelHeader } from "@/components/workspace/primitives";
@@ -38,6 +46,14 @@ export default function OverviewPage() {
     status: "HUMAN_INTERVIEW_SCHEDULED",
     ...countOnly,
   });
+  const passedApplications = useGetApplicationsQuery({
+    status: "APPROVED",
+    ...countOnly,
+  });
+  const failedApplications = useGetApplicationsQuery({
+    status: "REJECTED",
+    ...countOnly,
+  });
 
   const industries = useGetIndustriesQuery();
   const jobCategories = useGetJobCategoriesQuery();
@@ -53,7 +69,7 @@ export default function OverviewPage() {
         </p>
       </Panel>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <StatTile
           label="Companies pending"
           value={pendingCompanies.data?.totalElements}
@@ -78,6 +94,18 @@ export default function OverviewPage() {
           hint="Human interview booked"
           icon={<UsersRound aria-hidden="true" className="size-4" />}
         />
+        <StatTile
+          label="Candidates passed"
+          value={passedApplications.data?.totalElements}
+          hint="Applications approved for a job"
+          icon={<CircleCheck aria-hidden="true" className="size-4" />}
+        />
+        <StatTile
+          label="Candidates failed"
+          value={failedApplications.data?.totalElements}
+          hint="Applications rejected for a job"
+          icon={<CircleX aria-hidden="true" className="size-4" />}
+        />
       </section>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -98,6 +126,20 @@ export default function OverviewPage() {
               label="Moderator results"
               count={pendingApplications.data?.totalElements}
               caption="View candidate results, interview, and record decisions."
+            />
+            <QueueLink
+              href="/applications"
+              label="Candidates passed"
+              count={passedApplications.data?.totalElements}
+              caption="Applications approved for their job."
+              icon={<CircleCheck aria-hidden="true" className="size-4" />}
+            />
+            <QueueLink
+              href="/applications"
+              label="Candidates failed"
+              count={failedApplications.data?.totalElements}
+              caption="Applications rejected for their job."
+              icon={<CircleX aria-hidden="true" className="size-4" />}
             />
           </div>
         </Panel>
