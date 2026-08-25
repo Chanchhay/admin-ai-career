@@ -286,15 +286,20 @@
     background: white !important;
   }
 
-  aside[aria-label="Workspace navigation"],
-  nav[aria-label="Workspace navigation"],
+  aside[aria-label="Console navigation"],
+  nav[aria-label="Console navigation"],
   .ws-panel > header {
     display: none !important;
   }
 
+  /* The shell pins itself to the viewport on screen; on paper it has to grow
+     to the full document instead, or everything past the first screen is lost. */
+  .ws-shell,
   .ws-panel,
   .ws-scroll,
   main {
+    height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
     border-radius: 0 !important;
   }
