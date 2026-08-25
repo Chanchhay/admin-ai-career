@@ -67,6 +67,11 @@
   --color-chip-alert: var(--chip-alert);
   --color-chip-alert-fg: var(--chip-alert-fg);
 
+  --color-note-warm: var(--note-warm);
+  --color-note-warm-fg: var(--note-warm-fg);
+  --color-note-cool: var(--note-cool);
+  --color-note-cool-fg: var(--note-cool-fg);
+
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
@@ -255,6 +260,124 @@
   /* Workspace panel: one flat rounded sheet. */
   .ws-panel {
     background: var(--ws-panel);
+  }
+
+  /*
+   * Notched panel. The top-right corner is scooped out of the fill so the
+   * header's round actions sit in the gap, on the sheet, instead of crowding
+   * the card. The shape is three flat blocks — a short top strip, the body,
+   * and one square whose rounded corner carves the concave joint between them
+   * — so nothing here is a gradient or a mask, just fills meeting at arcs.
+   */
+  .ws-notch {
+    /*
+     * The cut has to clear the actions AND the fillet, not just the actions:
+     * two 2.25rem circles plus their gap need 5.25rem, the fillet swings
+     * --notch-r further in from the strip's edge, and the rest is the breathing
+     * room between the two. Size it to the buttons alone and the fillet grows
+     * out underneath the first one.
+     */
+    --notch-w: 7.25rem;
+    --notch-h: 3.25rem;
+    --notch-r: 1.5rem;
+    --panel-r: 2rem;
+    position: relative;
+  }
+
+  .ws-notch__top {
+    width: calc(100% - var(--notch-w));
+    height: var(--notch-h);
+    background: var(--panel-fill);
+    border-radius: var(--panel-r) var(--notch-r) 0 0;
+  }
+
+  .ws-notch__body {
+    background: var(--panel-fill);
+    border-radius: 0 var(--panel-r) var(--panel-r) var(--panel-r);
+  }
+
+  /*
+   * The reflex corner where the top strip's right edge meets the body, filled
+   * so the two surfaces meet on an arc instead of a hard 270° corner.
+   *
+   * The arc is a radial gradient anchored ON the square's top-right corner:
+   * transparent inside the radius, sheet colour outside it. That leaves the
+   * wedge between the two straight edges and the circle, which is tangent to
+   * the strip's right edge and to the body's top edge — so the curve starts
+   * and ends flush instead of stepping.
+   *
+   * border-radius cannot express this. It keeps the quarter-disc INSIDE its
+   * corner circle, which is the complement of the wedge, and renders as a
+   * fin floating above the body rather than a fillet joining it.
+   */
+  .ws-notch__joint {
+    position: absolute;
+    top: calc(var(--notch-h) - var(--notch-r));
+    left: calc(100% - var(--notch-w));
+    width: var(--notch-r);
+    height: var(--notch-r);
+    background: radial-gradient(
+      circle var(--notch-r) at 100% 0,
+      transparent 0 var(--notch-r),
+      var(--panel-fill) calc(var(--notch-r) + 0.5px)
+    );
+  }
+
+  /* Centred in the cut rather than pinned to its top edge. */
+  .ws-notch__actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: var(--notch-h);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-right: 0.125rem;
+  }
+
+  /*
+   * Folder tab. The active tab is part of the sheet below it: square feet, and
+   * a quarter-round of the sheet's own fill on either side of its base so the
+   * two surfaces read as one piece of paper rather than a pill above a card.
+   */
+  .ws-foldertab {
+    --tab-r: 0.875rem;
+    position: relative;
+    background: var(--ws-card);
+    border-radius: var(--tab-r) var(--tab-r) 0 0;
+  }
+
+  /*
+   * The feet, filleted the same way as the notch joint: a circle anchored on
+   * the corner of each pad, transparent inside and sheet colour outside, which
+   * leaves the wedge tangent to the tab's edge and to the panel's top. With
+   * border-radius these render as two blobs detached from the tab.
+   */
+  .ws-foldertab::before,
+  .ws-foldertab::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: var(--tab-r);
+    height: var(--tab-r);
+  }
+
+  .ws-foldertab::before {
+    left: calc(-1 * var(--tab-r));
+    background: radial-gradient(
+      circle var(--tab-r) at 0 0,
+      transparent 0 var(--tab-r),
+      var(--ws-card) calc(var(--tab-r) + 0.5px)
+    );
+  }
+
+  .ws-foldertab::after {
+    right: calc(-1 * var(--tab-r));
+    background: radial-gradient(
+      circle var(--tab-r) at 100% 0,
+      transparent 0 var(--tab-r),
+      var(--ws-card) calc(var(--tab-r) + 0.5px)
+    );
   }
 
   /* The unfilled remainder of the pipeline track: hatched, never a hard bar. */

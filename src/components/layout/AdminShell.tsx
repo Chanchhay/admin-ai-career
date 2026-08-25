@@ -74,7 +74,7 @@ function Rail({ pathname }: { pathname: string }) {
       aria-label="Console navigation"
       className="ws-panel hidden h-full w-17 shrink-0 flex-col items-center rounded-[28px] py-5 lg:flex"
     >
-      <span className="flex size-10 items-center justify-center rounded-full bg-primary text-lg font-black text-primary-foreground">
+      <span className="flex size-10 items-center justify-center rounded-full bg-chip-solid text-lg font-black text-chip-solid-fg">
         A
       </span>
 
@@ -93,7 +93,7 @@ function Rail({ pathname }: { pathname: string }) {
         <button
           type="submit"
           aria-label="Sign out"
-          className="group relative flex size-11 items-center justify-center rounded-2xl text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
+          className="group relative flex size-11 items-center justify-center rounded-[18px] text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
         >
           <LogOut aria-hidden="true" className="size-5" />
           <Tooltip>Sign out</Tooltip>
@@ -117,9 +117,9 @@ function RailLink({
       href={link.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group relative flex size-11 items-center justify-center rounded-2xl transition-colors",
+        "group relative flex size-11 items-center justify-center rounded-[18px] transition-colors",
         active
-          ? "bg-primary text-primary-foreground"
+          ? "bg-chip-solid text-chip-solid-fg"
           : "text-ws-faint hover:bg-ws-card hover:text-ws-fg",
       )}
     >
@@ -184,7 +184,7 @@ function Account() {
   return (
     <span
       title={name}
-      className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/15 bg-cover bg-center text-xs font-bold text-primary ring-2 ring-ws-line"
+      className="flex size-10 shrink-0 items-center justify-center rounded-full bg-chip-solid bg-cover bg-center text-xs font-bold text-chip-solid-fg ring-2 ring-ws-line"
       style={avatar ? { backgroundImage: `url("${avatar}")` } : undefined}
     >
       {avatar ? <span className="sr-only">{name}</span> : initials(name)}
@@ -249,7 +249,7 @@ function MobileDock({ pathname }: { pathname: string }) {
             className={cn(
               "flex size-11 shrink-0 items-center justify-center rounded-full transition-colors",
               active
-                ? "bg-primary text-primary-foreground"
+                ? "bg-chip-solid text-chip-solid-fg"
                 : "text-ws-faint hover:text-ws-fg",
             )}
           >
