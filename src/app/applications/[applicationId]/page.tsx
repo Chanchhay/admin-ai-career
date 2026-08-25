@@ -26,6 +26,7 @@ import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { StartConversation } from "@/components/messages/StartConversation";
 import { GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
 import type { HumanInterviewResponse, InterviewResult } from "@/contracts";
 import { getApiErrorMessage } from "@/lib/api-error";
@@ -185,6 +186,11 @@ export default function ApplicationDetailPage() {
       <HumanInterviews
         applicationId={id}
         interviews={data.humanInterviews ?? []}
+      />
+
+      <StartConversation
+        applicationId={id}
+        label="Message candidate"
       />
 
       <Panel>

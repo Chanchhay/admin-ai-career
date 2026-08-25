@@ -18,6 +18,8 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { BillCompanyPanel } from "@/components/finance/BillCompanyPanel";
+import { StartConversation } from "@/components/messages/StartConversation";
 import { Chip, GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { resolveFileUrl } from "@/lib/file-url";
@@ -190,6 +192,10 @@ export default function CompanyDetailPage() {
           </Button>
         </div>
       </Panel>
+
+      <BillCompanyPanel companyId={id} />
+
+      <StartConversation companyId={id} label="Message recruiter" />
 
       <Panel>
         <PanelHeader title={`History (${verificationHistory.length})`} />

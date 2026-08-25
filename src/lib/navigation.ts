@@ -4,7 +4,13 @@ import {
   BriefcaseBusiness,
   ClipboardCheck,
   Layers,
+  HandCoins,
+  MessagesSquare,
+  ReceiptText,
   LayoutGrid,
+  Tags,
+  UsersRound,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 
@@ -46,6 +52,30 @@ export const adminNavigation: NavigationItem[] = [
     label: "Jobs",
     icon: BriefcaseBusiness,
     description: "Browse the jobs currently visible to candidates.",
+  },
+  {
+    href: "/hires",
+    label: "Hires",
+    icon: HandCoins,
+    description: "Confirm the hires recruiters report, which creates commissions.",
+  },
+  {
+    href: "/finance",
+    label: "Finance",
+    icon: ReceiptText,
+    description: "Commissions, invoices, and payments.",
+  },
+  {
+    href: "/messages",
+    label: "Messages",
+    icon: MessagesSquare,
+    description: "Threads you have opened with candidates and recruiters.",
+  },
+  {
+    href: "/users",
+    label: "Users",
+    icon: UsersRound,
+    description: "Platform accounts, their roles, and whether they may sign in.",
   },
   {
     href: "/industries",

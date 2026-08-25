@@ -28,7 +28,7 @@ import type {
   ModeratorCompanyListItem,
   Page,
 } from "@/contracts";
-import { baseApi, unwrapApiResponse } from "./baseApi";
+import { baseApi, normalizePage, unwrapApiResponse } from "./baseApi";
 
 /** Paging shared by both queues; `page` is zero-based, as Spring expects. */
 export type PageParams = {
@@ -38,41 +38,6 @@ export type PageParams = {
 };
 
 const DEFAULT_PAGE_SIZE = 12;
-
-function normalizePage<T>(payload: {
-  content: T[];
-  page: {
-    size: number;
-    number: number;
-    totalElements: number;
-    totalPages: number;
-  };
-}): Page<T> {
-  const { number, size, totalElements, totalPages } = payload.page;
-  const numberOfElements = payload.content.length;
-  const emptySort = { empty: true, sorted: false, unsorted: true };
-
-  return {
-    content: payload.content,
-    number,
-    size,
-    totalElements,
-    totalPages,
-    numberOfElements,
-    first: number === 0,
-    last: totalPages === 0 || number >= totalPages - 1,
-    empty: numberOfElements === 0,
-    sort: emptySort,
-    pageable: {
-      offset: number * size,
-      paged: true,
-      pageNumber: number,
-      pageSize: size,
-      sort: emptySort,
-      unpaged: false,
-    },
-  };
-}
 
 function pageQuery(params: PageParams | undefined) {
   return {
