@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
+  BriefcaseBusiness,
   CalendarClock,
   Check,
   CircleCheck,
@@ -11,6 +12,7 @@ import {
   RotateCw,
   Send,
   Sparkles,
+  UserRound,
   UsersRound,
   X,
 } from "lucide-react";
@@ -102,25 +104,34 @@ export default function ApplicationsPage() {
         </p>
       </Panel>
 
-      <Panel className="p-4 sm:p-5">
-        <PanelHeader
-          title="Review queue"
-          icon={<UsersRound aria-hidden="true" className="size-5" />}
-          action={
-            data ? (
-              <span className="rounded-full bg-ws-card-hover px-3 py-1 text-xs font-semibold text-ws-muted">
-                {data.totalElements} {data.totalElements === 1 ? "candidate" : "candidates"}
-              </span>
-            ) : null
-          }
-        />
+      <Panel className="overflow-hidden border-ws-line/70 p-0 shadow-sm">
+        <div className="border-b border-ws-line/70 bg-gradient-to-r from-primary-tint/80 via-ws-card to-ws-card px-4 py-4 sm:px-6 sm:py-5">
+          <PanelHeader
+            title="Review queue"
+            icon={<UsersRound aria-hidden="true" className="size-5" />}
+            action={
+              data ? (
+                <span className="rounded-full bg-ws-card-hover px-3 py-1 text-xs font-semibold text-ws-muted">
+                  {data.totalElements} {data.totalElements === 1 ? "candidate" : "candidates"}
+                </span>
+              ) : null
+            }
+          />
+
+        <p className="mt-1 max-w-2xl text-sm leading-6 text-ws-muted">
+          Review AI assessments, coordinate interviews, and make the final
+          application decision from one place.
+        </p>
 
         <PillTabs
           tabs={TABS}
           value={tab}
           onChange={selectTab}
-          className="mb-4 rounded-xl bg-ws-card-hover p-1.5"
+          className="mt-4 rounded-2xl border border-ws-line/60 bg-ws-card/80 p-1.5 shadow-sm"
         />
+        </div>
+
+        <div className="p-4 sm:p-5">
 
         {isLoading ? (
           <LoadingState rows={5} />
@@ -131,30 +142,15 @@ export default function ApplicationsPage() {
             Nothing in {tab.toLowerCase()}.
           </p>
         ) : (
-          <div className="ws-scroll overflow-x-auto rounded-xl border border-ws-line/80">
-            <div className="min-w-[1240px]">
-              <div className="grid grid-cols-[1.25fr_1.35fr_.55fr_.8fr_1fr_1.15fr_2.3fr] gap-4 bg-ws-card-hover/70 px-4 py-3 text-xs font-semibold text-ws-muted">
-                <span>Candidate</span>
-                <span>Job</span>
-                <span>AI score</span>
-                <span>AI result</span>
-                <span>Application result</span>
-                <span>Human interview</span>
-                <span>Actions</span>
-              </div>
-              <ul className="divide-y divide-ws-line/80">
-                {applications.map((item) => (
-                  <CandidateReviewRow
-                    key={item.application.id}
-                    item={item}
-                  />
-                ))}
-              </ul>
-            </div>
-          </div>
+          <ul className="grid gap-4">
+            {applications.map((item) => (
+              <CandidateReviewRow key={item.application.id} item={item} />
+            ))}
+          </ul>
         )}
 
         {data ? <Pager page={data} onPageChange={setPage} /> : null}
+        </div>
       </Panel>
     </div>
   );
@@ -168,6 +164,11 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
   const latestInterview = interviews.at(-1);
   const detailHref = `/applications/${applicationId}`;
   const candidateName = orDash(item.candidate?.headline);
+  const reviewStatus = item.review?.reviewStatus;
+  const isDecisionFinal =
+    reviewStatus === "APPROVED" || reviewStatus === "REJECTED";
+  const candidateInitial =
+    item.candidate?.headline?.trim().charAt(0).toUpperCase() || "?";
 
   const [decide, { isLoading: isDeciding }] = useDecideApplicationMutation();
   const [scheduleInterview, { isLoading: isScheduling }] =
@@ -314,72 +315,96 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
     (latestInterview.status !== "COMPLETED" && latestInterview.status !== "CANCELLED");
 
   return (
-    <li className="bg-ws-card px-4 py-4 transition-colors hover:bg-ws-card-hover/45">
-      <div className="grid grid-cols-[1.25fr_1.35fr_.55fr_.8fr_1fr_1.15fr_2.3fr] items-center gap-4">
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-semibold text-ws-fg">
-            {orDash(item.candidate?.headline)}
+    <li className="group overflow-hidden rounded-2xl border border-ws-line/80 bg-ws-card shadow-[0_8px_30px_rgba(24,25,28,0.04)] transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-[0_14px_36px_rgba(24,25,28,0.08)]">
+      <div className="flex flex-col gap-4 p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex min-w-0 items-center gap-3.5">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-brand-hover text-base font-bold text-primary-foreground shadow-sm">
+            {candidateInitial}
           </span>
-          <span className="mt-0.5 block truncate text-sm text-ws-muted">
-            {orDash(item.candidate?.currentPosition)}
-          </span>
-        </span>
-
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-medium text-ws-fg">
-            {orDash(item.application.jobTitle)}
-          </span>
-          <span className="mt-0.5 block truncate text-sm text-ws-muted">
-            {formatDateTime(item.application.appliedAt)}
-          </span>
-        </span>
-
-        <span className="text-sm font-bold tabular-nums text-ws-fg">
-          {isLoading ? "…" : (aiFeedback?.overallScore ?? "—")}
-        </span>
-
-        <span>{aiFeedback ? <ResultChip result={aiFeedback.result} /> : "—"}</span>
-
-        <span>
-          {item.review ? (
-            <ReviewStatusChip status={item.review.reviewStatus} />
-          ) : (
-            "—"
-          )}
-        </span>
-
-        <span className="min-w-0">
-          {latestInterview ? (
-            <span className="flex flex-col items-start gap-1">
-              <InterviewStatusChip status={latestInterview.status} />
-              <span className="max-w-full truncate text-sm text-ws-muted">
-                {formatDateTime(latestInterview.scheduledAt)}
-              </span>
+          <span className="min-w-0">
+            <span className="block truncate text-base font-semibold tracking-tight text-ws-fg">
+              {orDash(item.candidate?.headline)}
             </span>
-          ) : (
-            <span className="text-sm text-ws-muted">Not scheduled</span>
-          )}
-        </span>
+            <span className="mt-1.5 flex items-center gap-1.5 truncate text-xs text-ws-muted">
+              <UserRound aria-hidden="true" className="size-3.5 shrink-0" />
+              {orDash(item.candidate?.currentPosition)}
+            </span>
+          </span>
+        </div>
 
-        <span className="flex flex-wrap gap-2">
-          <ActionButton label="Approve" icon={Check} onClick={approve} disabled={busy} />
-          <ActionButton
-            label="Reject"
-            icon={X}
-            tone="danger"
-            onClick={reject}
-            disabled={busy}
-          />
-          <ActionButton label="Forward" icon={Send} onClick={forward} disabled={busy} />
-          {!latestInterview ? (
-            <ActionButton
-              label="Schedule interview"
-              icon={CalendarClock}
-              onClick={openSchedule}
-              disabled={busy}
-            />
-          ) : interviewOpen ? (
+        <div className="flex shrink-0 items-center gap-2 self-start">
+          {item.review ? (
+            <span className="[&>span]:min-h-8 [&>span]:rounded-lg [&>span]:px-3 [&>span]:py-1.5 [&>span]:text-sm">
+              <ReviewStatusChip status={item.review.reviewStatus} />
+            </span>
+          ) : null}
+          <ActionLink href={detailHref} label="View details" icon={Eye} primary />
+        </div>
+      </div>
+
+      <div className="grid border-y border-ws-line/70 bg-ws-card-hover/35 sm:grid-cols-3 sm:divide-x sm:divide-ws-line/70">
+        <div className="flex min-w-0 gap-3 px-5 py-4 sm:px-6">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-ws-card text-ws-muted shadow-sm">
+            <BriefcaseBusiness aria-hidden="true" className="size-4" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-ws-faint">Applied for</span>
+            <span className="mt-1 block truncate text-sm font-semibold text-ws-fg">{orDash(item.application.jobTitle)}</span>
+            <span className="mt-0.5 block truncate text-xs text-ws-muted">{formatDateTime(item.application.appliedAt)}</span>
+          </span>
+        </div>
+
+        <div className="flex gap-3 border-t border-ws-line/70 px-5 py-4 sm:border-t-0 sm:px-6">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-tint text-sm font-bold text-primary">
+            {isLoading ? "…" : (aiFeedback?.overallScore ?? "—")}
+          </span>
+          <span>
+            <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-ws-faint">AI assessment</span>
+            <span className="mt-1.5 block">{aiFeedback ? <ResultChip result={aiFeedback.result} /> : <span className="text-xs text-ws-muted">Awaiting result</span>}</span>
+          </span>
+        </div>
+
+        <div className="flex gap-3 border-t border-ws-line/70 px-5 py-4 sm:border-t-0 sm:px-6">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-ws-card text-ws-muted shadow-sm">
+            <CalendarClock aria-hidden="true" className="size-4" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-ws-faint">Human interview</span>
+            {latestInterview ? (
+              <span className="mt-1 flex flex-wrap items-center gap-2">
+                <InterviewStatusChip status={latestInterview.status} />
+                <span className="text-xs text-ws-muted">{formatDateTime(latestInterview.scheduledAt)}</span>
+              </span>
+            ) : (
+              <span className="mt-1.5 block text-xs text-ws-muted">Not scheduled</span>
+            )}
+          </span>
+        </div>
+      </div>
+
+      {!isDecisionFinal ? (
+        <div className="flex flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+          <span className="text-xs font-medium text-ws-faint">Choose the next step for this application</span>
+          <span className="flex flex-wrap items-center gap-2">
             <>
+              <ActionButton label="Approve" icon={Check} onClick={approve} disabled={busy} />
+              <ActionButton
+                label="Reject"
+                icon={X}
+                tone="danger"
+                onClick={reject}
+                disabled={busy}
+              />
+              <ActionButton label="Forward" icon={Send} onClick={forward} disabled={busy} />
+              {!latestInterview ? (
+                <ActionButton
+                  label="Schedule interview"
+                  icon={CalendarClock}
+                  onClick={openSchedule}
+                  disabled={busy}
+                />
+              ) : interviewOpen ? (
+                <>
               <ActionButton
                 label="Reschedule"
                 icon={RotateCw}
@@ -399,14 +424,15 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
                 onClick={cancel}
                 disabled={busy}
               />
+                </>
+              ) : null}
             </>
-          ) : null}
-          <ActionLink href={detailHref} label="View details" icon={Eye} primary />
-        </span>
-      </div>
+          </span>
+        </div>
+      ) : null}
 
       {panel === "schedule" || panel === "reschedule" ? (
-        <div className="mt-3 grid gap-3 rounded-[16px] bg-ws-card p-3 sm:grid-cols-2">
+        <div className="mx-5 mb-5 grid gap-3 rounded-2xl border border-ws-line/70 bg-ws-card-hover/50 p-4 sm:mx-6 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
             {panel === "schedule" ? "When (your local time)" : "New date and time"}
             <Input
@@ -439,7 +465,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
           </div>
         </div>
       ) : panel === "complete" ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[16px] bg-ws-card p-3">
+        <div className="mx-5 mb-5 flex flex-wrap items-center gap-2 rounded-2xl border border-ws-line/70 bg-ws-card-hover/50 p-4 sm:mx-6">
           <span className="text-xs font-medium text-ws-muted">Mark interview as</span>
           <Button size="sm" disabled={busy} onClick={() => void finish("PASSED")}>
             Passed

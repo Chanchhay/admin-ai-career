@@ -85,6 +85,8 @@ export default function ApplicationDetailPage() {
 
   const { application, candidate, submittedResume, review, aiResult } = data;
   const resumeUrl = resolveFileUrl(submittedResume?.resumeFileUrl);
+  const isDecisionFinal =
+    review?.reviewStatus === "APPROVED" || review?.reviewStatus === "REJECTED";
 
   return (
     <div className="flex flex-col gap-5">
@@ -194,39 +196,61 @@ export default function ApplicationDetailPage() {
       />
 
       <Panel>
-        <PanelHeader title="Decision" />
+        <PanelHeader title={isDecisionFinal ? "Final decision" : "Decision"} />
 
-        <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-          Decision note
-          <Textarea
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-            placeholder="Why this candidate is being approved or turned down."
-          />
-        </label>
+        {isDecisionFinal ? (
+          <div className="flex items-center gap-3 rounded-2xl border border-ws-line/70 bg-ws-card-hover/60 px-4 py-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-ws-card shadow-sm">
+              {review.reviewStatus === "APPROVED" ? (
+                <Check aria-hidden="true" className="size-5 text-primary" />
+              ) : (
+                <X aria-hidden="true" className="size-5 text-destructive" />
+              )}
+            </span>
+            <span>
+              <span className="block text-xs font-medium uppercase tracking-wide text-ws-faint">
+                Application status
+              </span>
+              <span className="mt-1 block">
+                <ReviewStatusChip status={review.reviewStatus} />
+              </span>
+            </span>
+          </div>
+        ) : (
+          <>
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+              Decision note
+              <Textarea
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
+                placeholder="Why this candidate is being approved or turned down."
+              />
+            </label>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Button disabled={isDeciding} onClick={() => void submit("approve")}>
-            <Check aria-hidden="true" className="size-4" />
-            Approve
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={isDeciding}
-            onClick={() => void submit("forward")}
-          >
-            <Send aria-hidden="true" className="size-4" />
-            Forward to recruiter
-          </Button>
-          <Button
-            variant="destructive"
-            disabled={isDeciding}
-            onClick={() => void submit("reject")}
-          >
-            <X aria-hidden="true" className="size-4" />
-            Reject
-          </Button>
-        </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Button disabled={isDeciding} onClick={() => void submit("approve")}>
+                <Check aria-hidden="true" className="size-4" />
+                Approve
+              </Button>
+              <Button
+                variant="secondary"
+                disabled={isDeciding}
+                onClick={() => void submit("forward")}
+              >
+                <Send aria-hidden="true" className="size-4" />
+                Forward to recruiter
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={isDeciding}
+                onClick={() => void submit("reject")}
+              >
+                <X aria-hidden="true" className="size-4" />
+                Reject
+              </Button>
+            </div>
+          </>
+        )}
 
         {review?.decisionNote ? (
           <p className="mt-4 rounded-[18px] bg-ws-card-hover px-4 py-3 text-sm leading-6 text-ws-muted">
