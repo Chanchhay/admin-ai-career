@@ -70,7 +70,14 @@ export default function ApplicationDetailPage() {
             : { decisionNote: note.trim() },
       }).unwrap();
       setNote("");
-      toast.success(`Application ${decision}d.`);
+      // Not `${decision}d`: that reads "rejectd" and "forwardd".
+      toast.success(
+        decision === "approve"
+          ? "Application approved. You can forward it to the recruiter now."
+          : decision === "forward"
+            ? "Forwarded to the recruiter."
+            : "Application rejected.",
+      );
     } catch (error) {
       toast.error(getApiErrorMessage(error, "Unable to record the decision."));
     }
@@ -85,8 +92,19 @@ export default function ApplicationDetailPage() {
 
   const { application, candidate, submittedResume, review, aiResult } = data;
   const resumeUrl = resolveFileUrl(submittedResume?.resumeFileUrl);
-  const isDecisionFinal =
-    review?.reviewStatus === "APPROVED" || review?.reviewStatus === "REJECTED";
+  /*
+   * What the moderator can still do, in the backend's terms.
+   *
+   * Forwarding *requires* an approved review, so treating APPROVED as the end
+   * of the road hid the Forward button at exactly the moment forwarding became
+   * possible — and offering it beforehand only produced "Forwarding requires
+   * moderator approval". The two states are now distinct.
+   */
+  const reviewStatus = review?.reviewStatus;
+  const isApproved = reviewStatus === "APPROVED";
+  const isForwarded = reviewStatus === "FORWARDED";
+  const isRejected = reviewStatus === "REJECTED";
+  const isDecided = isApproved || isForwarded || isRejected;
 
   return (
     <div className="flex flex-col gap-5">
@@ -196,15 +214,15 @@ export default function ApplicationDetailPage() {
       />
 
       <Panel>
-        <PanelHeader title={isDecisionFinal ? "Final decision" : "Decision"} />
+        <PanelHeader title={isRejected || isForwarded ? "Final decision" : "Decision"} />
 
-        {isDecisionFinal ? (
+        {isDecided ? (
           <div className="flex items-center gap-3 rounded-2xl border border-ws-line/70 bg-ws-card-hover/60 px-4 py-4">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-ws-card shadow-sm">
-              {review.reviewStatus === "APPROVED" ? (
-                <Check aria-hidden="true" className="size-5 text-primary" />
-              ) : (
+              {isRejected ? (
                 <X aria-hidden="true" className="size-5 text-destructive" />
+              ) : (
+                <Check aria-hidden="true" className="size-5 text-primary" />
               )}
             </span>
             <span>
@@ -212,11 +230,26 @@ export default function ApplicationDetailPage() {
                 Application status
               </span>
               <span className="mt-1 block">
-                <ReviewStatusChip status={review.reviewStatus} />
+                <ReviewStatusChip status={reviewStatus} />
               </span>
             </span>
           </div>
-        ) : (
+        ) : null}
+
+        {isApproved ? (
+          <div className="mt-3">
+            <p className="mb-3 text-sm text-ws-muted">
+              Approved, and not yet with the recruiter. Forwarding hands them the
+              candidate&rsquo;s resume and AI interview result.
+            </p>
+            <Button disabled={isDeciding} onClick={() => void submit("forward")}>
+              <Send aria-hidden="true" className="size-4" />
+              Forward to recruiter
+            </Button>
+          </div>
+        ) : null}
+
+        {isDecided ? null : (
           <>
             <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
               Decision note
@@ -232,14 +265,11 @@ export default function ApplicationDetailPage() {
                 <Check aria-hidden="true" className="size-4" />
                 Approve
               </Button>
-              <Button
-                variant="secondary"
-                disabled={isDeciding}
-                onClick={() => void submit("forward")}
-              >
-                <Send aria-hidden="true" className="size-4" />
-                Forward to recruiter
-              </Button>
+              {/*
+                * No Forward here: the backend refuses it until the review is
+                * approved, so offering it before then is a button whose only
+                * outcome is an error.
+                */}
               <Button
                 variant="destructive"
                 disabled={isDeciding}
