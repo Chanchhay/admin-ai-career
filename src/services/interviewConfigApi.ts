@@ -9,7 +9,10 @@ import type {
   AiInterviewConfigRequest,
   AiInterviewConfigResponse,
   ApiResponseAiInterviewConfig,
+  ApiResponseGuestInterviewSettings,
   ApiResponseJobInterviewQuestionSet,
+  GuestInterviewSettingsRequest,
+  GuestInterviewSettingsResponse,
   JobInterviewQuestionSetRequest,
   JobInterviewQuestionSetResponse,
 } from "@/contracts";
@@ -35,6 +38,28 @@ export const interviewConfigApi = baseApi.injectEndpoints({
       transformResponse: (response: ApiResponseAiInterviewConfig) =>
         unwrapApiResponse(response),
       invalidatesTags: ["AiInterviewConfig"],
+    }),
+
+    /* ------------------------- guest interview settings ------------------- */
+
+    getGuestInterviewSettings: builder.query<GuestInterviewSettingsResponse, void>({
+      query: () => "/admin/guest-interview-settings",
+      transformResponse: (response: ApiResponseGuestInterviewSettings) =>
+        unwrapApiResponse(response),
+      providesTags: ["GuestInterviewSettings"],
+    }),
+    updateGuestInterviewSettings: builder.mutation<
+      GuestInterviewSettingsResponse,
+      GuestInterviewSettingsRequest
+    >({
+      query: (body) => ({
+        url: "/admin/guest-interview-settings",
+        method: "PUT",
+        body,
+      }),
+      transformResponse: (response: ApiResponseGuestInterviewSettings) =>
+        unwrapApiResponse(response),
+      invalidatesTags: ["GuestInterviewSettings"],
     }),
 
     /* ------------------- hand-written questions for one job --------------- */
@@ -66,6 +91,8 @@ export const interviewConfigApi = baseApi.injectEndpoints({
 });
 
 export const {
+  useGetGuestInterviewSettingsQuery,
+  useUpdateGuestInterviewSettingsMutation,
   useGetJobInterviewQuestionsQuery,
   useSaveJobInterviewQuestionsMutation,
   useGetAiInterviewConfigQuery,

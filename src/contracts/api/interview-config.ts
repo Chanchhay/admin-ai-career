@@ -87,3 +87,26 @@ export type JobInterviewQuestionSetRequest = {
 
 export type ApiResponseJobInterviewQuestionSet =
   ApiResponse<JobInterviewQuestionSetResponse>;
+
+/* ------------------------------- guest (signed-out) interviews ------------ */
+
+/**
+ * Where a guest interview's questions come from. `FOLLOW_JOB` leaves each job's
+ * own manual/AI setting alone; the other two override every job for guests.
+ */
+export type GuestQuestionSource =
+  | "FOLLOW_JOB"
+  | "WRITTEN_ONLY"
+  | "ALWAYS_GENERATE";
+
+export type GuestInterviewSettingsResponse = {
+  enabled: boolean;
+  maxAttemptsPerGuest: number;
+  maxAttemptsPerIpPerDay: number;
+  questionSource: GuestQuestionSource;
+};
+
+export type GuestInterviewSettingsRequest = GuestInterviewSettingsResponse;
+
+export type ApiResponseGuestInterviewSettings =
+  ApiResponse<GuestInterviewSettingsResponse>;

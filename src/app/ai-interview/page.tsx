@@ -9,6 +9,7 @@ import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { GuestInterviewSettingsPanel } from "@/components/console/GuestInterviewSettingsPanel";
 import { GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
 import type { AiInterviewConfigResponse } from "@/contracts";
 import { getApiErrorMessage } from "@/lib/api-error";
@@ -253,6 +254,9 @@ export default function AiInterviewConfigPage() {
           </label>
         </div>
       </Panel>
+
+      <GuestInterviewSettingsPanel />
+
 
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={() => void submit()} disabled={saveState.isLoading}>
