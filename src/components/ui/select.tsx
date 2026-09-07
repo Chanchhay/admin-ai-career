@@ -1,6 +1,7 @@
 "use client";
 
 import { Select as SelectPrimitive } from "@base-ui/react/select";
+import { useSyncExternalStore } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +9,14 @@ export type SelectOption<T extends string | number> = {
   value: T;
   label: string;
 };
+
+function subscribeMobile(callback: () => void) {
+  const media = window.matchMedia("(max-width: 639px)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+const getMobileSnapshot = () => window.matchMedia("(max-width: 639px)").matches;
+const getServerSnapshot = () => false;
 
 /**
  * The console's dropdown.
@@ -26,6 +35,7 @@ export function Select<T extends string | number>({
   className,
   disabled,
   placeholder,
+  mobileDropdownBelow = false,
   "aria-label": ariaLabel,
 }: {
   value: T;
@@ -36,9 +46,12 @@ export function Select<T extends string | number>({
   disabled?: boolean;
   /** Shown when the value matches no option — never as a selectable row. */
   placeholder?: string;
+  mobileDropdownBelow?: boolean;
   "aria-label"?: string;
 }) {
   const selected = options.find((option) => option.value === value);
+  const isMobile = useSyncExternalStore(subscribeMobile, getMobileSnapshot, getServerSnapshot);
+  const below = mobileDropdownBelow && isMobile;
 
   return (
     <SelectPrimitive.Root
@@ -68,6 +81,9 @@ export function Select<T extends string | number>({
 
       <SelectPrimitive.Portal>
         <SelectPrimitive.Positioner
+          side="bottom"
+          align={below ? "start" : undefined}
+          collisionAvoidance={below ? { side: "none", align: "shift" } : undefined}
           sideOffset={6}
           alignItemWithTrigger={false}
           className="z-50 outline-none"
@@ -76,6 +92,7 @@ export function Select<T extends string | number>({
             className={cn(
               "max-h-72 min-w-(--anchor-width) overflow-y-auto rounded-lg border border-ws-line bg-ws-panel p-1 text-ws-fg shadow-(--shadow-dropdown) outline-none",
               "origin-(--transform-origin) transition-[transform,opacity] data-[ending-style]:scale-98 data-[ending-style]:opacity-0 data-[starting-style]:scale-98 data-[starting-style]:opacity-0",
+              below && "w-(--anchor-width) min-w-0 max-w-[calc(100vw-2rem)] max-h-[min(18rem,var(--available-height))]",
             )}
           >
             {options.map((option) => (
@@ -96,7 +113,7 @@ export function Select<T extends string | number>({
                     <Check aria-hidden="true" className="size-4" />
                   </SelectPrimitive.ItemIndicator>
                 </span>
-                <SelectPrimitive.ItemText className="flex-1">
+                <SelectPrimitive.ItemText className={cn("flex-1", below && "min-w-0 whitespace-normal break-words")}>
                   {option.label}
                 </SelectPrimitive.ItemText>
               </SelectPrimitive.Item>

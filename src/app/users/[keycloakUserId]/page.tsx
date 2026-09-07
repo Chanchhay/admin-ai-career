@@ -17,6 +17,7 @@ import {
   PanelHeader,
 } from "@/components/workspace/primitives";
 import type { ManageableRole } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDateTime, humanizeEnum, orDash } from "@/lib/format";
 import {
@@ -35,14 +36,17 @@ const ALL_ROLES: ManageableRole[] = [
 ];
 
 export default function UserDetailPage() {
+  const tx = useWorkspaceTranslation();
   const { keycloakUserId } = useParams<{ keycloakUserId: string }>();
-  useSetPageHeading("Account");
+  useSetPageHeading(tx("Account"));
 
   const { data: user, isLoading, isError, refetch } = useGetUserQuery(keycloakUserId);
 
   if (isLoading) return <LoadingState rows={6} />;
   if (isError || !user) {
-    return <ErrorState message="Unable to load this account." onRetry={refetch} />;
+    return (
+      <ErrorState message={tx("Unable to load this account.")} onRetry={refetch} />
+    );
   }
 
   return (
@@ -51,7 +55,7 @@ export default function UserDetailPage() {
         href="/users"
         className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ws-muted transition-colors hover:text-ws-fg"
       >
-        <ArrowLeft aria-hidden="true" className="size-4" /> All accounts
+        <ArrowLeft aria-hidden="true" className="size-4" /> {tx("All accounts")}
       </Link>
 
       <Panel>
@@ -71,11 +75,11 @@ export default function UserDetailPage() {
           />
           <Row
             label="Email verified"
-            value={user.emailVerified ? "Yes" : "No"}
+            value={user.emailVerified ? tx("Yes") : tx("No")}
           />
           <Row
             label="Sign-in enabled"
-            value={user.enabled ? "Yes" : "No"}
+            value={user.enabled ? tx("Yes") : tx("No")}
           />
           <Row
             label="Created"
@@ -91,26 +95,28 @@ export default function UserDetailPage() {
           * look contradictory.
           */}
         {user.enabled === false && user.status === "ACTIVE" ? (
-          <p className="mt-4 rounded-xl bg-chip-alert px-4 py-3 text-xs text-chip-alert-fg">
-            This user is disabled in Keycloak but has no suspension recorded
-            here. It was most likely changed directly in the Keycloak console.
+          <p className="mt-4 rounded-[18px] bg-chip-alert px-4 py-3 text-xs text-chip-alert-fg">
+            {tx(
+              "This user is disabled in Keycloak but has no suspension recorded here. It was most likely changed directly in the Keycloak console.",
+            )}
           </p>
         ) : null}
 
         {!user.hasLocalAccount ? (
-          <p className="mt-4 rounded-xl bg-ws-card-hover px-4 py-3 text-xs text-ws-muted">
-            No local account row exists yet. One will be created the first time
-            this account is suspended or reactivated.
+          <p className="mt-4 rounded-[18px] bg-ws-card-hover px-4 py-3 text-xs text-ws-muted">
+            {tx(
+              "No local account row exists yet. One will be created the first time this account is suspended or reactivated.",
+            )}
           </p>
         ) : null}
 
         {user.profiles.length > 0 ? (
           <div className="mt-4 flex flex-wrap items-center gap-1.5">
             <span className="text-xs font-semibold text-ws-muted">
-              Profiles
+              {tx("Profiles")}
             </span>
             {user.profiles.map((profile) => (
-              <GhostChip key={profile}>{humanizeEnum(profile)}</GhostChip>
+              <GhostChip key={profile}>{tx(humanizeEnum(profile))}</GhostChip>
             ))}
           </div>
         ) : null}
@@ -142,6 +148,7 @@ function RolesPanel({
   keycloakUserId: string;
   currentRoles: ManageableRole[];
 }) {
+  const tx = useWorkspaceTranslation();
   const [updateRoles, { isLoading }] = useUpdateUserRolesMutation();
   const [selected, setSelected] = useState<ManageableRole[]>(currentRoles);
 
@@ -158,7 +165,7 @@ function RolesPanel({
 
   async function save() {
     if (selected.length === 0) {
-      toast.error("An account must keep at least one role.");
+      toast.error(tx("An account must keep at least one role."));
       return;
     }
 
@@ -167,9 +174,9 @@ function RolesPanel({
         keycloakUserId,
         body: { roles: selected },
       }).unwrap();
-      toast.success("Roles updated.");
+      toast.success(tx("Roles updated."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to update the roles."));
+      toast.error(getApiErrorMessage(error, tx("Unable to update the roles.")));
     }
   }
 
@@ -181,9 +188,9 @@ function RolesPanel({
       />
 
       <p className="mb-4 text-sm text-ws-muted">
-        Roles decide what the account may reach. Revoking one leaves its
-        existing data — a revoked recruiter keeps their companies and jobs, they
-        simply lose access to them.
+        {tx(
+          "Roles decide what the account may reach. Revoking one leaves its existing data — a revoked recruiter keeps their companies and jobs, they simply lose access to them.",
+        )}
       </p>
 
       <div className="flex flex-wrap gap-1.5">
@@ -200,7 +207,7 @@ function RolesPanel({
 
       <div className="mt-4 flex items-center gap-2">
         <Button disabled={!changed || isLoading} onClick={() => void save()}>
-          {isLoading ? "Saving…" : "Save roles"}
+          {isLoading ? tx("Saving…") : tx("Save roles")}
         </Button>
         {changed ? (
           <Button
@@ -208,7 +215,7 @@ function RolesPanel({
             disabled={isLoading}
             onClick={() => setSelected(currentRoles)}
           >
-            Reset
+            {tx("Reset")}
           </Button>
         ) : null}
       </div>
@@ -223,6 +230,7 @@ function StatusPanel({
   keycloakUserId: string;
   suspended: boolean;
 }) {
+  const tx = useWorkspaceTranslation();
   const [suspendUser, suspendState] = useSuspendUserMutation();
   const [reactivateUser, reactivateState] = useReactivateUserMutation();
   const [reason, setReason] = useState("");
@@ -231,7 +239,7 @@ function StatusPanel({
 
   async function submit() {
     if (!suspended && !reason.trim()) {
-      toast.error("Record why the account is being suspended.");
+      toast.error(tx("Record why the account is being suspended."));
       return;
     }
 
@@ -240,15 +248,17 @@ function StatusPanel({
 
       if (suspended) {
         await reactivateUser({ keycloakUserId, body }).unwrap();
-        toast.success("Account reactivated.");
+        toast.success(tx("Account reactivated."));
       } else {
         await suspendUser({ keycloakUserId, body }).unwrap();
-        toast.success("Account suspended.");
+        toast.success(tx("Account suspended."));
       }
 
       setReason("");
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to change the account status."));
+      toast.error(
+        getApiErrorMessage(error, tx("Unable to change the account status.")),
+      );
     }
   }
 
@@ -261,8 +271,12 @@ function StatusPanel({
 
       <p className="mb-4 text-sm text-ws-muted">
         {suspended
-          ? "Re-enables sign-in and clears the local suspension. The user can log in again immediately."
-          : "Disables sign-in in Keycloak and blocks any token the user already holds, from their next request onward."}
+          ? tx(
+              "Re-enables sign-in and clears the local suspension. The user can log in again immediately.",
+            )
+          : tx(
+              "Disables sign-in in Keycloak and blocks any token the user already holds, from their next request onward.",
+            )}
       </p>
 
       <Textarea
@@ -270,8 +284,8 @@ function StatusPanel({
         onChange={(event) => setReason(event.target.value)}
         placeholder={
           suspended
-            ? "Why is this account being reinstated? (optional)"
-            : "Why is this account being suspended?"
+            ? tx("Why is this account being reinstated? (optional)")
+            : tx("Why is this account being suspended?")
         }
         rows={3}
         maxLength={500}
@@ -284,25 +298,28 @@ function StatusPanel({
           onClick={() => void submit()}
         >
           {pending
-            ? "Working…"
+            ? tx("Working…")
             : suspended
-              ? "Reactivate account"
-              : "Suspend account"}
+              ? tx("Reactivate account")
+              : tx("Suspend account")}
         </Button>
       </div>
 
       <p className="mt-3 text-xs text-ws-faint">
-        You cannot suspend your own account or change your own roles — only
-        another administrator can undo either.
+        {tx(
+          "You cannot suspend your own account or change your own roles — only another administrator can undo either.",
+        )}
       </p>
     </Panel>
   );
 }
 
 function Row({ label, value }: { label: string; value: string }) {
+  const tx = useWorkspaceTranslation();
+
   return (
-    <div className="rounded-xl bg-ws-card-hover px-4 py-3">
-      <dt className="text-xs font-semibold text-ws-muted">{label}</dt>
+    <div className="rounded-[18px] bg-ws-card-hover px-4 py-3">
+      <dt className="text-xs font-semibold text-ws-muted">{tx(label)}</dt>
       <dd className="mt-0.5 truncate text-sm text-ws-fg">{value}</dd>
     </div>
   );
