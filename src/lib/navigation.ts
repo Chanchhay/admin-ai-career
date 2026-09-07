@@ -1,5 +1,6 @@
 import {
   Bot,
+  CalendarDays,
   Cpu,
   Building2,
   ClipboardCheck,
@@ -7,9 +8,7 @@ import {
   MessagesSquare,
   ReceiptText,
   LayoutGrid,
-  Tags,
   UsersRound,
-  Wrench,
   type LucideIcon,
 } from "lucide-react";
 
@@ -45,6 +44,13 @@ export const adminNavigation: NavigationItem[] = [
     icon: ClipboardCheck,
     description:
       "View candidate results, run human interviews, and record decisions.",
+  },
+  {
+    href: "/interviews",
+    label: "Interviews",
+    icon: CalendarDays,
+    description:
+      "Calendar schedule of candidate interviews across all applications.",
   },
   {
     href: "/finance",

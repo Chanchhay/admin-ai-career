@@ -274,6 +274,7 @@ function TopBar({ title }: { title: string }) {
         <NotificationBell pathPrefixes={[
             "/companies",
             "/applications",
+            "/interviews",
             "/users",
             "/messages",
             "/finance",

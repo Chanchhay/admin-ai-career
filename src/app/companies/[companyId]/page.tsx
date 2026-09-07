@@ -147,9 +147,11 @@ export default function CompanyDetailPage() {
             maskedLogoUrl={company.maskedLogoUrl}
           />
 
-          {/* Collapsed it is one button; opened it becomes a card, which is
-              why it sits in a column rather than in the header row. */}
-          <StartConversation companyId={id} label="Message recruiter"/>
+          <StartConversation
+            companyId={id}
+            label="Message recruiter"
+            recipientName={company.name}
+          />
         </aside>
       </div>
     </div>
