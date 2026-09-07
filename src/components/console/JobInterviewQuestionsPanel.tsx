@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, ListChecks, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
 import type {
@@ -27,7 +28,7 @@ import {
  * request, because that is how the list is edited: add, reword, reorder, drop,
  * then save.
  */
-export function JobInterviewQuestionsPanel({ jobId }: { jobId: number }) {
+export function JobInterviewQuestionsPanel({ jobId }: { jobId: string }) {
   const { data, isLoading, isError } = useGetJobInterviewQuestionsQuery(jobId);
 
   if (isLoading || isError || !data) return null;
@@ -48,7 +49,7 @@ export function JobInterviewQuestionsPanel({ jobId }: { jobId: number }) {
 /** One question while it is being edited. `id` is null until it is first saved. */
 type Draft = {
   key: string;
-  id: number | null;
+  id: string | null;
   questionText: string;
   questionType: InterviewQuestionType;
   expectedAnswer: string;
@@ -140,7 +141,7 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
     <Panel>
       <PanelHeader
         title="Interview questions"
-        icon={<ListChecks aria-hidden="true" className="size-5" />}
+        icon={<ListChecks aria-hidden="true" className="size-4" />}
         action={
           <GhostChip>
             {written === 0
@@ -173,7 +174,7 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
       </div>
 
       {drafts.length === 0 ? (
-        <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
+        <p className="rounded-xl bg-ws-card-hover px-4 py-6 text-center text-sm text-ws-faint">
           Nothing written yet — every question is generated. Add one to ask it of
           every candidate for this job.
         </p>
@@ -182,7 +183,7 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
           {drafts.map((draft, index) => (
             <li
               key={draft.key}
-              className="flex flex-col gap-4 rounded-[18px] bg-ws-card-hover px-4 py-4"
+              className="flex flex-col gap-4 rounded-xl bg-ws-card-hover px-4 py-4"
             >
               <div className="flex flex-wrap items-end gap-3">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-ws-card text-sm font-bold text-ws-muted shadow-sm">
@@ -191,19 +192,17 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
 
                 <label className="flex min-w-44 flex-col gap-1.5">
                   <span className="text-xs font-semibold text-ws-muted">Type</span>
-                  <select
+                  <Select
                     value={draft.questionType}
-                    onChange={(event) =>
-                      update(draft.key, { questionType: event.target.value })
+                    onChange={(questionType) =>
+                      update(draft.key, { questionType })
                     }
-                    className="h-11 rounded-md border border-input bg-surface px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
-                  >
-                    {set.availableTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {humanizeEnum(type)}
-                      </option>
-                    ))}
-                  </select>
+                    options={set.availableTypes.map((type) => ({
+                      value: type,
+                      label: humanizeEnum(type),
+                    }))}
+                    className="w-full"
+                  />
                 </label>
 
                 <label className="flex flex-col gap-1.5">
@@ -308,7 +307,7 @@ function ModeOption({
   detail: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3">
+    <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-ws-card-hover px-4 py-3">
       <input
         type="radio"
         name="manual-question-mode"

@@ -46,7 +46,7 @@ export default function UserDetailPage() {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3">
       <Link
         href="/users"
         className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ws-muted transition-colors hover:text-ws-fg"
@@ -57,7 +57,7 @@ export default function UserDetailPage() {
       <Panel>
         <PanelHeader
           title={orDash(user.username)}
-          icon={<UserRound aria-hidden="true" className="size-5" />}
+          icon={<UserRound aria-hidden="true" className="size-4" />}
           action={<AccountStatusChip status={user.status} />}
         />
 
@@ -91,14 +91,14 @@ export default function UserDetailPage() {
           * look contradictory.
           */}
         {user.enabled === false && user.status === "ACTIVE" ? (
-          <p className="mt-4 rounded-[18px] bg-chip-alert px-4 py-3 text-xs text-chip-alert-fg">
+          <p className="mt-4 rounded-xl bg-chip-alert px-4 py-3 text-xs text-chip-alert-fg">
             This user is disabled in Keycloak but has no suspension recorded
             here. It was most likely changed directly in the Keycloak console.
           </p>
         ) : null}
 
         {!user.hasLocalAccount ? (
-          <p className="mt-4 rounded-[18px] bg-ws-card-hover px-4 py-3 text-xs text-ws-muted">
+          <p className="mt-4 rounded-xl bg-ws-card-hover px-4 py-3 text-xs text-ws-muted">
             No local account row exists yet. One will be created the first time
             this account is suspended or reactivated.
           </p>
@@ -177,7 +177,7 @@ function RolesPanel({
     <Panel>
       <PanelHeader
         title="Realm roles"
-        icon={<ShieldCheck aria-hidden="true" className="size-5" />}
+        icon={<ShieldCheck aria-hidden="true" className="size-4" />}
       />
 
       <p className="mb-4 text-sm text-ws-muted">
@@ -256,7 +256,7 @@ function StatusPanel({
     <Panel>
       <PanelHeader
         title={suspended ? "Reactivate account" : "Suspend account"}
-        icon={<KeyRound aria-hidden="true" className="size-5" />}
+        icon={<KeyRound aria-hidden="true" className="size-4" />}
       />
 
       <p className="mb-4 text-sm text-ws-muted">
@@ -301,7 +301,7 @@ function StatusPanel({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[18px] bg-ws-card-hover px-4 py-3">
+    <div className="rounded-xl bg-ws-card-hover px-4 py-3">
       <dt className="text-xs font-semibold text-ws-muted">{label}</dt>
       <dd className="mt-0.5 truncate text-sm text-ws-fg">{value}</dd>
     </div>

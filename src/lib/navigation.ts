@@ -2,10 +2,8 @@ import {
   Bot,
   Cpu,
   Building2,
-  BriefcaseBusiness,
   ClipboardCheck,
   Layers,
-  HandCoins,
   MessagesSquare,
   ReceiptText,
   LayoutGrid,
@@ -49,22 +47,11 @@ export const adminNavigation: NavigationItem[] = [
       "View candidate results, run human interviews, and record decisions.",
   },
   {
-    href: "/jobs",
-    label: "Jobs",
-    icon: BriefcaseBusiness,
-    description: "Browse the jobs currently visible to candidates.",
-  },
-  {
-    href: "/hires",
-    label: "Hires",
-    icon: HandCoins,
-    description: "Confirm the hires recruiters report, which creates commissions.",
-  },
-  {
     href: "/finance",
     label: "Finance",
     icon: ReceiptText,
-    description: "Commissions, invoices, and payments.",
+    description:
+      "Reported hires, the commissions confirming them creates, and the invoices that bill them.",
   },
   {
     href: "/messages",
@@ -80,9 +67,9 @@ export const adminNavigation: NavigationItem[] = [
   },
   {
     href: "/industries",
-    label: "Categories",
+    label: "Platform lists",
     icon: Layers,
-    description: "The industry, job-category and skill vocabulary companies, jobs, and resumes draw from.",
+    description: "Manage industries, job categories, and skills.",
   },
   {
     href: "/ai-interview",

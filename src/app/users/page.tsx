@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronRight, Plus, Search, UserRound, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { Pager } from "@/components/console/Pager";
+import { PageSizeSelect } from "@/components/console/PageSizeSelect";
 import {
   AccountStatusChip,
   RoleChips,
@@ -23,6 +24,7 @@ import type {
 } from "@/contracts";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { orDash } from "@/lib/format";
+import { DEFAULT_PAGE_SIZE } from "@/services/moderationApi";
 import { useCreateUserMutation, useGetUsersQuery } from "@/services/usersApi";
 
 const ROLE_TABS = [
@@ -61,6 +63,14 @@ const ASSIGNABLE_ROLES: ManageableRole[] = [
   "SEEKER",
 ];
 
+const COLUMNS = [
+  { key: "username", label: "Username", className: "w-[22%]" },
+  { key: "email", label: "Email", className: "w-[28%]" },
+  { key: "roles", label: "Roles", className: "w-[23%]" },
+  { key: "status", label: "Status", className: "w-[15%] text-right" },
+  { key: "actions", label: "", className: "w-[12%]" },
+] as const;
+
 export default function UsersPage() {
   useSetPageHeading("Users");
 
@@ -69,6 +79,7 @@ export default function UsersPage() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
+  const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [creating, setCreating] = useState(false);
 
   const { data, isLoading, isError, refetch } = useGetUsersQuery({
@@ -76,6 +87,7 @@ export default function UsersPage() {
     status: tabStatus[statusTab],
     search: search || undefined,
     page,
+    size,
   });
 
   // Any change of filter is a different result set, not a further page of the
@@ -88,8 +100,8 @@ export default function UsersPage() {
   const users = data?.content ?? [];
 
   return (
-    <div className="flex flex-col gap-5">
-      <Panel tone="soft">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <Panel tone="soft" className="shrink-0">
         <p className="text-sm leading-6">
           Accounts live in Keycloak; this console changes their roles and
           whether they may sign in. Suspending an account disables the Keycloak
@@ -101,28 +113,34 @@ export default function UsersPage() {
         <CreateUserPanel onClose={() => setCreating(false)} />
       ) : null}
 
-      <Panel>
-        <PanelHeader
-          title="Accounts"
-          icon={<UserRound aria-hidden="true" className="size-5" />}
-          action={
-            creating ? null : (
-              <Button size="sm" onClick={() => setCreating(true)}>
-                <Plus aria-hidden="true" /> New staff account
-              </Button>
-            )
-          }
-        />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel">
+        <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
+          <h2 className="font-semibold text-ws-fg">Accounts</h2>
+          {data ? (
+            <span className="rounded-md bg-ws-card px-2 py-0.5 text-xs font-medium text-ws-muted">
+              {data.totalElements}
+            </span>
+          ) : null}
+          {creating ? null : (
+            <Button
+              className="ml-auto"
+              size="sm"
+              onClick={() => setCreating(true)}
+            >
+              <Plus aria-hidden="true" /> New staff account
+            </Button>
+          )}
+        </div>
 
         <form
-          className="mb-4 flex items-center gap-2"
+          className="flex shrink-0 flex-wrap items-center gap-2 px-4 pb-3"
           onSubmit={(event) => {
             event.preventDefault();
             setSearch(searchInput.trim());
             setPage(0);
           }}
         >
-          <div className="relative flex-1">
+          <div className="relative min-w-0 flex-1">
             <Search
               aria-hidden="true"
               className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ws-faint"
@@ -131,6 +149,7 @@ export default function UsersPage() {
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               placeholder="Search by username, email, or name"
+              aria-label="Search by username, email, or name"
               className="pl-9"
             />
           </div>
@@ -152,60 +171,127 @@ export default function UsersPage() {
           ) : null}
         </form>
 
-        <PillTabs
-          tabs={ROLE_TABS}
-          value={roleTab}
-          onChange={reset(setRoleTab)}
-          className="mb-2 rounded-full bg-ws-card-hover p-1"
-        />
-        <PillTabs
-          tabs={STATUS_TABS}
-          value={statusTab}
-          onChange={reset(setStatusTab)}
-          className="mb-4 rounded-full bg-ws-card-hover p-1"
-        />
+        <div className="flex shrink-0 flex-col gap-2 px-4 pb-3">
+          <PillTabs
+            tabs={ROLE_TABS}
+            value={roleTab}
+            onChange={reset(setRoleTab)}
+            className="rounded-lg bg-ws-card p-1"
+          />
+          <PillTabs
+            tabs={STATUS_TABS}
+            value={statusTab}
+            onChange={reset(setStatusTab)}
+            className="rounded-lg bg-ws-card p-1"
+          />
+        </div>
 
-        {isLoading ? (
-          <LoadingState rows={5} />
-        ) : isError ? (
-          <ErrorState message="Unable to load users." onRetry={refetch} />
-        ) : users.length === 0 ? (
-          <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            No accounts match these filters.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {users.map((user) => (
-              <li key={user.keycloakUserId}>
-                <Link
-                  href={`/users/${user.keycloakUserId}`}
-                  className="flex items-center gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3.5 transition-colors hover:bg-ws-panel"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-ws-fg">
-                      {orDash(user.username)}
-                    </span>
-                    <span className="block truncate text-xs text-ws-faint">
-                      {orDash(user.email)}
-                    </span>
-                  </span>
+        <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line">
+          <table
+            aria-label="Accounts"
+            className="w-full min-w-[800px] table-fixed border-collapse text-left"
+          >
+            <thead className="sticky top-0 z-10">
+              <tr>
+                {COLUMNS.map((column) => (
+                  <th
+                    key={column.key}
+                    scope="col"
+                    className={`${column.className} bg-ws-card px-4 py-2.5 text-xs font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
+                  >
+                    {column.label || <span className="sr-only">Actions</span>}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={COLUMNS.length} className="p-4">
+                    <LoadingState rows={5} />
+                  </td>
+                </tr>
+              ) : isError ? (
+                <tr>
+                  <td colSpan={COLUMNS.length} className="p-4">
+                    <ErrorState
+                      message="Unable to load users."
+                      onRetry={refetch}
+                    />
+                  </td>
+                </tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={COLUMNS.length}
+                    className="px-4 py-14 text-center text-sm text-ws-faint"
+                  >
+                    No accounts match these filters.
+                  </td>
+                </tr>
+              ) : (
+                users.map((user) => (
+                  <tr
+                    key={user.keycloakUserId}
+                    className="border-b border-ws-line/70 transition-colors hover:bg-ws-card/60"
+                  >
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/users/${user.keycloakUserId}`}
+                        className="block truncate text-sm font-semibold text-ws-fg hover:underline"
+                        title={orDash(user.username)}
+                      >
+                        {orDash(user.username)}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="block truncate text-sm text-ws-muted"
+                        title={orDash(user.email)}
+                      >
+                        {orDash(user.email)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <RoleChips roles={user.roles} />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end">
+                        <AccountStatusChip status={user.status} />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        aria-label={`Open account ${user.username || user.email || user.keycloakUserId}`}
+                        render={<Link href={`/users/${user.keycloakUserId}`} />}
+                      >
+                        Open
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-                  <span className="hidden flex-wrap items-center gap-1.5 sm:flex">
-                    <RoleChips roles={user.roles} />
-                  </span>
-                  <AccountStatusChip status={user.status} />
-                  <ChevronRight
-                    aria-hidden="true"
-                    className="size-4 shrink-0 text-ws-faint"
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {data ? <Pager page={data} onPageChange={setPage} /> : null}
-      </Panel>
+        <div className="flex shrink-0 flex-wrap items-center gap-3 border-t border-ws-line px-4 py-2.5">
+          <PageSizeSelect
+            value={size}
+            onChange={reset(setSize)}
+            id="users-page-size"
+          />
+          {data ? (
+            <div className="ml-auto">
+              <Pager page={data} onPageChange={setPage} />
+            </div>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
@@ -261,7 +347,7 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
     <Panel>
       <PanelHeader
         title="New staff account"
-        icon={<Plus aria-hidden="true" className="size-5" />}
+        icon={<Plus aria-hidden="true" className="size-4" />}
         action={
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X aria-hidden="true" /> Cancel

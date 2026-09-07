@@ -90,7 +90,7 @@ export default function OverviewPage() {
     companiesWaiting !== undefined && candidatesWaiting !== undefined;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3">
       <Hero
         waiting={loaded ? waiting : undefined}
         companies={companiesWaiting}
@@ -122,8 +122,8 @@ export default function OverviewPage() {
        * standing counts on the left, the live queue in the middle, the
        * decisions already recorded on the right.
        */}
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,19rem)]">
-        <div className="flex flex-col gap-5">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)_minmax(0,22rem)]">
+        <div className="flex flex-col gap-3">
           <QueueNote
             companies={companiesWaiting}
             candidates={candidatesWaiting}
@@ -211,7 +211,7 @@ function Hero({
 
 /** Hero pills reuse the tone fills so they match the track below them. */
 function cnPill(tone: Tone) {
-  return `rounded-full px-6 py-3 text-[13px] font-semibold transition-transform hover:scale-[1.03] ${toneFill[tone]}`;
+  return `rounded-full px-6 py-3 text-sm font-semibold transition-transform hover:scale-[1.03] ${toneFill[tone]}`;
 }
 
 /* --------------------------------------------------------------- notes --- */
@@ -279,6 +279,7 @@ function ReferenceNote({
     <NotchedPanel
       fill="cool"
       title="Reference data"
+      notchSize="compact"
       icon={<Layers aria-hidden="true" className="size-4 shrink-0" />}
       actions={
         <IconAction
@@ -329,7 +330,7 @@ function NoteRow({
   const body = (
     <>
       {icon ? <span className="shrink-0 opacity-60">{icon}</span> : null}
-      <dt className="min-w-0 flex-1 truncate text-[13px] font-medium opacity-80">
+      <dt className="min-w-0 flex-1 truncate text-sm font-medium opacity-80">
         {label}
       </dt>
       <dd className="shrink-0 text-lg font-bold tabular-nums">
@@ -400,7 +401,7 @@ function QueueStream({
               className="size-4 shrink-0 text-ws-muted"
             />
           )}
-          <h2 className="truncate text-[15px] font-semibold tracking-tight">
+          <h2 className="truncate text-base font-semibold tracking-tight">
             {tab === "Companies" ? "Awaiting verification" : "Awaiting review"}
           </h2>
           <IconAction
@@ -469,7 +470,7 @@ function StreamRow({
     <li>
       <Link
         href={href}
-        className="flex items-center gap-3 rounded-[22px] bg-ws-card-hover px-4 py-3.5 transition-colors hover:bg-ws-panel"
+        className="flex items-center gap-3 rounded-xl bg-ws-card-hover px-3 py-2 transition-colors hover:bg-ws-panel"
       >
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-semibold text-ws-fg">
@@ -569,10 +570,10 @@ function DecisionCard({
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13px] font-semibold text-ws-fg">
+        <span className="block text-sm font-semibold text-ws-fg">
           {label}
         </span>
-        <span className="block truncate text-[11px] text-ws-faint">
+        <span className="block text-sm text-ws-faint">
           {caption}
         </span>
       </span>

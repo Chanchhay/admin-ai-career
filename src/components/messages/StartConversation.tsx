@@ -25,8 +25,8 @@ export function StartConversation({
   companyId,
   label,
 }: {
-  applicationId?: number;
-  companyId?: number;
+  applicationId?: string;
+  companyId?: string;
   label: string;
 }) {
   const router = useRouter();
@@ -68,7 +68,7 @@ export function StartConversation({
     <Panel>
       <PanelHeader
         title={label}
-        icon={<MessagesSquare aria-hidden="true" className="size-5" />}
+        icon={<MessagesSquare aria-hidden="true" className="size-4" />}
         action={
           <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
             <X aria-hidden="true" /> Cancel

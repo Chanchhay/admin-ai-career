@@ -8,6 +8,7 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
 import type {
   AiModelOption,
@@ -112,7 +113,7 @@ export default function AiEnginePage() {
         <div className="flex items-start gap-3">
           <ShieldAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
           <div>
-            <h2 className="text-[15px] font-semibold">Needs the SUPER_ADMIN role</h2>
+            <h2 className="text-base font-semibold">Needs the SUPER_ADMIN role</h2>
             <p className="mt-1 text-sm leading-6">
               The API key stored here can spend real money, so it is held to the
               platform&apos;s narrowest role. Ask whoever administers Keycloak to add{" "}
@@ -216,7 +217,7 @@ export default function AiEnginePage() {
       : "no key at all";
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3">
       <Panel tone="soft">
         <p className="text-sm leading-6">
           Every AI feature on the platform — interview questions, scoring, voice
@@ -272,7 +273,7 @@ export default function AiEnginePage() {
             ) : null}
           </div>
         ) : (
-          <p className="rounded-[18px] bg-ws-card-hover px-4 py-3 text-sm leading-6 text-ws-muted">
+          <p className="rounded-xl bg-ws-card-hover px-4 py-3 text-sm leading-6 text-ws-muted">
             This server has no secret encryption key, so a provider key cannot be
             stored here — it would have to be written to the database in the
             clear. Set{" "}
@@ -320,7 +321,7 @@ export default function AiEnginePage() {
           {data.availableTasks.map((task) => (
             <li
               key={task}
-              className="flex flex-wrap items-center gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3"
+              className="flex flex-wrap items-center gap-3 rounded-xl bg-ws-card-hover px-4 py-3"
             >
               <div className="min-w-40 flex-1">
                 <p className="text-sm font-semibold text-ws-fg">{humanizeEnum(task)}</p>
@@ -347,17 +348,15 @@ export default function AiEnginePage() {
 
         <label className="mb-4 flex max-w-md flex-col gap-1.5 text-xs font-medium text-ws-muted">
           Thinking
-          <select
+          <Select
             value={form.thinking}
-            onChange={(event) => set("thinking", event.target.value as AiThinking)}
-            className="h-11 rounded-md border border-input bg-surface px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
-          >
-            {data.availableThinkingLevels.map((level) => (
-              <option key={level} value={level}>
-                {THINKING_LABELS[level] ?? level}
-              </option>
-            ))}
-          </select>
+            onChange={(level) => set("thinking", level as AiThinking)}
+            options={data.availableThinkingLevels.map((level) => ({
+              value: level,
+              label: THINKING_LABELS[level] ?? level,
+            }))}
+            className="w-full"
+          />
           <span className="font-normal text-ws-faint">
             The biggest speed dial there is. Every job here is filling in a fixed
             structure — writing questions, scoring answers, splitting a transcript —
@@ -489,27 +488,29 @@ function ModelSelect({
   // select would quietly rewrite a setting the admin never touched.
   const missing = value && !models.some((model) => model.id === value);
 
+  const options = [
+    ...(defaultLabel ? [{ value: "", label: defaultLabel }] : []),
+    // A value the catalogue does not carry is still offered, so opening the
+    // list cannot quietly rewrite a setting nobody touched.
+    ...(missing ? [{ value, label: `${value} (in use)` }] : []),
+    ...models.map((model) => ({
+      value: model.id,
+      label:
+        model.displayName === model.id
+          ? model.id
+          : `${model.displayName} — ${model.id}`,
+    })),
+  ];
+
   return (
-    <select
+    <Select
       aria-label={ariaLabel}
       value={value}
       disabled={loading}
-      onChange={(event) => onChange(event.target.value)}
-      className={cn(
-        "h-11 rounded-md border border-input bg-surface px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 disabled:opacity-50",
-        className,
-      )}
-    >
-      {defaultLabel ? <option value="">{defaultLabel}</option> : null}
-      {loading ? <option value={value}>Loading models…</option> : null}
-      {missing ? <option value={value}>{value} (in use)</option> : null}
-      {models.map((model) => (
-        <option key={model.id} value={model.id}>
-          {model.displayName === model.id
-            ? model.id
-            : `${model.displayName} — ${model.id}`}
-        </option>
-      ))}
-    </select>
+      onChange={onChange}
+      options={options}
+      placeholder={loading ? "Loading models…" : "Select a model"}
+      className={cn("w-full", className)}
+    />
   );
 }

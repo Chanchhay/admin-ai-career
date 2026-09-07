@@ -64,7 +64,7 @@ export const interviewConfigApi = baseApi.injectEndpoints({
 
     /* ------------------- hand-written questions for one job --------------- */
 
-    getJobInterviewQuestions: builder.query<JobInterviewQuestionSetResponse, number>({
+    getJobInterviewQuestions: builder.query<JobInterviewQuestionSetResponse, string>({
       query: (jobId) => `/admin/jobs/${jobId}/interview-questions`,
       transformResponse: (response: ApiResponseJobInterviewQuestionSet) =>
         unwrapApiResponse(response),
@@ -74,7 +74,7 @@ export const interviewConfigApi = baseApi.injectEndpoints({
     }),
     saveJobInterviewQuestions: builder.mutation<
       JobInterviewQuestionSetResponse,
-      { jobId: number; body: JobInterviewQuestionSetRequest }
+      { jobId: string; body: JobInterviewQuestionSetRequest }
     >({
       query: ({ jobId, body }) => ({
         url: `/admin/jobs/${jobId}/interview-questions`,

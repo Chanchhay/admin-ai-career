@@ -93,7 +93,7 @@ function Editor({ settings }: { settings: GuestInterviewSettingsResponse }) {
     <Panel>
       <PanelHeader
         title="Guest interviews"
-        icon={<UserRound aria-hidden="true" className="size-5" />}
+        icon={<UserRound aria-hidden="true" className="size-4" />}
         action={<GhostChip>{enabled ? "Open" : "Closed"}</GhostChip>}
       />
 
@@ -103,7 +103,7 @@ function Editor({ settings }: { settings: GuestInterviewSettingsResponse }) {
         account behind them — so the limits below are the only thing capping it.
       </p>
 
-      <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3">
+      <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-xl bg-ws-card-hover px-4 py-3">
         <input
           type="checkbox"
           className="mt-1"
@@ -157,7 +157,7 @@ function Editor({ settings }: { settings: GuestInterviewSettingsResponse }) {
         {SOURCES.map((option) => (
           <label
             key={option.value}
-            className="flex cursor-pointer items-start gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3"
+            className="flex cursor-pointer items-start gap-3 rounded-xl bg-ws-card-hover px-4 py-3"
           >
             <input
               type="radio"

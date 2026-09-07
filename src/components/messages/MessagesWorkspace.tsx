@@ -1,87 +1,210 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MessageSquare, SendHorizontal, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  BriefcaseBusiness,
+  CheckCheck,
+  LockKeyhole,
+  MessageSquare,
+  Search,
+  SendHorizontal,
+  Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
 import type {
+  ConversationParticipantResponse,
   ConversationResponse,
   MessageResponse,
 } from "@/contracts";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
+import { useLiveStatus } from "@/hooks/useLiveUpdates";
+import { isUuid } from "@/lib/uuid";
 import {
   useCloseConversationMutation,
   useDeleteMessageMutation,
+  useGetConversationQuery,
   useGetConversationsQuery,
   useGetMessagesQuery,
   useMarkConversationReadMutation,
   useSendMessageMutation,
 } from "@/services/conversationsApi";
 
-/**
- * The inbox: thread list on the left, the open thread on the right.
- *
- * `basePath` is the role's messages route, so selecting a thread updates the
- * URL and a notification can deep-link straight into one.
- */
 export function MessagesWorkspace({
   basePath,
   conversationId,
 }: {
   basePath: string;
-  conversationId?: number;
+  conversationId?: string;
 }) {
   const router = useRouter();
-  const conversations = useGetConversationsQuery({ size: 30 });
-
-  const threads = useMemo(
-    () => conversations.data?.content ?? [],
-    [conversations.data?.content],
+  const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const conversations = useGetConversationsQuery({ page, size: 30 });
+  const detail = useGetConversationQuery(conversationId ?? "", {
+    skip: !isUuid(conversationId ?? null),
+  });
+  const threads = conversations.currentData?.content ?? [];
+  const selected = conversationId ? detail.currentData : threads[0];
+  const filtered = threads.filter((thread) =>
+    [
+      thread.title,
+      thread.jobTitle,
+      ...thread.participants.filter((p) => !p.self).map((p) => p.displayLabel),
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(search.toLowerCase()),
   );
 
-  const selected =
-    threads.find((thread) => thread.id === conversationId) ?? threads[0];
-
-  if (conversations.isLoading) return <LoadingState rows={6} />;
-  if (conversations.isError) {
-    return (
-      <ErrorState
-        message="Unable to load conversations."
-        onRetry={conversations.refetch}
-      />
-    );
-  }
-
-  if (threads.length === 0) {
-    return (
-      <div className="rounded-[24px] bg-ws-card px-6 py-16 text-center">
-        <MessageSquare className="mx-auto size-10 text-ws-faint" />
-        <h2 className="mt-4 font-semibold text-ws-fg">No conversations</h2>
-        <p className="mt-2 text-sm text-ws-muted">
-          Open one from a candidate application or a company.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
-      <ul className="flex max-h-[70vh] flex-col gap-1.5 overflow-y-auto">
-        {threads.map((thread) => (
-          <li key={thread.id}>
-            <ThreadRow
-              thread={thread}
-              active={thread.id === selected?.id}
-              onSelect={() => router.push(`${basePath}/${thread.id}`)}
+    <div className="grid h-[calc(100dvh-180px)] min-h-[480px] overflow-hidden rounded-2xl border border-ws-faint/15 bg-ws-card lg:h-[calc(100dvh-140px)] lg:grid-cols-[330px_minmax(0,1fr)]">
+      <aside
+        className={`${conversationId ? "hidden lg:flex" : "flex"} min-h-0 flex-col border-r border-ws-faint/15`}
+      >
+        <div className="space-y-4 p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-ws-fg">Inbox</h2>
+            <span className="rounded-full bg-ws-panel px-2 py-0.5 text-xs text-ws-muted">
+              {conversations.data?.totalElements ?? 0}
+            </span>
+          </div>
+          <label className="flex items-center gap-2 rounded-xl bg-ws-panel px-3 py-2.5 text-ws-muted">
+            <Search className="size-4 shrink-0" />
+            <input
+              aria-label="Search conversations on this page"
+              placeholder="Search people or jobs"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent text-sm text-ws-fg outline-none"
             />
-          </li>
-        ))}
-      </ul>
-
-      {selected ? (
-        <Thread key={selected.id} conversation={selected} />
-      ) : null}
+          </label>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+          {conversations.isFetching && !conversations.currentData ? (
+            <LoadingState rows={5} />
+          ) : conversations.isError ? (
+            <ErrorState
+              message="Unable to load conversations."
+              onRetry={conversations.refetch}
+            />
+          ) : (
+            <ul className="space-y-1">
+              {filtered.map((thread) => (
+                <li key={thread.id}>
+                  <ThreadRow
+                    thread={thread}
+                    active={thread.id === selected?.id}
+                    onSelect={() => router.push(`${basePath}/${thread.id}`)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+          {!conversations.isFetching &&
+            !conversations.isError &&
+            !filtered.length && (
+              <p className="px-4 py-10 text-center text-sm text-ws-muted">
+                {search
+                  ? "No matches on this page."
+                  : "No conversations yet. Start one from a company or application."}
+              </p>
+            )}
+        </div>
+        {(conversations.data?.totalPages ?? 0) > 1 && (
+          <div className="flex items-center justify-between border-t border-ws-faint/15 p-3 text-xs text-ws-muted">
+            <button
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+              className="p-2 disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <span>
+              Page {page + 1} of {conversations.data?.totalPages}
+            </span>
+            <button
+              disabled={conversations.isFetching || conversations.data?.last}
+              onClick={() => setPage((p) => p + 1)}
+              className="p-2 disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </aside>
+      <div
+        className={`${conversationId ? "flex" : "hidden lg:flex"} min-h-0 min-w-0 flex-col`}
+      >
+        {conversationId && !isUuid(conversationId) ? (
+          <ErrorState message="Invalid conversation link." />
+        ) : detail.isError && conversationId ? (
+          <ErrorState
+            message="This conversation is unavailable."
+            onRetry={detail.refetch}
+          />
+        ) : selected ? (
+          <Thread
+            key={selected.id}
+            conversation={selected}
+            basePath={basePath}
+          />
+        ) : conversationId && detail.isLoading ? (
+          <LoadingState rows={6} />
+        ) : (
+          <div className="m-auto p-8 text-center">
+            <MessageSquare className="mx-auto mb-4 size-10 text-primary" />
+            <h2 className="font-semibold text-ws-fg">
+              Your conversations, in one place
+            </h2>
+            <p className="mt-2 text-sm text-ws-muted">
+              Select a conversation to discuss a job or application.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
+  );
+}
+
+function Avatar({
+  participant,
+  small = false,
+}: {
+  participant?: ConversationParticipantResponse;
+  small?: boolean;
+}) {
+  const [failed, setFailed] = useState(false);
+  const label = participant?.displayLabel || "Participant";
+  return (
+    <span
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 font-semibold text-primary ${small ? "size-7 text-[10px]" : "size-11 text-sm"}`}
+    >
+      {participant?.avatarUrl && !failed ? (
+        // Profile images are supplied by the API and may use any configured media host.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={participant.avatarUrl}
+          alt={label}
+          onError={() => setFailed(true)}
+          className="size-full object-cover"
+        />
+      ) : (
+        <span aria-label={label}>
+          {label
+            .trim()
+            .split(/\s+/)
+            .slice(0, 2)
+            .map((p) => p[0])
+            .join("")
+            .toUpperCase()}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -94,245 +217,478 @@ function ThreadRow({
   active: boolean;
   onSelect: () => void;
 }) {
-  const other = thread.participants.find((participant) => !participant.self);
-
+  const other = thread.participants.find((p) => !p.self);
   return (
     <button
       type="button"
       onClick={onSelect}
-      aria-current={active}
-      className={`w-full rounded-[18px] px-4 py-3 text-left transition-colors ${
-        active ? "bg-ws-panel" : "bg-ws-card hover:bg-ws-card-hover"
-      }`}
+      aria-current={active ? "true" : undefined}
+      className={`flex w-full gap-3 rounded-xl p-3 text-left transition-colors ${active ? "bg-primary/8 ring-1 ring-inset ring-primary/15" : "hover:bg-ws-panel"}`}
     >
-      <span className="flex items-center gap-2">
-        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ws-fg">
-          {thread.title || "Conversation"}
-        </span>
-        {thread.unreadCount > 0 ? (
-          <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
-            {thread.unreadCount}
+      <Avatar key={other?.avatarUrl} participant={other} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="flex-1 truncate text-sm font-semibold text-ws-fg">
+            {other?.displayLabel || "Conversation"}
           </span>
-        ) : null}
-      </span>
-      <span className="mt-1 block truncate text-xs text-ws-muted">
-        {other ? other.displayLabel : "No other participant"}
-      </span>
-      {thread.lastMessage ? (
-        <span className="mt-1 block truncate text-xs text-ws-faint">
-          {thread.lastMessage.content ?? "Message deleted"}
+          <span className="shrink-0 text-[10px] text-ws-muted">
+            {thread.lastMessage && formatDate(thread.lastMessage.sentAt, false)}
+          </span>
         </span>
-      ) : null}
-      {thread.status !== "OPEN" ? (
-        <span className="mt-1 inline-block rounded-full bg-chip-quiet px-2 py-0.5 text-[10px] font-semibold text-chip-quiet-fg">
-          {thread.status.toLowerCase()}
+        <span className="mt-1 flex items-center gap-1 text-xs text-ws-muted">
+          <BriefcaseBusiness className="size-3 shrink-0" />
+          <span className="truncate">{topic(thread)}</span>
         </span>
-      ) : null}
+        <span className="mt-1.5 flex items-center gap-2">
+          <span className="flex-1 truncate text-xs text-ws-muted">
+            {thread.lastMessage
+              ? `${thread.lastMessage.mine ? "You: " : ""}${thread.lastMessage.content ?? "Message deleted"}`
+              : "Start the conversation"}
+          </span>
+          {thread.unreadCount > 0 && (
+            <span className="rounded-full bg-primary px-1.5 text-[10px] font-bold leading-5 text-primary-foreground">
+              {thread.unreadCount}
+            </span>
+          )}
+          {thread.status !== "OPEN" && (
+            <LockKeyhole
+              aria-label={thread.status.toLowerCase()}
+              className="size-3 text-ws-faint"
+            />
+          )}
+        </span>
+      </span>
     </button>
   );
 }
 
-function Thread({ conversation }: { conversation: ConversationResponse }) {
+function Thread({
+  conversation,
+  basePath,
+}: {
+  conversation: ConversationResponse;
+  basePath: string;
+}) {
   const messages = useGetMessagesQuery({
     conversationId: conversation.id,
     size: 50,
   });
+  const [pages, setPages] = useState(0);
   const [sendMessage, sendState] = useSendMessageMutation();
   const [markRead] = useMarkConversationReadMutation();
   const [draft, setDraft] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  const unread = conversation.unreadCount;
-
-  useEffect(() => {
-    // Opening a thread with something unread is reading it. Guarded so an
-    // already-read thread does not fire a write on every render.
-    if (unread > 0) void markRead(conversation.id);
-  }, [conversation.id, unread, markRead]);
-
-  // The API returns newest first for cheap paging; a transcript reads oldest
-  // first, so the order is reversed here rather than in the query.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const nearBottom = useRef(true);
+  const sending = useRef(false);
+  const readPending = useRef(false);
+  const liveStatus = useLiveStatus();
+  const others = conversation.participants.filter((p) => !p.self);
   const ordered = useMemo(
     () => [...(messages.data?.content ?? [])].reverse(),
     [messages.data?.content],
   );
+  const latestId = ordered.at(-1)?.id;
+  const closed = conversation.status !== "OPEN";
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [ordered.length]);
+    const read = () => {
+      if (
+        conversation.unreadCount > 0 &&
+        messages.isSuccess &&
+        document.visibilityState === "visible" &&
+        (scrollRef.current?.getClientRects().length ?? 0) > 0 &&
+        !readPending.current
+      ) {
+        readPending.current = true;
+        void markRead(conversation.id)
+          .unwrap()
+          .catch(() => toast.error("Could not mark the conversation as read."))
+          .finally(() => {
+            readPending.current = false;
+          });
+      }
+    };
+    read();
+    document.addEventListener("visibilitychange", read);
+    window.addEventListener("resize", read);
+    return () => {
+      document.removeEventListener("visibilitychange", read);
+      window.removeEventListener("resize", read);
+    };
+  }, [
+    conversation.id,
+    conversation.unreadCount,
+    messages.isSuccess,
+    latestId,
+    markRead,
+  ]);
 
-  const closed = conversation.status !== "OPEN";
+  useEffect(() => {
+    if (nearBottom.current && scrollRef.current)
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [latestId]);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     const content = draft.trim();
-    if (!content) return;
-
+    if (!content || closed || sending.current) return;
+    sending.current = true;
     try {
       await sendMessage({
         conversationId: conversation.id,
         body: { content },
       }).unwrap();
       setDraft("");
+      nearBottom.current = true;
+      if (scrollRef.current)
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     } catch {
-      // The draft is deliberately kept on failure — retyping a message the
-      // user already wrote is worse than a stale textarea.
+      toast.error("Message could not be sent. Your draft has been kept.");
+    } finally {
+      sending.current = false;
     }
   }
 
   return (
-    <section className="flex max-h-[70vh] flex-col rounded-[22px] bg-ws-card">
-      <header className="flex items-start gap-3 px-5 py-4">
+    <section className="flex min-h-0 flex-1 flex-col">
+      <header className="flex items-center gap-3 border-b border-ws-faint/15 px-4 py-4 lg:px-6">
+        <Link
+          href={basePath}
+          aria-label="Back to inbox"
+          className="p-1 text-ws-muted lg:hidden"
+        >
+          <ArrowLeft className="size-5" />
+        </Link>
+        <Avatar key={others[0]?.avatarUrl} participant={others[0]} />
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-sm font-semibold text-ws-fg">
-            {conversation.title || "Conversation"}
+            {others.map((p) => p.displayLabel).join(", ") || "Conversation"}
           </h2>
-          <p className="mt-0.5 truncate text-xs text-ws-muted">
-            {conversation.participants
-              .filter((participant) => !participant.self)
-              .map((participant) => participant.displayLabel)
-              .join(", ")}
+          <p className="mt-0.5 text-xs text-ws-muted">
+            {others.map((p) => roleLabel(p.role)).join(" · ")}
           </p>
         </div>
-        {conversation.status === "OPEN" ? <CloseThread id={conversation.id} /> : null}
+        {conversation.status === "OPEN" ? (
+          <CloseThread id={conversation.id} />
+        ) : (
+          <span className="rounded-full bg-ws-panel px-3 py-1 text-xs capitalize text-ws-muted">
+            {conversation.status.toLowerCase()}
+          </span>
+        )}
       </header>
-
-      <div className="flex-1 space-y-2 overflow-y-auto px-5 pb-4">
+      <div className="flex items-center gap-3 border-b border-ws-faint/15 bg-ws-panel/60 px-4 py-3 lg:px-6">
+        <span className="rounded-lg bg-primary/10 p-2 text-primary">
+          <BriefcaseBusiness className="size-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-ws-muted">
+            {conversation.applicationId ? "Job topic" : "Topic"}
+          </p>
+          <p className="truncate text-sm font-medium text-ws-fg">
+            {topic(conversation)}
+          </p>
+        </div>
+        {conversation.applicationId && (
+          <Link
+            href={`/applications/${conversation.applicationId}`}
+            className="flex shrink-0 items-center gap-1 text-xs font-medium text-primary"
+          >
+            Application
+            <ArrowUpRight className="size-3.5" />
+          </Link>
+        )}
+      </div>
+      <div
+        className="flex items-center gap-1.5 px-4 py-2 text-[10px] text-ws-muted lg:px-6"
+        role="status"
+      >
+        <span
+          className={`size-1.5 rounded-full ${liveStatus === "connected" ? "bg-primary" : "bg-amber-500"}`}
+        />
+        {liveStatus === "connected"
+          ? "Live updates connected"
+          : liveStatus === "connecting"
+            ? "Connecting to live updates…"
+            : "Reconnecting to live updates…"}
+      </div>
+      <div
+        ref={scrollRef}
+        onScroll={() => {
+          const el = scrollRef.current;
+          if (el)
+            nearBottom.current =
+              el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+        }}
+        className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-ws-panel/30 px-4 py-4 lg:px-6"
+        aria-label="Message history"
+      >
         {messages.isLoading ? (
           <LoadingState rows={4} />
         ) : messages.isError ? (
-          <ErrorState message="Unable to load messages." />
-        ) : ordered.length === 0 ? (
-          <p className="py-8 text-center text-sm text-ws-faint">
-            No messages yet.
-          </p>
-        ) : (
-          ordered.map((message) => (
-            <Bubble
-              key={message.id}
-              message={message}
-              conversationId={conversation.id}
-            />
-          ))
-        )}
-        <div ref={bottomRef} />
-      </div>
-
-      {closed ? (
-        <p className="px-5 py-4 text-xs text-ws-faint">
-          This conversation is {conversation.status.toLowerCase()} and no longer
-          accepts messages.
-        </p>
-      ) : (
-        <form className="flex items-end gap-2 px-5 py-4" onSubmit={submit}>
-          <textarea
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            onKeyDown={(event) => {
-              // Enter sends, Shift+Enter breaks the line — the convention
-              // everyone already has in their fingers.
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                void submit(event);
-              }
-            }}
-            rows={2}
-            maxLength={4000}
-            placeholder="Write a message"
-            className="min-w-0 flex-1 resize-none rounded-xl bg-ws-panel px-3.5 py-2.5 text-sm text-ws-fg outline-none placeholder:text-ws-faint"
+          <ErrorState
+            message="Unable to load messages."
+            onRetry={messages.refetch}
           />
-          <button
-            type="submit"
-            disabled={sendState.isLoading || !draft.trim()}
-            aria-label="Send message"
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-40"
-          >
-            <SendHorizontal aria-hidden="true" className="size-4" />
-          </button>
+        ) : (
+          <>
+            {pages + 1 < (messages.data?.totalPages ?? 0) && (
+              <button
+                onClick={() => {
+                  nearBottom.current = false;
+                  setPages((p) => p + 1);
+                }}
+                className="mx-auto block rounded-full bg-ws-card px-4 py-2 text-xs text-primary"
+              >
+                Load older messages
+              </button>
+            )}
+            {Array.from({ length: pages }, (_, index) => pages - index).map(
+              (page) => (
+                <OlderMessages
+                  key={page}
+                  conversation={conversation}
+                  page={page}
+                />
+              ),
+            )}
+            {!ordered.length && (
+              <div className="py-16 text-center">
+                <MessageSquare className="mx-auto size-8 text-ws-faint" />
+                <p className="mt-3 text-sm text-ws-muted">
+                  No messages yet. Say hello to start the conversation.
+                </p>
+              </div>
+            )}
+            <MessageGroup messages={ordered} conversation={conversation} />
+          </>
+        )}
+      </div>
+      {closed ? (
+        <div className="flex items-center justify-center gap-2 border-t border-ws-faint/15 px-5 py-5 text-xs text-ws-muted">
+          <LockKeyhole className="size-4 shrink-0" />
+          <p>
+            This conversation is {conversation.status.toLowerCase()}. You can
+            still view its messages.
+          </p>
+        </div>
+      ) : (
+        <form
+          onSubmit={submit}
+          className="border-t border-ws-faint/15 p-4 lg:px-6"
+        >
+          <div className="flex items-end gap-3 rounded-2xl border border-ws-faint/15 bg-ws-panel/60 p-2 focus-within:border-primary/40">
+            <textarea
+              aria-label="Message"
+              value={draft}
+              disabled={sendState.isLoading}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (
+                  e.key === "Enter" &&
+                  !e.shiftKey &&
+                  !e.nativeEvent.isComposing
+                ) {
+                  e.preventDefault();
+                  void submit(e);
+                }
+              }}
+              rows={2}
+              maxLength={4000}
+              placeholder="Write a message…"
+              className="min-w-0 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm text-ws-fg outline-none placeholder:text-ws-faint"
+            />
+            <button
+              type="submit"
+              disabled={sendState.isLoading || !draft.trim()}
+              aria-label="Send message"
+              className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:opacity-90 disabled:opacity-40"
+            >
+              <SendHorizontal className="size-4" />
+            </button>
+          </div>
+          <div className="mt-2 flex justify-between text-[10px] text-ws-faint">
+            <span>
+              {sendState.isLoading
+                ? "Sending…"
+                : "Enter to send · Shift + Enter for a new line"}
+            </span>
+            <span>{draft.length}/4000</span>
+          </div>
         </form>
       )}
     </section>
   );
 }
 
-/** Closing is a moderator's call — the other side can reply until it is closed. */
-function CloseThread({ id }: { id: number }) {
-  const [closeConversation, { isLoading }] = useCloseConversationMutation();
+function OlderMessages({
+  conversation,
+  page,
+}: {
+  conversation: ConversationResponse;
+  page: number;
+}) {
+  const result = useGetMessagesQuery({
+    conversationId: conversation.id,
+    page,
+    size: 50,
+  });
+  return result.isLoading ? (
+    <LoadingState rows={3} />
+  ) : result.isError ? (
+    <ErrorState
+      message="Unable to load older messages."
+      onRetry={result.refetch}
+    />
+  ) : (
+    <MessageGroup
+      messages={[...(result.data?.content ?? [])].reverse()}
+      conversation={conversation}
+    />
+  );
+}
 
+function MessageGroup({
+  messages,
+  conversation,
+}: {
+  messages: MessageResponse[];
+  conversation: ConversationResponse;
+}) {
+  return (
+    <>
+      {messages.map((message, index) => (
+        <div key={message.id} className="space-y-4">
+          {(index === 0 ||
+            dayKey(messages[index - 1].sentAt) !== dayKey(message.sentAt)) && (
+            <div className="flex justify-center">
+              <time className="rounded-full bg-ws-panel px-3 py-1 text-[10px] text-ws-muted">
+                {formatDate(message.sentAt, false)}
+              </time>
+            </div>
+          )}
+          <Bubble message={message} conversation={conversation} />
+        </div>
+      ))}
+    </>
+  );
+}
+
+function CloseThread({ id }: { id: string }) {
+  const [close, state] = useCloseConversationMutation();
   return (
     <button
       type="button"
-      onClick={() => void closeConversation(id)}
-      disabled={isLoading}
-      className="shrink-0 rounded-full bg-ws-card-hover px-3 py-1.5 text-xs font-semibold text-ws-muted transition-colors hover:text-ws-fg disabled:opacity-50"
+      onClick={() =>
+        void close(id)
+          .unwrap()
+          .catch(() => toast.error("Could not close the conversation."))
+      }
+      disabled={state.isLoading}
+      className="shrink-0 rounded-lg bg-ws-panel px-3 py-2 text-xs text-ws-muted hover:text-ws-fg disabled:opacity-50"
     >
-      {isLoading ? "Closing…" : "Close thread"}
+      {state.isLoading ? "Closing…" : "Close thread"}
     </button>
   );
 }
 
 function Bubble({
   message,
-  conversationId,
+  conversation,
 }: {
   message: MessageResponse;
-  conversationId: number;
+  conversation: ConversationResponse;
 }) {
   const [remove, removeState] = useDeleteMessageMutation();
   const deleted = message.status === "DELETED";
-
+  const sender = conversation.participants.find(
+    (p) => p.userAccountId === message.senderUserAccountId,
+  );
+  const read =
+    message.mine &&
+    conversation.participants.some(
+      (p) =>
+        !p.self &&
+        p.lastReadAt &&
+        new Date(p.lastReadAt).getTime() >= new Date(message.sentAt).getTime(),
+    );
   return (
     <div
-      className={`group/msg flex items-end gap-2 ${
-        message.mine ? "justify-end" : "justify-start"
-      }`}
+      className={`group/msg flex items-end gap-2 ${message.mine ? "justify-end" : "justify-start"}`}
     >
-      {message.mine && !deleted ? (
+      {!message.mine && (
+        <Avatar key={sender?.avatarUrl} participant={sender} small />
+      )}
+      {message.mine && !deleted && (
         <button
           type="button"
-          onClick={() => void remove({ conversationId, messageId: message.id })}
+          onClick={() =>
+            void remove({
+              conversationId: conversation.id,
+              messageId: message.id,
+            })
+              .unwrap()
+              .catch(() => toast.error("Could not delete the message."))
+          }
           disabled={removeState.isLoading}
           aria-label="Delete message"
-          className="mb-1 flex size-7 items-center justify-center rounded-lg text-ws-faint opacity-0 transition hover:text-ws-fg focus-visible:opacity-100 group-hover/msg:opacity-100 disabled:opacity-30"
+          className="mb-1 rounded-lg p-2 text-ws-faint opacity-100 hover:text-ws-fg focus-visible:opacity-100 group-hover/msg:opacity-100 sm:opacity-0"
         >
-          <Trash2 aria-hidden="true" className="size-3.5" />
+          <Trash2 className="size-3.5" />
         </button>
-      ) : null}
-
+      )}
       <div
-        className={`max-w-[75%] rounded-2xl px-3.5 py-2.5 ${
-          message.mine
-            ? "bg-primary text-primary-foreground"
-            : "bg-ws-panel text-ws-fg"
-        }`}
+        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 lg:max-w-[70%] ${message.mine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border border-ws-faint/10 bg-ws-card text-ws-fg"}`}
       >
+        {!message.mine && conversation.participants.length > 2 && (
+          <p className="mb-1 text-[10px] font-semibold">
+            {sender?.displayLabel || "Participant"}
+          </p>
+        )}
         <p
-          className={`text-sm leading-6 whitespace-pre-wrap ${
-            deleted ? "italic opacity-60" : ""
-          }`}
+          className={`whitespace-pre-wrap break-words text-sm leading-6 [overflow-wrap:anywhere] ${deleted ? "italic opacity-60" : ""}`}
         >
           {deleted ? "This message was deleted" : message.content}
         </p>
-        <p
-          className={`mt-1 text-[10px] ${
-            message.mine ? "text-primary-foreground/70" : "text-ws-faint"
-          }`}
+        <div
+          className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${message.mine ? "text-primary-foreground/75" : "text-ws-muted"}`}
         >
-          {formatTime(message.sentAt)}
-        </p>
+          <time dateTime={message.sentAt}>
+            {formatDate(message.sentAt, true)}
+          </time>
+          {message.mine && !deleted && (
+            <span className="flex items-center gap-1">
+              {read && <CheckCheck className="size-3" />}
+              {read ? "Read" : "Sent"}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-function formatTime(value: string) {
+function topic(thread: ConversationResponse) {
+  return (
+    thread.jobTitle ||
+    thread.title ||
+    (thread.type === "APPLICATION" ? "Job application" : "General conversation")
+  );
+}
+function roleLabel(role: string) {
+  return role === "SEEKER"
+    ? "Candidate"
+    : role.charAt(0) + role.slice(1).toLowerCase();
+}
+function dayKey(value: string) {
+  return new Date(value).toDateString();
+}
+function formatDate(value: string, time: boolean) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  return new Intl.DateTimeFormat(
+    "en",
+    time
+      ? { hour: "2-digit", minute: "2-digit" }
+      : { month: "short", day: "numeric", year: "numeric" },
+  ).format(date);
 }

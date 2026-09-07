@@ -11,7 +11,7 @@ export default function MessageThreadPage() {
   return (
     <MessagesWorkspace
       basePath="/messages"
-      conversationId={Number(conversationId)}
+      conversationId={conversationId}
     />
   );
 }

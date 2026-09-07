@@ -45,7 +45,7 @@ export const jobsApi = baseApi.injectEndpoints({
       },
       providesTags: ["Jobs"],
     }),
-    getPublicJob: builder.query<PublicJobResponse, number>({
+    getPublicJob: builder.query<PublicJobResponse, string>({
       query: (jobId) => `/public/jobs/${jobId}`,
       transformResponse: (response: ApiResponsePublicJob) =>
         unwrapApiResponse(response),

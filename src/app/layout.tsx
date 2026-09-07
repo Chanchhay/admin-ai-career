@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
+import { asset } from "@/lib/base-path";
 import { AdminShell } from "@/components/layout/AdminShell";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { StoreProvider } from "@/store/StoreProvider";
 import "./globals.css";
 
+/*
+ * Icon paths go through `asset()` for the same reason the brand images do:
+ * Next does not apply the base path to metadata icons, so a bare
+ * `/images/**` href is served by the gateway from the seeker app and 404s.
+ */
 export const metadata: Metadata = {
   title: "AI Career Admin",
   description:
     "Company verification, candidate review, and reference data for the AI Career Platform.",
   icons: {
-    icon: "/figma/brand-logo.png",
-    shortcut: "/figma/brand-logo.png",
-    apple: "/figma/brand-logo.png",
+    icon: asset("/images/brand/favicon-64.png"),
+    shortcut: asset("/images/brand/favicon-64.png"),
+    apple: asset("/images/brand/apple-icon-180.png"),
   },
 };
 

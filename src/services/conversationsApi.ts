@@ -25,7 +25,7 @@ export const conversationsApi = baseApi.injectEndpoints({
         normalizePage(unwrapApiResponse(response)),
       providesTags: ["Conversations"],
     }),
-    getConversation: builder.query<ConversationResponse, number>({
+    getConversation: builder.query<ConversationResponse, string>({
       query: (id) => `/conversations/${id}`,
       transformResponse: (response: ApiResponseConversation) =>
         unwrapApiResponse(response),
@@ -33,7 +33,7 @@ export const conversationsApi = baseApi.injectEndpoints({
     }),
     getMessages: builder.query<
       Page<MessageResponse>,
-      { conversationId: number; page?: number; size?: number }
+      { conversationId: string; page?: number; size?: number }
     >({
       query: ({ conversationId, page, size }) => ({
         url: `/conversations/${conversationId}/messages`,
@@ -47,7 +47,7 @@ export const conversationsApi = baseApi.injectEndpoints({
     }),
     sendMessage: builder.mutation<
       MessageResponse,
-      { conversationId: number; body: SendMessageRequest }
+      { conversationId: string; body: SendMessageRequest }
     >({
       query: ({ conversationId, body }) => ({
         url: `/conversations/${conversationId}/messages`,
@@ -62,7 +62,7 @@ export const conversationsApi = baseApi.injectEndpoints({
         "Conversations",
       ],
     }),
-    markConversationRead: builder.mutation<ConversationResponse, number>({
+    markConversationRead: builder.mutation<ConversationResponse, string>({
       query: (conversationId) => ({
         url: `/conversations/${conversationId}/read`,
         method: "POST",
@@ -89,7 +89,7 @@ export const conversationsApi = baseApi.injectEndpoints({
         unwrapApiResponse(response),
       invalidatesTags: ["Conversations"],
     }),
-    closeConversation: builder.mutation<ConversationResponse, number>({
+    closeConversation: builder.mutation<ConversationResponse, string>({
       query: (conversationId) => ({
         url: `/moderator/conversations/${conversationId}/close`,
         method: "POST",
@@ -103,7 +103,7 @@ export const conversationsApi = baseApi.injectEndpoints({
     }),
     deleteMessage: builder.mutation<
       void,
-      { conversationId: number; messageId: number }
+      { conversationId: string; messageId: string }
     >({
       query: ({ conversationId, messageId }) => ({
         url: `/conversations/${conversationId}/messages/${messageId}`,

@@ -7,6 +7,32 @@
 @theme inline {
   --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
 
+  /*
+   * Type scale for an interaction-heavy console: 16px body, 14px secondary.
+   *
+   * All rem, never px, so a reader who scales text to 200% scales the whole
+   * interface with it. Line height is 1.5 throughout.
+   *
+   * `xs` is raised from Tailwind's 12px to 14px — the floor for secondary text
+   * — and `sm` from 14px to 16px, so the ~600 existing `text-sm` call sites
+   * land on the body size and `text-xs` on the label size without being
+   * rewritten. `lg` (18px) and up keep Tailwind's values and carry the
+   * headings, since hierarchy has to come from somewhere once the floor rises.
+   *
+   * 16px on inputs is not cosmetic: iOS Safari zooms the viewport on focus of
+   * any field below it.
+   */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 1rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.5;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.4;
+
   /* Brand */
   --color-brand: var(--primary);
   --color-brand-hover: var(--primary-hover);
@@ -122,8 +148,8 @@
    */
   .rich-text {
     color: var(--text-secondary);
-    font-size: 0.9375rem;
-    line-height: 1.75;
+    font-size: 1.125rem;
+    line-height: 1.6;
     /* Long URLs and unbroken strings wrap instead of widening the card. */
     overflow-wrap: break-word;
   }
@@ -141,15 +167,15 @@
   }
 
   .rich-text h1 {
-    font-size: 1.375rem;
+    font-size: 1.75rem;
   }
 
   .rich-text h2 {
-    font-size: 1.15rem;
+    font-size: 1.5rem;
   }
 
   .rich-text h3 {
-    font-size: 1rem;
+    font-size: 1.25rem;
   }
 
   .rich-text h1:not(:first-child),
@@ -205,7 +231,7 @@
     background: var(--surface-muted);
     border-radius: var(--radius-sm);
     padding: 0.1em 0.35em;
-    font-size: 0.875em;
+    font-size: 1em;
   }
 
   /*
@@ -282,6 +308,10 @@
     --notch-r: 1.5rem;
     --panel-r: 2rem;
     position: relative;
+  }
+
+  .ws-notch--compact {
+    --notch-w: 4.75rem;
   }
 
   .ws-notch__top {
@@ -407,6 +437,39 @@
 @media print {
   body {
     background: white !important;
+  }
+
+  /*
+   * Anything that is interface rather than document. An invoice printed with
+   * its own "Record a payment" form on the page is not an invoice.
+   */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* The sheet is the page: no card fill, no border, no rounding, no shadow. */
+  .print-sheet {
+    background: white !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: #000 !important;
+  }
+
+  .print-sheet * {
+    color: #000 !important;
+  }
+
+  /* Ruled, because a printed table without rules is a wall of numbers. */
+  .print-sheet table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  .print-sheet th,
+  .print-sheet td {
+    border-bottom: 1px solid #ddd !important;
   }
 
   aside[aria-label="Console navigation"],

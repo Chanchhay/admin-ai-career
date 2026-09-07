@@ -58,6 +58,13 @@ export type Page<T> = {
 /** Lifecycle of a row the console can suspend but not delete. */
 export type EntityStatus = "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED";
 
+/**
+ * Where a company stands with the moderators.
+ *
+ * `SUSPENDED` is an approved company whose standing was withdrawn: publishing
+ * and every candidate-facing job query check for `APPROVED`, so a suspension
+ * takes its listings down without deleting anything. Reinstating puts it back.
+ */
 export type CompanyVerificationStatus =
   | "PENDING_VERIFICATION"
   | "APPROVED"
