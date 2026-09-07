@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
    * and `/oauth2/**` pointing at the gateway instead of at this app.
    */
   basePath: BASE_PATH,
+  experimental: {
+    useTypeScriptCli: false,
+    webpackBuildWorker: false,
+  },
 };
 
 export default nextConfig;
