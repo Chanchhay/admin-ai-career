@@ -133,6 +133,9 @@
 }
 
 :root {
+  --font-inter: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-khmer: "Noto Sans Khmer", "Khmer OS", "Khmer OS System",
+    ui-sans-serif, system-ui, sans-serif;
   --font-ui: var(--font-inter), var(--font-khmer), ui-sans-serif, system-ui,
     sans-serif;
   --radius: var(--radius-lg);
@@ -543,6 +546,9 @@
   .ws-shell [data-slot="button"] {
     max-width: 100%;
     white-space: normal;
+  }
+}
+
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
