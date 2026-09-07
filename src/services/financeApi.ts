@@ -8,6 +8,11 @@
  */
 
 import type {
+  ApiResponse,
+  PagedModel,
+  FinanceSummaryParams,
+  FinanceSummaryResponse,
+  PayingCompanyResponse,
   ApiResponseFinanceSettings,
   ApiResponseListBillableCompany,
   ApiResponseHiringRecord,
@@ -36,6 +41,20 @@ const DEFAULT_PAGE_SIZE = 12;
 
 export const financeApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    getFinanceSummary: builder.query<FinanceSummaryResponse, FinanceSummaryParams>({
+      query: (params) => ({ url: "/finance/summary", params }),
+      transformResponse: (response: ApiResponse<FinanceSummaryResponse>) => unwrapApiResponse(response),
+      providesTags: ["Invoices", "FinanceSettings"],
+    }),
+    getPayingCompanies: builder.query<
+      Page<PayingCompanyResponse>,
+      FinanceSummaryParams & { search?: string; page: number; size: number }
+    >({
+      query: (params) => ({ url: "/finance/summary/companies", params }),
+      transformResponse: (response: ApiResponse<PagedModel<PayingCompanyResponse>>) =>
+        normalizePage(unwrapApiResponse(response)),
+      providesTags: ["Invoices", "FinanceSettings"],
+    }),
     /* --------------------------------------------------- hire review --- */
 
     getHiringRecords: builder.query<
@@ -56,7 +75,7 @@ export const financeApi = baseApi.injectEndpoints({
     }),
     confirmHire: builder.mutation<
       HiringRecordResponse,
-      { hiringRecordId: number; body: HireReviewRequest }
+      { hiringRecordId: string; body: HireReviewRequest }
     >({
       query: ({ hiringRecordId, body }) => ({
         url: `/moderator/hiring-records/${hiringRecordId}/confirm`,
@@ -70,7 +89,7 @@ export const financeApi = baseApi.injectEndpoints({
     }),
     rejectHire: builder.mutation<
       HiringRecordResponse,
-      { hiringRecordId: number; body: HireReviewRequest }
+      { hiringRecordId: string; body: HireReviewRequest }
     >({
       query: ({ hiringRecordId, body }) => ({
         url: `/moderator/hiring-records/${hiringRecordId}/reject`,
@@ -86,7 +105,7 @@ export const financeApi = baseApi.injectEndpoints({
 
     getCommissions: builder.query<
       Page<CommissionRecordResponse>,
-      { companyId?: number; status?: PaymentStatus; page?: number } | void
+      { companyId?: string; status?: PaymentStatus; page?: number } | void
     >({
       query: (params) => ({
         url: "/finance/commissions",
@@ -114,7 +133,7 @@ export const financeApi = baseApi.injectEndpoints({
         unwrapApiResponse(response),
       providesTags: ["Commissions"],
     }),
-    getUnbilledCommissions: builder.query<CommissionRecordResponse[], number>({
+    getUnbilledCommissions: builder.query<CommissionRecordResponse[], string>({
       query: (companyId) => `/finance/companies/${companyId}/unbilled-commissions`,
       transformResponse: (response: ApiResponseListCommission) =>
         unwrapApiResponse(response),
@@ -125,7 +144,8 @@ export const financeApi = baseApi.injectEndpoints({
 
     getInvoices: builder.query<
       Page<InvoiceResponse>,
-      { companyId?: number; status?: InvoiceStatus; page?: number } | void
+      | { companyId?: string; status?: InvoiceStatus; page?: number; size?: number }
+      | void
     >({
       query: (params) => ({
         url: "/finance/invoices",
@@ -133,14 +153,14 @@ export const financeApi = baseApi.injectEndpoints({
           companyId: params?.companyId || undefined,
           status: params?.status || undefined,
           page: params?.page ?? 0,
-          size: DEFAULT_PAGE_SIZE,
+          size: params?.size ?? DEFAULT_PAGE_SIZE,
         },
       }),
       transformResponse: (response: ApiResponsePageInvoice) =>
         normalizePage(unwrapApiResponse(response)),
       providesTags: ["Invoices"],
     }),
-    getInvoice: builder.query<InvoiceResponse, number>({
+    getInvoice: builder.query<InvoiceResponse, string>({
       query: (invoiceId) => `/finance/invoices/${invoiceId}`,
       transformResponse: (response: ApiResponseInvoice) =>
         unwrapApiResponse(response),
@@ -152,7 +172,7 @@ export const financeApi = baseApi.injectEndpoints({
         unwrapApiResponse(response),
       invalidatesTags: ["Invoices", "Commissions"],
     }),
-    issueInvoice: builder.mutation<InvoiceResponse, number>({
+    issueInvoice: builder.mutation<InvoiceResponse, string>({
       query: (invoiceId) => ({
         url: `/finance/invoices/${invoiceId}/issue`,
         method: "POST",
@@ -164,7 +184,7 @@ export const financeApi = baseApi.injectEndpoints({
         { type: "Invoices", id },
       ],
     }),
-    cancelInvoice: builder.mutation<InvoiceResponse, number>({
+    cancelInvoice: builder.mutation<InvoiceResponse, string>({
       query: (invoiceId) => ({
         url: `/finance/invoices/${invoiceId}/cancel`,
         method: "POST",
@@ -180,7 +200,7 @@ export const financeApi = baseApi.injectEndpoints({
     }),
     recordPayment: builder.mutation<
       InvoiceResponse,
-      { invoiceId: number; body: RecordPaymentRequest }
+      { invoiceId: string; body: RecordPaymentRequest }
     >({
       query: ({ invoiceId, body }) => ({
         url: `/finance/invoices/${invoiceId}/payments`,
@@ -217,6 +237,8 @@ export const financeApi = baseApi.injectEndpoints({
 });
 
 export const {
+  useGetFinanceSummaryQuery,
+  useGetPayingCompaniesQuery,
   useGetHiringRecordsQuery,
   useConfirmHireMutation,
   useRejectHireMutation,

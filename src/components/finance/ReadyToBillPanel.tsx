@@ -7,7 +7,11 @@ import { BillCompanyPanel } from "@/components/finance/BillCompanyPanel";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/button";
-import { GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
+import {
+  GhostChip,
+  Panel,
+  PanelHeader,
+} from "@/components/workspace/primitives";
 import { formatDate } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
 import { useGetBillableCompaniesQuery } from "@/services/financeApi";
@@ -22,23 +26,29 @@ import { useGetBillableCompaniesQuery } from "@/services/financeApi";
  * {@link BillCompanyPanel} against whichever one is picked, so there is exactly
  * one billing form rather than two that can drift apart.
  */
-export function ReadyToBillPanel() {
+export function ReadyToBillPanel({ bare = false }: { bare?: boolean } = {}) {
   const { data, isLoading, isError, refetch } = useGetBillableCompaniesQuery();
-  const [selected, setSelected] = useState<number | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
 
   if (isLoading) return <LoadingState rows={3} />;
 
   if (isError) {
-    return (
-      <Panel>
+    const error = (
+      <ErrorState
+        message="Unable to load billable companies."
+        onRetry={refetch}
+      />
+    );
+
+    return bare ? (
+      error
+    ) : (
+      <Panel variant="outlined">
         <PanelHeader
           title="Ready to bill"
-          icon={<HandCoins aria-hidden="true" className="size-5" />}
+          icon={<HandCoins aria-hidden="true" className="size-4" />}
         />
-        <ErrorState
-          message="Unable to load billable companies."
-          onRetry={refetch}
-        />
+        {error}
       </Panel>
     );
   }
@@ -53,90 +63,97 @@ export function ReadyToBillPanel() {
       ? selected
       : null;
 
-  return (
+  const body = (
     <>
-      <Panel>
-        <PanelHeader
-          title={
-            companies.length > 0
-              ? `Ready to bill (${companies.length})`
-              : "Ready to bill"
-          }
-          icon={<HandCoins aria-hidden="true" className="size-5" />}
-        />
-
-        {companies.length === 0 ? (
-          <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            Nothing to bill. A commission appears here once you confirm a hire
-            on{" "}
-            <Link href="/hires" className="font-semibold underline">
-              Hires
-            </Link>
-            .
+      {companies.length === 0 ? (
+        <p className="rounded-xl bg-ws-card px-4 py-6 text-center text-sm text-ws-faint">
+          {/* The hires table is on this page now, so there is nowhere to
+                send the reader — the queue is a few centimetres up. */}
+          Nothing to bill. A commission appears here once a reported hire is
+          confirmed.
+        </p>
+      ) : (
+        <>
+          <p className="mb-4 text-sm text-ws-muted">
+            Commissions from confirmed hires that no invoice has picked up yet.
+            Pick a company to draft its bill.
           </p>
-        ) : (
-          <>
-            <p className="mb-4 text-sm text-ws-muted">
-              Commissions from confirmed hires that no invoice has picked up
-              yet. Pick a company to draft its bill.
-            </p>
 
-            <ul className="flex flex-col gap-2">
-              {companies.map((company) => {
-                const overdue = isPast(company.oldestDueAt);
-                const isOpen = openCompany === company.companyId;
+          <ul className="flex flex-col gap-2">
+            {companies.map((company) => {
+              const overdue = isPast(company.oldestDueAt);
+              const isOpen = openCompany === company.companyId;
 
-                return (
-                  <li
-                    key={`${company.companyId}-${company.currency}`}
-                    className="flex flex-wrap items-center gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3.5"
-                  >
-                    <span className="min-w-0 flex-1">
-                      <Link
-                        href={`/companies/${company.companyId}`}
-                        className="block truncate text-sm font-semibold text-ws-fg hover:underline"
-                      >
-                        {company.companyName}
-                      </Link>
-                      <span className="block truncate text-xs text-ws-faint">
-                        {company.commissionCount}{" "}
-                        {company.commissionCount === 1
-                          ? "commission"
-                          : "commissions"}{" "}
-                        · oldest due {formatDate(company.oldestDueAt)}
-                      </span>
-                    </span>
-
-                    {overdue ? (
-                      <GhostChip>
-                        <TriangleAlert aria-hidden="true" className="size-3.5" />{" "}
-                        Overdue
-                      </GhostChip>
-                    ) : null}
-
-                    <GhostChip>
-                      {formatMoney(company.totalAmount, company.currency)}
-                    </GhostChip>
-
-                    <Button
-                      variant={isOpen ? "outline" : "default"}
-                      className="h-9 rounded-lg px-4"
-                      onClick={() =>
-                        setSelected(isOpen ? null : company.companyId)
-                      }
+              return (
+                <li
+                  key={`${company.companyId}-${company.currency}`}
+                  className="flex flex-wrap items-center gap-3 rounded-xl bg-ws-card-hover px-3 py-2"
+                >
+                  <span className="min-w-0 flex-1">
+                    <Link
+                      href={`/companies/${company.companyId}`}
+                      className="block truncate text-sm font-semibold text-ws-fg hover:underline"
                     >
-                      {isOpen ? "Close" : "Bill"}
-                    </Button>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
-      </Panel>
+                      {company.companyName}
+                    </Link>
+                    <span className="block truncate text-xs text-ws-faint">
+                      {company.commissionCount}{" "}
+                      {company.commissionCount === 1
+                        ? "commission"
+                        : "commissions"}{" "}
+                      · oldest due {formatDate(company.oldestDueAt)}
+                    </span>
+                  </span>
 
-      {openCompany != null ? <BillCompanyPanel companyId={openCompany} /> : null}
+                  {overdue ? (
+                    <GhostChip>
+                      <TriangleAlert aria-hidden="true" className="size-3.5" />{" "}
+                      Overdue
+                    </GhostChip>
+                  ) : null}
+
+                  <GhostChip>
+                    {formatMoney(company.totalAmount, company.currency)}
+                  </GhostChip>
+
+                  <Button
+                    variant={isOpen ? "outline" : "default"}
+                    className="h-9 rounded-lg px-4"
+                    onClick={() =>
+                      setSelected(isOpen ? null : company.companyId)
+                    }
+                  >
+                    {isOpen ? "Close" : "Bill"}
+                  </Button>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+
+      {openCompany != null ? (
+        <BillCompanyPanel companyId={openCompany} />
+      ) : null}
     </>
+  );
+
+  // Inside a dialog the surface and the title come from the dialog itself, so
+  // wrapping the same content in a panel would draw a card inside a card.
+  if (bare) return body;
+
+  return (
+    <Panel variant="outlined">
+      <PanelHeader
+        title={
+          companies.length > 0
+            ? `Ready to bill (${companies.length})`
+            : "Ready to bill"
+        }
+        icon={<HandCoins aria-hidden="true" className="size-4" />}
+      />
+      {body}
+    </Panel>
   );
 }
 

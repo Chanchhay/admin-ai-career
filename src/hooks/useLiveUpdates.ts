@@ -1,105 +1,115 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { baseApi } from "@/services/baseApi";
+import { isUuid } from "@/lib/uuid";
 
-/**
- * The app's single live connection: one Server-Sent Events stream, feeding both
- * the notification bell and any open conversation.
- *
- * <p>Deliberately does not push payloads into the RTK Query cache. An
- * invalidation makes the affected queries re-read from the database, which is
- * the only place that knows the truth — so a dropped, duplicated or out-of-order
- * event costs a refetch rather than a wrong badge or a message in the wrong
- * place.
- *
- * <p>`EventSource` cannot set an Authorization header. This works only because
- * the gateway holds the session cookie and attaches the token to forwarded
- * requests; it also reconnects on its own after a drop, and the refetch on
- * reconnect covers anything missed while disconnected.
- */
-export function useLiveUpdates(enabled: boolean) {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (!enabled || typeof window === "undefined") return;
-
-    const source = new EventSource("/api/v1/notifications/stream");
-
-    const refreshNotifications = () => {
-      dispatch(baseApi.util.invalidateTags(["Notifications", "UnreadCount"]));
-    };
-
-    /*
-     * Without an id every conversation is refreshed, which is what a reconnect
-     * needs: it cannot know which threads moved while the stream was down.
-     */
-    const refreshMessages = (conversationId?: number) => {
-      dispatch(
-        baseApi.util.invalidateTags([
-          "Conversations",
-          conversationId == null
-            ? "Messages"
-            : { type: "Messages" as const, id: conversationId },
-        ]),
-      );
-    };
-
-    source.addEventListener("notification", refreshNotifications);
-
-    /*
-     * The backend sends this to every recipient of a new message, including
-     * those who muted the thread — muting silences the bell, it does not freeze
-     * the transcript someone may be reading right now.
-     *
-     * Named "message" deliberately: an SSE event with no name arrives under
-     * that name too, so this also catches anything unnamed rather than dropping
-     * it silently.
-     */
-    source.addEventListener("message", (event) => {
-      refreshMessages(conversationIdOf(event));
-    });
-
-    // A reconnect may have missed events; re-read rather than assume.
-    source.addEventListener("connected", () => {
-      refreshNotifications();
-      refreshMessages();
-    });
-
-    /*
-     * EventSource retries on its own, so an error is not necessarily fatal and
-     * closing here would defeat that. Only a permanently CLOSED source is worth
-     * giving up on — the queries still refetch on navigation.
-     */
-    source.onerror = () => {
-      if (source.readyState === EventSource.CLOSED) {
-        source.close();
-      }
-    };
-
-    return () => source.close();
-  }, [dispatch, enabled]);
+type LiveStatus = "connecting" | "connected" | "reconnecting";
+let status: LiveStatus = "connecting";
+const listeners = new Set<() => void>();
+function setStatus(value: LiveStatus) {
+  status = value;
+  listeners.forEach((listener) => listener());
+}
+const subscribe = (listener: () => void) => {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+};
+export function useLiveStatus() {
+  return useSyncExternalStore(
+    subscribe,
+    () => status,
+    () => "connecting" as LiveStatus,
+  );
 }
 
-/**
- * The conversation a stream event refers to, or undefined if it did not say.
- *
- * Anything unreadable falls back to refreshing every conversation, which is
- * correct but heavier — better than throwing inside an event listener and
- * killing the rest of the stream.
- */
-function conversationIdOf(event: MessageEvent): number | undefined {
-  try {
-    const payload: unknown = JSON.parse(event.data as string);
-
-    if (payload && typeof payload === "object" && "conversationId" in payload) {
-      const id = Number((payload as { conversationId: unknown }).conversationId);
-      return Number.isFinite(id) ? id : undefined;
-    }
-  } catch {
-    // Not JSON, or not the shape we expected.
-  }
-
-  return undefined;
+/** One authenticated socket owned by the app shell. Re-read after reconnect so
+ * a lost event never leaves the inbox stale. Tokens remain in the gateway. */
+export function useLiveUpdates(enabled: boolean) {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (!enabled) return;
+    let disposed = false;
+    let socket: WebSocket | undefined;
+    let retry: ReturnType<typeof setTimeout> | undefined;
+    let attempt = 0;
+    let lastSeen = Date.now();
+    const refresh = () =>
+      dispatch(
+        baseApi.util.invalidateTags([
+          "Notifications",
+          "UnreadCount",
+          "Conversations",
+          "Messages",
+        ]),
+      );
+    const connect = () => {
+      if (disposed) return;
+      setStatus(attempt ? "reconnecting" : "connecting");
+      const url = new URL("/api/v1/notifications/ws", window.location.href);
+      url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+      socket = new WebSocket(url);
+      lastSeen = Date.now();
+      socket.onmessage = (event) => {
+        if (disposed) return;
+        lastSeen = Date.now();
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.type === "connected") {
+            attempt = 0;
+            setStatus("connected");
+            refresh();
+          } else if (payload.type === "notification") {
+            dispatch(
+              baseApi.util.invalidateTags(["Notifications", "UnreadCount"]),
+            );
+          } else if (payload.type === "message") {
+            const id = payload.data?.conversationId;
+            dispatch(
+              baseApi.util.invalidateTags([
+                "Conversations",
+                typeof id === "string" && isUuid(id)
+                  ? { type: "Messages", id }
+                  : "Messages",
+              ]),
+            );
+          }
+        } catch {
+          /* Ignore malformed events; reconnect also resynchronizes. */
+        }
+      };
+      socket.onerror = () => socket?.close();
+      socket.onclose = () => {
+        if (disposed) return;
+        setStatus("reconnecting");
+        retry = setTimeout(
+          connect,
+          Math.min(30000, 1000 * 2 ** Math.min(attempt++, 5)) +
+            Math.random() * 500,
+        );
+      };
+    };
+    connect();
+    const watchdog = setInterval(() => {
+      if (Date.now() - lastSeen > 60000) socket?.close();
+    }, 15000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        refresh();
+        if (Date.now() - lastSeen > 60000) socket?.close();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      disposed = true;
+      clearTimeout(retry);
+      clearInterval(watchdog);
+      document.removeEventListener("visibilitychange", onVisible);
+      socket?.close();
+      setStatus("connecting");
+    };
+  }, [dispatch, enabled]);
 }

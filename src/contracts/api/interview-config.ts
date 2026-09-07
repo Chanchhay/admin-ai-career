@@ -46,7 +46,7 @@ export type ApiResponseAiInterviewConfig = ApiResponse<AiInterviewConfigResponse
 export type ManualQuestionMode = "MANUAL_ONLY" | "MANUAL_PLUS_AI";
 
 export type JobInterviewQuestionResponse = {
-  id: number;
+  id: string;
   displayOrder: number;
   questionType: InterviewQuestionType;
   questionText: string;
@@ -61,7 +61,7 @@ export type JobInterviewQuestionResponse = {
  * cannot disagree.
  */
 export type JobInterviewQuestionSetResponse = {
-  jobId: number;
+  jobId: string;
   jobTitle: string;
   mode: ManualQuestionMode;
   targetQuestionCount: number;
@@ -73,7 +73,7 @@ export type JobInterviewQuestionSetResponse = {
 
 /** `id` updates a question in place; null adds one. Omissions are deletions. */
 export type JobInterviewQuestionRequest = {
-  id: number | null;
+  id: string | null;
   questionText: string;
   questionType: InterviewQuestionType;
   expectedAnswer?: string;

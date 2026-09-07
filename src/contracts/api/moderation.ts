@@ -30,23 +30,28 @@ import type {
 export type CompanyIdentityVisibility = "VISIBLE" | "MASKED";
 
 export type ModeratorCompanyListItem = {
-  id: number;
-  recruiterProfileId: number;
-  industryId: number;
+  id: string;
+  recruiterProfileId: string;
+  industryId: string;
   industryName: string;
   name: string;
+  /** The company's own logo. Empty on a company that never uploaded one. */
+  logoUrl: string;
   websiteUrl: string;
   contactEmail: string;
   businessRegistrationNo: string;
   verificationStatus: CompanyVerificationStatus;
   status: EntityStatus;
   identityVisibility: CompanyIdentityVisibility;
+  /** How much this company has posted, and how much of it is live. */
+  jobCount: number;
+  publishedJobCount: number;
 };
 
 export type ModeratorCompany = {
-  id: number;
-  recruiterProfileId: number;
-  industryId: number;
+  id: string;
+  recruiterProfileId: string;
+  industryId: string;
   industryName: string;
   name: string;
   description: string;
@@ -59,12 +64,18 @@ export type ModeratorCompany = {
   verificationStatus: CompanyVerificationStatus;
   status: EntityStatus;
   identityVisibility: CompanyIdentityVisibility;
+  /**
+   * The stand-in logo candidates see while this company is masked. Null when
+   * none is set, which is the ordinary state — a masked posting then carries
+   * no mark at all. Only a moderator can write it.
+   */
+  maskedLogoUrl: string | null;
 };
 
 export type CompanyDocumentResponse = {
-  id: number;
-  companyId: number;
-  uploadedByRecruiterProfileId: number;
+  id: string;
+  companyId: string;
+  uploadedByRecruiterProfileId: string;
   documentType: string;
   documentUrl: string;
   status: EntityStatus;
@@ -74,12 +85,14 @@ export type CompanyDocumentResponse = {
 export type CompanyVerificationDecision =
   | "APPROVED"
   | "REJECTED"
-  | "NEEDS_REVISION";
+  | "NEEDS_REVISION"
+  | "SUSPENDED"
+  | "REINSTATED";
 
 export type CompanyVerificationResponse = {
-  id: number;
-  companyId: number;
-  moderatorProfileId: number;
+  id: string;
+  companyId: string;
+  moderatorProfileId: string;
   decision: CompanyVerificationDecision;
   note?: string;
   verifiedAt: string;
@@ -88,9 +101,87 @@ export type CompanyVerificationResponse = {
 export type ModeratorCompanyDetailResponse = {
   company: ModeratorCompany;
   documents: CompanyDocumentResponse[];
-  /** Newest decision last, as the backend returns it. */
+  /** Newest decision first — the backend orders by `verifiedAt` descending. */
   verificationHistory: CompanyVerificationResponse[];
 };
+
+/* ---------------------------------------------------------------- jobs --- */
+
+export type JobStatus =
+  | "DRAFT"
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "PUBLISHED"
+  | "PAUSED"
+  | "CLOSED"
+  | "EXPIRED";
+
+/**
+ * A company's job as the console lists it.
+ *
+ * Not the public catalogue's shape: this one carries drafts, paused and closed
+ * posts too, because a moderator deciding about a company needs to see what it
+ * has posted, not only what candidates can currently find.
+ */
+export type ModeratorJobListItem = {
+  id: string;
+  title: string;
+  location: string;
+  jobType: string;
+  workMode: string;
+  status: JobStatus;
+  publishedAt: string | null;
+  expiredAt: string | null;
+  createdAt: string;
+};
+
+export type ModeratorJobSection = {
+  id: string;
+  sectionType: string;
+  title: string;
+  contentText: string;
+  contentMarkdown: string;
+  displayOrder: number;
+};
+
+export type ModeratorJobSkill = {
+  id: string;
+  skillId: string;
+  skillName: string;
+  weight: number;
+};
+
+/** One job in full, as `/moderator/jobs/{id}` returns it. */
+export type ModeratorJobDetail = {
+  id: string;
+  companyId: string;
+  companyName: string;
+  recruiterProfileId: string;
+  categoryId: string;
+  categoryName: string;
+  title: string;
+  description: string;
+  location: string;
+  jobType: string;
+  workMode: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  experienceLevel: string;
+  status: JobStatus;
+  publishedAt: string | null;
+  expiredAt: string | null;
+  sourceFileUrl: string | null;
+  sections: ModeratorJobSection[];
+  skills: ModeratorJobSkill[];
+};
+
+export type ApiResponseModeratorJobDetail = ApiResponse<ModeratorJobDetail>;
+
+export type ApiResponsePageModeratorJob = ApiResponse<
+  CompactPagePayload<ModeratorJobListItem>
+>;
+export type ApiResponseModeratorJob = ApiResponse<ModeratorJobListItem>;
 
 /* -------------------------------------------------------- applications --- */
 
@@ -104,8 +195,8 @@ export type CandidateApplicationReviewStatus =
   | "FORWARDED";
 
 export type ApplicationSummaryResponse = {
-  id: number;
-  jobId: number;
+  id: string;
+  jobId: string;
   jobTitle: string;
   coverLetter: string;
   status: ApplicationStatus;
@@ -113,7 +204,7 @@ export type ApplicationSummaryResponse = {
 };
 
 export type CandidateProfileResponse = {
-  id: number;
+  id: string;
   headline: string;
   currentPosition: string;
   preferredLocation: string;
@@ -121,7 +212,7 @@ export type CandidateProfileResponse = {
 };
 
 export type SubmittedResumeResponse = {
-  id: number;
+  id: string;
   title: string;
   /** App-relative MinIO URL; fetchable as-is through the gateway. */
   resumeFileUrl: string;
@@ -129,7 +220,7 @@ export type SubmittedResumeResponse = {
 };
 
 export type CandidateApplicationReviewResponse = {
-  id: number;
+  id: string;
   reviewStatus: CandidateApplicationReviewStatus;
   decisionNote: string;
   reviewedAt: string;
@@ -150,9 +241,9 @@ export type AiInterviewFeedbackResponse = {
 };
 
 export type AiInterviewSessionResponse = {
-  id: number;
-  applicationId: number;
-  jobId: number;
+  id: string;
+  applicationId: string;
+  jobId: string;
   jobTitle: string;
   status: InterviewStatus;
   startedAt: string;
@@ -169,8 +260,8 @@ export type AiInterviewResultResponse = {
 };
 
 export type HumanInterviewResponse = {
-  id: number;
-  applicationId: number;
+  id: string;
+  applicationId: string;
   scheduledAt: string;
   meetingUrl: string;
   status: InterviewStatus;
@@ -181,7 +272,7 @@ export type HumanInterviewResponse = {
 };
 
 export type ProjectAssignmentSummaryResponse = {
-  id: number;
+  id: string;
   title: string;
   description: string;
   deadlineAt: string;
@@ -193,9 +284,15 @@ export type CandidateApplicationListItem = {
   candidate: CandidateProfileResponse;
   submittedResume: SubmittedResumeResponse;
   review: CandidateApplicationReviewResponse;
+  /** Null until the candidate's AI interview has finished. */
+  aiScore: number | null;
+  aiResult: InterviewResult | null;
 };
 
-export type CandidateApplicationDetailResponse = CandidateApplicationListItem & {
+export type CandidateApplicationDetailResponse = Omit<
+  CandidateApplicationListItem,
+  "aiScore" | "aiResult"
+> & {
   aiResult: AiInterviewResultResponse | null;
   humanInterviews: HumanInterviewResponse[];
   projectAssignments: ProjectAssignmentSummaryResponse[];

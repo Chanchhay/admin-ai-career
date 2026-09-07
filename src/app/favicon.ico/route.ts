@@ -8,7 +8,7 @@ import path from "node:path";
  */
 export async function GET() {
   const icon = await readFile(
-    path.join(process.cwd(), "public", "figma", "brand-logo.png"),
+    path.join(process.cwd(), "public", "images", "brand", "favicon-64.png"),
   );
 
   return new Response(icon, {

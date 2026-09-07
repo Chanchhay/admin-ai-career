@@ -56,7 +56,7 @@ export function ReapplyCooldownPanel() {
     <Panel>
       <PanelHeader
         title="Re-apply cooldown"
-        icon={<Timer aria-hidden="true" className="size-5" />}
+        icon={<Timer aria-hidden="true" className="size-4" />}
       />
 
       <p className="mb-4 text-sm text-ws-muted">

@@ -9,7 +9,9 @@
 import type { ApiResponse, EntityStatus } from "./common";
 
 export type IndustryResponse = {
-  id: number;
+  parentId: string | null;
+  parentName: string | null;
+  id: string;
   name: string;
   description: string;
   /** Admin responses include these fields; public list responses may omit them. */
@@ -19,13 +21,16 @@ export type IndustryResponse = {
 };
 
 export type IndustryRequest = {
+  parentId?: string | null;
   name: string;
   description?: string;
   status?: EntityStatus;
 };
 
 export type JobCategoryResponse = {
-  id: number;
+  parentId: string | null;
+  parentName: string | null;
+  id: string;
   name: string;
   description: string;
   createdAt?: string;
@@ -33,12 +38,15 @@ export type JobCategoryResponse = {
 };
 
 export type JobCategoryRequest = {
+  parentId?: string | null;
   name: string;
   description?: string;
 };
 
 export type SkillResponse = {
-  id: number;
+  parentId: string | null;
+  parentName: string | null;
+  id: string;
   name: string;
   /** Free text on the backend — "TECHNICAL", "SOFT", whatever was entered. */
   skillType: string;
@@ -47,6 +55,7 @@ export type SkillResponse = {
 };
 
 export type SkillRequest = {
+  parentId?: string | null;
   name: string;
   skillType?: string;
 };

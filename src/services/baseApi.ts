@@ -67,6 +67,7 @@ export const baseApi = createApi({
     "JobCategories",
     "Skills",
     "Jobs",
+    "CompanyJobs",
     "AiInterviewConfig",
     "JobInterviewQuestions",
     "GuestInterviewSettings",

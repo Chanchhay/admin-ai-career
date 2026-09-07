@@ -25,13 +25,13 @@ import {
  * <p>Renders nothing when the pool is empty, so the panel only appears on a
  * company that actually owes something.
  */
-export function BillCompanyPanel({ companyId }: { companyId: number }) {
+export function BillCompanyPanel({ companyId }: { companyId: string }) {
   const router = useRouter();
   const { data: commissions, isLoading } =
     useGetUnbilledCommissionsQuery(companyId);
   const [createInvoice, { isLoading: isCreating }] = useCreateInvoiceMutation();
 
-  const [selected, setSelected] = useState<number[] | null>(null);
+  const [selected, setSelected] = useState<string[] | null>(null);
   const [tax, setTax] = useState("0");
 
   if (isLoading || !commissions || commissions.length === 0) return null;
@@ -46,7 +46,7 @@ export function BillCompanyPanel({ companyId }: { companyId: number }) {
 
   const taxValue = Number(tax) || 0;
 
-  const toggle = (id: number) =>
+  const toggle = (id: string) =>
     setSelected(
       chosen.includes(id)
         ? chosen.filter((item) => item !== id)
@@ -77,7 +77,7 @@ export function BillCompanyPanel({ companyId }: { companyId: number }) {
     <Panel>
       <PanelHeader
         title={`Unbilled commissions (${commissions.length})`}
-        icon={<Receipt aria-hidden="true" className="size-5" />}
+        icon={<Receipt aria-hidden="true" className="size-4" />}
       />
 
       <p className="mb-4 text-sm text-ws-muted">
@@ -88,7 +88,7 @@ export function BillCompanyPanel({ companyId }: { companyId: number }) {
       <ul className="flex flex-col gap-2">
         {commissions.map((commission) => (
           <li key={commission.id}>
-            <label className="flex items-center gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3">
+            <label className="flex items-center gap-3 rounded-xl bg-ws-card-hover px-4 py-3">
               <input
                 type="checkbox"
                 checked={chosen.includes(commission.id)}

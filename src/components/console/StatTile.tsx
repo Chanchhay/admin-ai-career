@@ -21,10 +21,10 @@ export function StatTile({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-[22px] bg-ws-card p-5", className)}>
+    <div className={cn("rounded-xl bg-ws-card p-3.5", className)}>
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ws-faint">
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-ws-faint">
             {label}
           </p>
           <p className="mt-2 text-3xl font-bold tabular-nums text-ws-fg">

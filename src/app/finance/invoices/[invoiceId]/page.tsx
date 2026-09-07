@@ -3,20 +3,22 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, Ban, ReceiptText, Send, Wallet } from "lucide-react";
+import { ArrowLeft, Printer, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { InvoiceStatusChip } from "@/components/console/InvoiceStatusChip";
 import { useSetPageHeading } from "@/components/layout/PageHeader";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
+import { Panel, PanelHeader } from "@/components/workspace/primitives";
 import type { InvoiceResponse } from "@/contracts";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime, humanizeEnum, orDash } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
+import { isUuid } from "@/lib/uuid";
 import {
   useCancelInvoiceMutation,
   useGetInvoiceQuery,
@@ -24,138 +26,300 @@ import {
   useRecordPaymentMutation,
 } from "@/services/financeApi";
 
+/**
+ * One invoice, as a document.
+ *
+ * The sheet below is the invoice itself — issuer, bill-to, line items, totals —
+ * and it is what prints. Everything that acts on it is interface, marked
+ * `print-hide`, so a printed copy is a bill rather than a screenshot of an
+ * admin tool.
+ */
 export default function InvoiceDetailPage() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
-  useSetPageHeading("Invoice");
 
-  const { data, isLoading, isError, refetch } = useGetInvoiceQuery(
-    Number(invoiceId),
+  const { data: invoice, isLoading, isError, refetch } = useGetInvoiceQuery(
+    invoiceId,
+    { skip: !isUuid(invoiceId) },
   );
 
+  useSetPageHeading(invoice?.invoiceNo ?? "Invoice");
+
   if (isLoading) return <LoadingState rows={6} />;
-  if (isError || !data) {
+  if (isError || !invoice) {
     return <ErrorState message="Unable to load this invoice." onRetry={refetch} />;
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <Link
-        href="/finance"
-        className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ws-muted transition-colors hover:text-ws-fg"
-      >
-        <ArrowLeft aria-hidden="true" className="size-4" /> All invoices
-      </Link>
+    <div className="flex w-full flex-col gap-4">
+      <div className="print-hide flex flex-wrap items-center gap-3">
+        <Link
+          href="/finance"
+          aria-label="Back to finance"
+          className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
+        >
+          <ArrowLeft aria-hidden="true" className="size-4" />
+        </Link>
 
-      <Panel>
-        <PanelHeader
-          title={data.invoiceNo}
-          icon={<ReceiptText aria-hidden="true" className="size-5" />}
-          action={<InvoiceStatusChip status={data.status} />}
-        />
-
-        <div className="mb-4 flex flex-wrap items-center gap-1.5">
-          <GhostChip>{data.companyName}</GhostChip>
-          <GhostChip>Issued {formatDate(data.issuedAt)}</GhostChip>
-          <GhostChip>Due {formatDate(data.dueAt)}</GhostChip>
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate text-2xl font-semibold tracking-tight text-ws-fg">
+            {invoice.invoiceNo}
+          </h2>
+          <p className="truncate text-sm text-ws-faint">
+            {orDash(invoice.companyName)}
+          </p>
         </div>
 
-        <ul className="flex flex-col gap-2">
-          {data.items.map((item) => (
-            <li
-              key={item.id}
-              className="flex items-center justify-between gap-4 rounded-[18px] bg-ws-card-hover px-4 py-3"
-            >
-              <span className="min-w-0 flex-1 truncate text-sm text-ws-fg">
-                {item.description}
-              </span>
-              <span className="text-sm font-semibold text-ws-fg">
-                {formatMoney(item.totalAmount, data.currency)}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <InvoiceStatusChip status={invoice.status} />
 
-        <dl className="mt-4 space-y-1.5 text-sm">
-          <Row label="Subtotal" value={formatMoney(data.subtotalAmount, data.currency)} />
-          <Row label="Tax" value={formatMoney(data.taxAmount, data.currency)} />
-          <Row label="Total" value={formatMoney(data.totalAmount, data.currency)} strong />
-          <Row label="Paid" value={formatMoney(data.paidAmount, data.currency)} />
-          <Row
-            label="Outstanding"
-            value={formatMoney(data.outstandingAmount, data.currency)}
-            strong
-          />
-        </dl>
+        <Button variant="outline" onClick={() => window.print()}>
+          <Printer aria-hidden="true" /> Print
+        </Button>
+      </div>
 
-        <InvoiceActions invoice={data} />
-      </Panel>
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <InvoiceSheet invoice={invoice} />
 
-      {/*
-        * A draft owes nothing, so there is nothing to pay against it yet — but
-        * saying so beats the panel simply not being there, which reads as a
-        * missing feature.
-        */}
-      {data.status === "DRAFT" ? (
-        <Panel>
-          <PanelHeader
-            title="Payments"
-            icon={<Wallet aria-hidden="true" className="size-5" />}
-          />
-          <p className="text-sm text-ws-faint">
-            Issue this invoice to record payments against it.
-          </p>
-        </Panel>
-      ) : data.status !== "CANCELLED" ? (
-        <PaymentsPanel invoice={data} />
-      ) : null}
+        <aside className="print-hide flex flex-col gap-4">
+          <InvoiceActions invoice={invoice} />
+          <PaymentsPanel invoice={invoice} />
+        </aside>
+      </div>
     </div>
   );
 }
 
+/* --------------------------------------------------------------- sheet --- */
+
+function InvoiceSheet({ invoice }: { invoice: InvoiceResponse }) {
+  const paid = invoice.paidAmount > 0;
+
+  return (
+    <article className="print-sheet rounded-xl border border-ws-line bg-ws-panel p-6 sm:p-8">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <BrandLogo height={28} />
+          <p className="mt-2 text-xs leading-5 text-ws-muted">
+            Kagea · AI Career Platform
+            <br />
+            Phnom Penh, Cambodia
+          </p>
+        </div>
+
+        <div className="text-right">
+          <h1 className="text-2xl font-semibold tracking-tight text-ws-fg">
+            Invoice
+          </h1>
+          <p className="mt-1 font-medium tabular-nums text-ws-fg">
+            {invoice.invoiceNo}
+          </p>
+          <p className="mt-1 text-xs text-ws-muted">
+            {humanizeEnum(invoice.status)}
+          </p>
+        </div>
+      </header>
+
+      <div className="mt-6 grid gap-4 border-t border-ws-line pt-5 sm:grid-cols-2">
+        <div>
+          <p className="text-xs text-ws-faint">Billed to</p>
+          <p className="mt-1 font-medium text-ws-fg">
+            {orDash(invoice.companyName)}
+          </p>
+        </div>
+
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:justify-self-end">
+          <dt className="text-ws-faint">Issued</dt>
+          <dd className="text-right tabular-nums text-ws-fg">
+            {invoice.issuedAt ? formatDate(invoice.issuedAt) : "Not issued"}
+          </dd>
+          <dt className="text-ws-faint">Due</dt>
+          <dd className="text-right tabular-nums text-ws-fg">
+            {invoice.dueAt ? formatDate(invoice.dueAt) : "—"}
+          </dd>
+          {invoice.paidAt ? (
+            <>
+              <dt className="text-ws-faint">Paid</dt>
+              <dd className="text-right tabular-nums text-ws-fg">
+                {formatDate(invoice.paidAt)}
+              </dd>
+            </>
+          ) : null}
+        </dl>
+      </div>
+
+      <table className="mt-6 w-full border-collapse text-left">
+        <thead>
+          <tr className="border-b border-ws-line">
+            <th scope="col" className="py-2 text-xs font-semibold text-ws-muted">
+              Description
+            </th>
+            <th
+              scope="col"
+              className="w-20 py-2 text-right text-xs font-semibold text-ws-muted"
+            >
+              Qty
+            </th>
+            <th
+              scope="col"
+              className="w-32 py-2 text-right text-xs font-semibold text-ws-muted"
+            >
+              Unit
+            </th>
+            <th
+              scope="col"
+              className="w-32 py-2 text-right text-xs font-semibold text-ws-muted"
+            >
+              Amount
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {invoice.items.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="py-6 text-center text-sm text-ws-faint">
+                This invoice has no lines.
+              </td>
+            </tr>
+          ) : (
+            invoice.items.map((item) => (
+              <tr key={item.id} className="border-b border-ws-line/70">
+                <td className="py-2.5 text-sm text-ws-fg">{item.description}</td>
+                <td className="py-2.5 text-right text-sm tabular-nums text-ws-muted">
+                  {item.quantity}
+                </td>
+                <td className="py-2.5 text-right text-sm tabular-nums text-ws-muted">
+                  {formatMoney(item.unitAmount, invoice.currency)}
+                </td>
+                <td className="py-2.5 text-right text-sm tabular-nums text-ws-fg">
+                  {formatMoney(item.totalAmount, invoice.currency)}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+
+      <div className="mt-5 flex justify-end">
+        <dl className="w-full max-w-xs text-sm">
+          <Total label="Subtotal" value={formatMoney(invoice.subtotalAmount, invoice.currency)} />
+          <Total label="Tax" value={formatMoney(invoice.taxAmount, invoice.currency)} />
+          <Total
+            label="Total"
+            value={formatMoney(invoice.totalAmount, invoice.currency)}
+            strong
+          />
+          {paid ? (
+            <Total label="Paid" value={`− ${formatMoney(invoice.paidAmount, invoice.currency)}`} />
+          ) : null}
+          <Total
+            label="Outstanding"
+            value={formatMoney(invoice.outstandingAmount, invoice.currency)}
+            strong
+          />
+        </dl>
+      </div>
+
+      {invoice.note ? (
+        <p className="mt-6 border-t border-ws-line pt-4 text-sm leading-6 text-ws-muted">
+          {invoice.note}
+        </p>
+      ) : null}
+
+      <p className="mt-6 text-xs text-ws-faint">
+        Commission on placements made through the platform. Questions about this
+        invoice go to the moderator who issued it.
+      </p>
+    </article>
+  );
+}
+
+function Total({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 border-b border-ws-line/70 py-1.5 last:border-0">
+      <dt className={strong ? "font-medium text-ws-fg" : "text-ws-muted"}>
+        {label}
+      </dt>
+      <dd
+        className={
+          strong
+            ? "font-semibold tabular-nums text-ws-fg"
+            : "tabular-nums text-ws-muted"
+        }
+      >
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------- actions --- */
+
 function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
   const [issueInvoice, issueState] = useIssueInvoiceMutation();
   const [cancelInvoice, cancelState] = useCancelInvoiceMutation();
+  const busy = issueState.isLoading || cancelState.isLoading;
 
-  const pending = issueState.isLoading || cancelState.isLoading;
+  const draft = invoice.status === "DRAFT";
+  const settled = invoice.status === "PAID" || invoice.status === "CANCELLED";
 
   async function run(action: "issue" | "cancel") {
     try {
       if (action === "issue") {
         await issueInvoice(invoice.id).unwrap();
-        toast.success("Invoice issued. The recruiter has been notified.");
+        toast.success("Invoice issued.");
       } else {
         await cancelInvoice(invoice.id).unwrap();
-        toast.success("Invoice cancelled. Its commissions are billable again.");
+        toast.success("Invoice cancelled.");
       }
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to update the invoice."));
+      toast.error(getApiErrorMessage(error, "Unable to update this invoice."));
     }
   }
 
-  // Nothing to do on a finished invoice; the buttons disappear rather than
-  // sitting there disabled with no explanation.
-  if (invoice.status === "PAID" || invoice.status === "CANCELLED") return null;
-
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
-      {invoice.status === "DRAFT" ? (
-        <Button disabled={pending} onClick={() => void run("issue")}>
-          <Send aria-hidden="true" /> {issueState.isLoading ? "Issuing…" : "Issue invoice"}
-        </Button>
-      ) : null}
+    <Panel variant="outlined">
+      <PanelHeader title="Status" />
 
-      {invoice.paidAmount === 0 ? (
-        <Button
-          variant="destructive"
-          disabled={pending}
-          onClick={() => void run("cancel")}
-        >
-          <Ban aria-hidden="true" /> Cancel
-        </Button>
-      ) : null}
-    </div>
+      <p className="text-sm leading-6 text-ws-muted">
+        {draft
+          ? "A draft is private. Issuing it is what the recruiter sees, and starts the payment clock."
+          : invoice.status === "ISSUED"
+            ? "Issued and awaiting payment."
+            : invoice.status === "PAID"
+              ? "Settled in full."
+              : "Cancelled. Its commissions returned to the unbilled pool."}
+      </p>
+
+      {settled ? null : (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {draft ? (
+            <Button size="sm" disabled={busy} onClick={() => void run("issue")}>
+              <Send aria-hidden="true" /> Issue invoice
+            </Button>
+          ) : null}
+          <Button
+            size="sm"
+            variant="destructive"
+            disabled={busy}
+            onClick={() => void run("cancel")}
+          >
+            <X aria-hidden="true" /> Cancel
+          </Button>
+        </div>
+      )}
+    </Panel>
   );
 }
+
+/* ------------------------------------------------------------ payments --- */
 
 function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
   const [recordPayment, { isLoading }] = useRecordPaymentMutation();
@@ -163,6 +327,9 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
   const [method, setMethod] = useState("");
   const [reference, setReference] = useState("");
   const [note, setNote] = useState("");
+
+  const payments = invoice.payments ?? [];
+  const open = invoice.status === "ISSUED" && invoice.outstandingAmount > 0;
 
   async function submit() {
     const value = Number(amount);
@@ -182,7 +349,6 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
           note: note.trim() || undefined,
         },
       }).unwrap();
-
       toast.success("Payment recorded.");
       setAmount("");
       setMethod("");
@@ -194,108 +360,85 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
   }
 
   return (
-    <Panel>
-      <PanelHeader
-        title="Payments"
-        icon={<Wallet aria-hidden="true" className="size-5" />}
-      />
+    <Panel variant="outlined">
+      <PanelHeader title={`Payments (${payments.length})`} />
 
-      {invoice.payments && invoice.payments.length > 0 ? (
-        <ul className="mb-4 flex flex-col gap-2">
-          {invoice.payments.map((payment) => (
+      {payments.length === 0 ? (
+        <p className="text-sm text-ws-faint">Nothing received yet.</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {payments.map((payment) => (
             <li
               key={payment.id}
-              className="flex items-center justify-between gap-4 rounded-[18px] bg-ws-card-hover px-4 py-3 text-sm"
+              className="rounded-lg bg-ws-card px-3 py-2 text-sm"
             >
-              <span className="text-ws-muted">
-                {formatDate(payment.paidAt)}
-                {payment.paymentMethod ? ` · ${payment.paymentMethod}` : ""}
-                {payment.transactionReference
-                  ? ` · ${payment.transactionReference}`
-                  : ""}
-              </span>
-              <span className="font-semibold text-ws-fg">
-                {formatMoney(payment.amount, payment.currency)}
-              </span>
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="font-medium tabular-nums text-ws-fg">
+                  {formatMoney(payment.amount, payment.currency)}
+                </span>
+                <span className="text-xs text-ws-faint">
+                  {payment.paidAt ? formatDateTime(payment.paidAt) : "—"}
+                </span>
+              </div>
+              <p className="text-xs text-ws-faint">
+                {[payment.paymentMethod, payment.transactionReference]
+                  .filter(Boolean)
+                  .join(" · ") || humanizeEnum(payment.status)}
+              </p>
             </li>
           ))}
         </ul>
-      ) : (
-        <p className="mb-4 text-sm text-ws-faint">Nothing received yet.</p>
       )}
 
-      {/*
-        * Payments are entered by hand because nothing on this platform takes
-        * money — every row records something that happened in a bank.
-        */}
-      {invoice.status === "PAID" ? null : (
-        <div className="flex flex-col gap-3">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-ws-muted">
-                Amount ({invoice.currency})
-              </span>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={amount}
-                onChange={(event) => setAmount(event.target.value)}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-ws-muted">Method</span>
+      {open ? (
+        <div className="mt-3 flex flex-col gap-2 border-t border-ws-line pt-3">
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+            Amount received ({invoice.currency})
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={amount}
+              onChange={(event) => setAmount(event.target.value)}
+              placeholder={String(invoice.outstandingAmount)}
+            />
+          </label>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+              Method
               <Input
                 value={method}
                 onChange={(event) => setMethod(event.target.value)}
                 placeholder="Bank transfer"
               />
             </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-ws-muted">
-                Reference
-              </span>
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+              Reference
               <Input
                 value={reference}
                 onChange={(event) => setReference(event.target.value)}
+                placeholder="TXN-0001"
               />
             </label>
           </div>
 
-          <Textarea
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-            placeholder="Note (optional)"
-            rows={2}
-            maxLength={2000}
-          />
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+            Note
+            <Textarea
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              rows={2}
+            />
+          </label>
 
           <div>
-            <Button disabled={isLoading} onClick={() => void submit()}>
+            <Button size="sm" disabled={isLoading} onClick={() => void submit()}>
               {isLoading ? "Recording…" : "Record payment"}
             </Button>
           </div>
         </div>
-      )}
+      ) : null}
     </Panel>
-  );
-}
-
-function Row({
-  label,
-  value,
-  strong,
-}: {
-  label: string;
-  value: string;
-  strong?: boolean;
-}) {
-  return (
-    <div className="flex justify-between">
-      <dt className="text-ws-muted">{label}</dt>
-      <dd className={strong ? "font-semibold text-ws-fg" : "text-ws-fg"}>
-        {value}
-      </dd>
-    </div>
   );
 }

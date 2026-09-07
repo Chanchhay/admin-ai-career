@@ -45,7 +45,7 @@ export function Chip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold",
+        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium",
         toneFill[tone],
         className,
       )}
@@ -66,7 +66,7 @@ export function GhostChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full bg-ws-card px-2.5 py-1 text-xs font-medium text-ws-muted",
+        "inline-flex items-center gap-1.5 rounded-md bg-ws-card px-2.5 py-1 text-xs font-medium text-ws-muted",
         className,
       )}
     >
@@ -76,24 +76,34 @@ export function GhostChip({
 }
 
 /**
- * The console's only container. Borderless by default — separation comes from
- * the fill and the radius, never from a rule.
+ * The console's only container.
+ *
+ * `filled` is the original: a soft card that separates by fill alone. It reads
+ * well as one block on a page, and badly as six — a column of them is a stack
+ * of grey slabs with no hierarchy. `outlined` is for those pages: a white sheet
+ * held by a hairline, so the eye follows the headings rather than the fills.
  */
 export function Panel({
   tone,
+  variant = "filled",
   className,
   children,
 }: {
   /** A tinted panel lifts a block out of the stack; omit for the card fill. */
   tone?: Tone;
+  variant?: "filled" | "outlined";
   className?: string;
   children: ReactNode;
 }) {
   return (
     <section
       className={cn(
-        "rounded-[2rem] p-5",
-        tone ? toneFill[tone] : "bg-ws-card text-ws-fg",
+        "rounded-xl p-4",
+        tone
+          ? toneFill[tone]
+          : variant === "outlined"
+            ? "border border-ws-line bg-ws-panel text-ws-fg"
+            : "bg-ws-card text-ws-fg",
         className,
       )}
     >
@@ -112,9 +122,9 @@ export function PanelHeader({
   action?: ReactNode;
 }) {
   return (
-    <header className="mb-4 flex items-center gap-2">
+    <header className="mb-3 flex items-center gap-2">
       {icon}
-      <h2 className="text-[15px] font-semibold tracking-tight">{title}</h2>
+      <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
       {action ? (
         <div className="ml-auto flex items-center gap-1">{action}</div>
       ) : null}
@@ -137,7 +147,7 @@ export function PillTabs<T extends string>({
   return (
     <div
       className={cn(
-        "ws-scroll flex items-center gap-1.5 overflow-x-auto",
+        "ws-scroll flex items-center gap-1 overflow-x-auto",
         className,
       )}
     >
@@ -148,7 +158,7 @@ export function PillTabs<T extends string>({
           onClick={() => onChange(tab)}
           aria-pressed={value === tab}
           className={cn(
-            "shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors",
+            "shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
             value === tab
               ? "bg-ws-panel text-ws-fg"
               : "text-ws-faint hover:text-ws-fg",
@@ -171,6 +181,7 @@ export function NotchedPanel({
   title,
   icon,
   actions,
+  notchSize = "default",
   className,
   children,
 }: {
@@ -180,21 +191,29 @@ export function NotchedPanel({
   icon?: ReactNode;
   /** Round controls, rendered on the sheet inside the cut. */
   actions?: ReactNode;
+  notchSize?: "default" | "compact";
   className?: string;
   children: ReactNode;
 }) {
   return (
-    <section className={cn("ws-notch flex flex-col", noteVar[fill], className)}>
-      <header className="ws-notch__top flex shrink-0 items-center gap-2 px-5">
+    <section
+      className={cn(
+        "ws-notch flex flex-col",
+        notchSize === "compact" && "ws-notch--compact",
+        noteVar[fill],
+        className,
+      )}
+    >
+      <header className="ws-notch__top flex shrink-0 items-center gap-2 px-4">
         {icon}
-        <h2 className="truncate text-[15px] font-semibold tracking-tight">
+        <h2 className="truncate text-lg font-semibold tracking-tight">
           {title}
         </h2>
       </header>
 
       <span aria-hidden="true" className="ws-notch__joint" />
 
-      <div className="ws-notch__body flex-1 px-5 pb-5 pt-3">{children}</div>
+      <div className="ws-notch__body flex-1 px-4 pb-4 pt-2.5">{children}</div>
 
       {actions ? <div className="ws-notch__actions">{actions}</div> : null}
     </section>
@@ -230,7 +249,7 @@ export function FolderTabs<T extends string>({
             onClick={() => onChange(tab)}
             aria-pressed={value === tab}
             className={cn(
-              "shrink-0 px-4 text-[13px] font-semibold transition-colors",
+              "shrink-0 px-3.5 text-sm font-semibold transition-colors",
               value === tab
                 ? "ws-foldertab pb-3 pt-2.5 text-ws-fg"
                 : "rounded-full py-2 text-ws-faint hover:bg-ws-card hover:text-ws-fg",
@@ -273,7 +292,7 @@ export function PipelineTrack({
             key={segment.label}
             style={{ flexGrow: segment.count / total }}
             className={cn(
-              "flex min-w-fit items-center justify-between gap-3 rounded-full px-5 py-3 text-[13px] font-semibold",
+              "flex min-w-fit items-center justify-between gap-3 rounded-full px-4 py-2 text-sm font-semibold",
               toneFill[segment.tone],
             )}
           >
@@ -282,7 +301,7 @@ export function PipelineTrack({
           </div>
         ))}
 
-      <div className="ws-track-rest flex min-w-fit grow items-center justify-end rounded-full px-5 py-3 text-[13px] font-medium text-ws-faint">
+      <div className="ws-track-rest flex min-w-fit grow items-center justify-end rounded-full px-4 py-2 text-sm font-medium text-ws-faint">
         {restLabel}
       </div>
     </div>

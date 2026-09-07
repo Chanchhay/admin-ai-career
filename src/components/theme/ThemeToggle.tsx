@@ -14,14 +14,14 @@ export function ThemeToggle({ className }: { className?: string }) {
       variant="ghost"
       size="icon"
       className={cn(
-        "relative size-11 rounded-full border border-transparent text-heading hover:border-brand/20 hover:bg-brand-tint hover:text-brand",
+        "relative size-9 shrink-0 rounded-full border border-transparent text-heading hover:border-brand/20 hover:bg-brand-tint hover:text-brand",
         className,
       )}
       aria-label={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
-      <Moon aria-hidden="true" className="size-5 dark:hidden" />
-      <Sun aria-hidden="true" className="hidden size-5 dark:block" />
+      <Moon aria-hidden="true" className="size-4.5 dark:hidden" />
+      <Sun aria-hidden="true" className="hidden size-4.5 dark:block" />
     </Button>
   );
 }

@@ -139,7 +139,7 @@ export default function AiInterviewConfigPage() {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3">
       <Panel tone="soft">
         <p className="text-sm leading-6">
           What every AI interview generated from now on will look like. Existing
@@ -170,7 +170,7 @@ export default function AiInterviewConfigPage() {
             return (
               <li
                 key={type}
-                className="flex items-center gap-3 rounded-[18px] bg-ws-card-hover px-4 py-3"
+                className="flex items-center gap-3 rounded-xl bg-ws-card-hover px-4 py-3"
               >
                 <p className="min-w-0 flex-1 truncate text-sm font-semibold text-ws-fg">
                   {humanizeEnum(type)}

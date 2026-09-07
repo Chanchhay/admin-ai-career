@@ -19,7 +19,7 @@ export type MessageStatus = "SENT" | "READ" | "DELETED";
  * of the product identifies people the same way — by role and headline.
  */
 export type ConversationParticipantResponse = {
-  userAccountId: number;
+  userAccountId: string;
   role: "SEEKER" | "RECRUITER" | "MODERATOR" | "ADMIN" | "FINANCE" | "UNKNOWN";
   displayLabel: string;
   avatarUrl: string | null;
@@ -28,9 +28,9 @@ export type ConversationParticipantResponse = {
 };
 
 export type MessageResponse = {
-  id: number;
-  conversationId: number;
-  senderUserAccountId: number;
+  id: string;
+  conversationId: string;
+  senderUserAccountId: string;
   mine: boolean;
   /** Null once deleted; the row stays so the thread still reads in order. */
   content: string | null;
@@ -41,11 +41,13 @@ export type MessageResponse = {
 };
 
 export type ConversationResponse = {
-  id: number;
+  id: string;
   title: string | null;
   type: ConversationType;
   status: ConversationStatus;
-  applicationId: number | null;
+  applicationId: string | null;
+  /** Actual job title, independent of the optional conversation title. */
+  jobTitle?: string | null;
   participants: ConversationParticipantResponse[];
   lastMessage: MessageResponse | null;
   unreadCount: number;
@@ -54,8 +56,8 @@ export type ConversationResponse = {
 
 /** Exactly one of applicationId, companyId, or recipientKeycloakUserId. */
 export type CreateConversationRequest = {
-  applicationId?: number;
-  companyId?: number;
+  applicationId?: string;
+  companyId?: string;
   recipientKeycloakUserId?: string;
   title?: string;
   message?: string;

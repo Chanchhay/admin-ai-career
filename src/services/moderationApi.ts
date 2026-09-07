@@ -30,6 +30,11 @@ import type {
   HumanInterviewResponse,
   ModeratorCompanyDetailResponse,
   ModeratorCompanyListItem,
+  ModeratorJobListItem,
+  ApiResponsePageModeratorJob,
+  ApiResponseModeratorJob,
+  ApiResponseModeratorJobDetail,
+  ModeratorJobDetail,
   Page,
 } from "@/contracts";
 import { baseApi, normalizePage, unwrapApiResponse } from "./baseApi";
@@ -41,13 +46,25 @@ export type PageParams = {
   sort?: string;
 };
 
-const DEFAULT_PAGE_SIZE = 12;
+export const DEFAULT_PAGE_SIZE = 20;
+
+/** What the rows-per-page control offers; Spring caps a page at 2000. */
+export const PAGE_SIZES = [10, 20, 50, 100] as const;
 
 function pageQuery(params: PageParams | undefined) {
   return {
     page: params?.page ?? 0,
     size: params?.size ?? DEFAULT_PAGE_SIZE,
-    sort: params?.sort ?? "id,desc",
+    /*
+     * Newest first, by the audit timestamp rather than by id.
+     *
+     * `id` is a random v4 UUID, not a time-ordered one, so sorting on it puts
+     * the rows in an order with no meaning — harmless-looking on one page, and
+     * plainly broken once you can jump to page four and find it unrelated to
+     * page three. Both entities these queues page over extend BaseEntity, so
+     * `createdAt` is always there to sort on.
+     */
+    sort: params?.sort ?? "createdAt,desc",
   };
 }
 
@@ -92,7 +109,7 @@ export const moderationApi = baseApi.injectEndpoints({
       providesTags: ["Companies"],
     }),
 
-    getCompany: builder.query<ModeratorCompanyDetailResponse, number>({
+    getCompany: builder.query<ModeratorCompanyDetailResponse, string>({
       query: (companyId) => `/moderator/companies/${companyId}`,
       transformResponse: (response: ApiResponseModeratorCompanyDetail) =>
         unwrapApiResponse(response),
@@ -102,14 +119,23 @@ export const moderationApi = baseApi.injectEndpoints({
     }),
 
     /**
-     * The three verification decisions share a body and a response, so they are
-     * one endpoint keyed by `decision` — the caller passes the verb, not a URL.
+     * Every verification decision shares a body and a response, so they are one
+     * endpoint keyed by `decision` — the caller passes the verb, not a URL.
+     *
+     * `suspend` and `reinstate` only apply to a company in the right state and
+     * answer 409 otherwise; the screens offer whichever one is legal rather
+     * than relying on that.
      */
     decideCompany: builder.mutation<
       CompanyVerificationResponse,
       {
-        companyId: number;
-        decision: "approve" | "reject" | "request-revision";
+        companyId: string;
+        decision:
+          | "approve"
+          | "reject"
+          | "request-revision"
+          | "suspend"
+          | "reinstate";
         body?: DecisionRequest;
       }
     >({
@@ -120,9 +146,12 @@ export const moderationApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: ApiResponseCompanyVerification) =>
         unwrapApiResponse(response),
+      // Suspending takes a company's jobs out of the public listings, so the
+      // job caches have to go with it.
       invalidatesTags: (_result, _error, { companyId }) => [
         "Companies",
         { type: "CompanyDetail", id: companyId },
+        "Jobs",
       ],
     }),
 
@@ -134,7 +163,7 @@ export const moderationApi = baseApi.injectEndpoints({
      */
     setCompanyIdentityVisibility: builder.mutation<
       ModeratorCompanyDetailResponse,
-      { companyId: number; visibility: CompanyIdentityVisibility }
+      { companyId: string; visibility: CompanyIdentityVisibility }
     >({
       query: ({ companyId, visibility }) => ({
         url: `/moderator/companies/${companyId}/identity-visibility`,
@@ -146,6 +175,92 @@ export const moderationApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { companyId }) => [
         "Companies",
         { type: "CompanyDetail", id: companyId },
+        "Jobs",
+      ],
+    }),
+
+    /**
+     * Sets or clears the stand-in logo shown while a company is masked.
+     *
+     * Invalidates the public job caches for the same reason masking does: the
+     * mark on every one of that company's listings changes with it.
+     */
+    setCompanyMaskedProfile: builder.mutation<
+      ModeratorCompanyDetailResponse,
+      { companyId: string; maskedLogoUrl: string | null }
+    >({
+      query: ({ companyId, maskedLogoUrl }) => ({
+        url: `/moderator/companies/${companyId}/masked-profile`,
+        method: "PATCH",
+        body: { maskedLogoUrl },
+      }),
+      transformResponse: (response: ApiResponseModeratorCompanyDetail) =>
+        unwrapApiResponse(response),
+      invalidatesTags: (_result, _error, { companyId }) => [
+        "Companies",
+        { type: "CompanyDetail", id: companyId },
+        "Jobs",
+      ],
+    }),
+
+    /* ------------------------------------------------------------- jobs --- */
+
+    /**
+     * Every job a company has posted, in any state.
+     *
+     * Lives beside the company rather than under a section of its own: a job
+     * is only ever looked at here in the context of the company that posted
+     * it, and the console has no authority to create or edit one.
+     */
+    getCompanyJobs: builder.query<
+      Page<ModeratorJobListItem>,
+      { companyId: string } & PageParams
+    >({
+      query: ({ companyId, ...params }) => ({
+        url: `/moderator/companies/${companyId}/jobs`,
+        params: pageQuery(params),
+      }),
+      transformResponse: (response: ApiResponsePageModeratorJob) =>
+        normalizePage(unwrapApiResponse(response)),
+      providesTags: (_result, _error, { companyId }) => [
+        { type: "CompanyJobs", id: companyId },
+      ],
+    }),
+
+    /** One job in full — any state, unlike the public endpoint. */
+    getJob: builder.query<ModeratorJobDetail, string>({
+      query: (jobId) => `/moderator/jobs/${jobId}`,
+      transformResponse: (response: ApiResponseModeratorJobDetail) =>
+        unwrapApiResponse(response),
+      providesTags: (_result, _error, jobId) => [{ type: "Jobs", id: jobId }],
+    }),
+
+    /**
+     * Takes a live posting down, puts it back, or closes it. One endpoint
+     * keyed by the verb, as the company decisions are.
+     *
+     * Invalidates the public job caches as well: pausing changes what
+     * candidates can find, and the console renders those listings too.
+     */
+    moderateJob: builder.mutation<
+      ModeratorJobListItem,
+      {
+        jobId: string;
+        companyId: string;
+        action: "pause" | "resume" | "close";
+        body?: DecisionRequest;
+      }
+    >({
+      query: ({ jobId, action, body }) => ({
+        url: `/moderator/jobs/${jobId}/${action}`,
+        method: "POST",
+        body: body ?? {},
+      }),
+      transformResponse: (response: ApiResponseModeratorJob) =>
+        unwrapApiResponse(response),
+      invalidatesTags: (_result, _error, { companyId, jobId }) => [
+        { type: "CompanyJobs", id: companyId },
+        { type: "Jobs", id: jobId },
         "Jobs",
       ],
     }),
@@ -169,7 +284,7 @@ export const moderationApi = baseApi.injectEndpoints({
       providesTags: ["Applications"],
     }),
 
-    getApplication: builder.query<CandidateApplicationDetailResponse, number>({
+    getApplication: builder.query<CandidateApplicationDetailResponse, string>({
       query: (applicationId) =>
         `/moderator/candidate-applications/${applicationId}`,
       transformResponse: (response: ApiResponseCandidateApplicationDetail) =>
@@ -186,7 +301,7 @@ export const moderationApi = baseApi.injectEndpoints({
     decideApplication: builder.mutation<
       CandidateApplicationReviewResponse,
       {
-        applicationId: number;
+        applicationId: string;
         decision: "approve" | "reject" | "forward";
         body?: DecisionRequest;
       }
@@ -217,7 +332,7 @@ export const moderationApi = baseApi.injectEndpoints({
 
     scheduleHumanInterview: builder.mutation<
       HumanInterviewResponse,
-      { applicationId: number; body: HumanInterviewRequest }
+      { applicationId: string; body: HumanInterviewRequest }
     >({
       query: ({ applicationId, body }) => ({
         url: `/moderator/candidate-applications/${applicationId}/human-interviews`,
@@ -234,7 +349,7 @@ export const moderationApi = baseApi.injectEndpoints({
 
     rescheduleHumanInterview: builder.mutation<
       HumanInterviewResponse,
-      { interviewId: number; applicationId: number; body: HumanInterviewRequest }
+      { interviewId: string; applicationId: string; body: HumanInterviewRequest }
     >({
       query: ({ interviewId, body }) => ({
         url: `/moderator/human-interviews/${interviewId}/reschedule`,
@@ -251,8 +366,8 @@ export const moderationApi = baseApi.injectEndpoints({
     completeHumanInterview: builder.mutation<
       HumanInterviewResponse,
       {
-        interviewId: number;
-        applicationId: number;
+        interviewId: string;
+        applicationId: string;
         body: HumanInterviewCompleteRequest;
       }
     >({
@@ -271,7 +386,7 @@ export const moderationApi = baseApi.injectEndpoints({
 
     cancelHumanInterview: builder.mutation<
       HumanInterviewResponse,
-      { interviewId: number; applicationId: number }
+      { interviewId: string; applicationId: string }
     >({
       query: ({ interviewId }) => ({
         url: `/moderator/human-interviews/${interviewId}/cancel`,
@@ -289,7 +404,11 @@ export const moderationApi = baseApi.injectEndpoints({
 
 export const {
   useGetCompaniesQuery,
+  useGetCompanyJobsQuery,
+  useGetJobQuery,
+  useModerateJobMutation,
   useSetCompanyIdentityVisibilityMutation,
+  useSetCompanyMaskedProfileMutation,
   useGetCompanyQuery,
   useDecideCompanyMutation,
   useGetApplicationsQuery,

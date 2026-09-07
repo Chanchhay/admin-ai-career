@@ -30,7 +30,7 @@ export type NotificationEventType =
   | "INVOICE_PAID";
 
 export type NotificationResponse = {
-  id: number;
+  id: string;
   eventType: NotificationEventType;
   title: string;
   body: string | null;

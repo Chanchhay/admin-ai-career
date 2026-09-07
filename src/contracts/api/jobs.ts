@@ -1,7 +1,7 @@
 import type { ApiResponse } from "./common";
 
 export type JobPostSection = {
-  id: number;
+  id: string;
   sectionType: string;
   title: string;
   contentMarkdown: string;
@@ -10,8 +10,8 @@ export type JobPostSection = {
 };
 
 export type JobPostSkill = {
-  id: number;
-  skillId: number;
+  id: string;
+  skillId: string;
   skillName: string;
   skillType: string;
   requiredLevel: string;
@@ -19,10 +19,10 @@ export type JobPostSkill = {
 
 /** The published-job representation returned by `/public/jobs`. */
 export type PublicJobResponse = {
-  id: number;
-  companyId: number;
+  id: string;
+  companyId: string;
   companyName: string;
-  categoryId: number;
+  categoryId: string;
   categoryName: string;
   title: string;
   description: string;
@@ -41,7 +41,7 @@ export type PublicJobResponse = {
 export type PublicJobsQuery = {
   keyword?: string;
   location?: string;
-  categoryId?: number;
+  categoryId?: string;
   workMode?: string;
   jobType?: string;
   page?: number;

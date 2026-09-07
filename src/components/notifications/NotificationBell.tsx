@@ -70,13 +70,13 @@ export function NotificationBell({
         aria-label={count > 0 ? `Notifications, ${count} unread` : "Notifications"}
         aria-expanded={open}
         className={cn(
-          "relative flex size-10 items-center justify-center rounded-full bg-ws-card text-ws-muted transition-colors hover:bg-ws-card-hover hover:text-ws-fg",
+          "relative flex size-9 shrink-0 items-center justify-center rounded-full bg-ws-card text-ws-muted transition-colors hover:bg-ws-card-hover hover:text-ws-fg",
           className,
         )}
       >
         <Bell aria-hidden="true" className="size-4.5" />
         {count > 0 ? (
-          <span className="absolute -top-0.5 -right-0.5 flex min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs leading-none font-bold text-primary-foreground">
             {count > 99 ? "99+" : count}
           </span>
         ) : null}
@@ -176,7 +176,7 @@ function NotificationRow({
           {notification.body}
         </span>
       ) : null}
-      <span className="mt-1 block text-[11px] text-ws-faint">
+      <span className="mt-1 block text-sm text-ws-faint">
         {formatRelative(notification.createdAt)}
       </span>
     </>
