@@ -122,7 +122,7 @@ export default function ApplicationsPage() {
           </div>
         </div>
 
-        <div className="shrink-0 px-4 pb-3">
+        <div className="min-w-0 shrink-0 px-4 pb-3">
           <PillTabs
             tabs={TABS}
             value={tab}

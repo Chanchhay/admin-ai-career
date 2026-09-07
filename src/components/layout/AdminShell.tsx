@@ -47,10 +47,15 @@ function Frame({ children }: { children: ReactNode }) {
   const title = heading?.title ?? (active ? tx(active.label) : tx("Admin"));
 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  // A route change means a link was just followed — close the drawer behind it.
-  useEffect(() => {
+  // A route change means a link was just followed — close the drawer behind
+  // it. Derived during render rather than from an effect: comparing against
+  // the last-seen pathname here avoids the extra render pass a `useEffect`
+  // would add.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
     setMobileNavOpen(false);
-  }, [pathname]);
+  }
 
   const dispatch = useAppDispatch();
   const expanded = useAppSelector((state) => state.ui.sidebarExpanded);

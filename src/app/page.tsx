@@ -15,6 +15,8 @@ import {
   Wrench,
 } from "lucide-react";
 import { useSetPageHeading } from "@/components/layout/PageHeader";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Chip,
   FolderTabs,
@@ -185,22 +187,28 @@ function Hero({
           ) : (
             <Chip tone="soft">{tx("Oldest first")}</Chip>
           )}
-          <GhostChip>
-            {tx("{count} awaiting verification", {
-              count: companies === undefined ? "—" : companies,
-            })}
-          </GhostChip>
+          {companies === undefined ? (
+            <Skeleton className="h-6 w-40 rounded-full" />
+          ) : (
+            <GhostChip>
+              {tx("{count} awaiting verification", { count: companies })}
+            </GhostChip>
+          )}
         </div>
 
-        <p className="mt-1 flex items-baseline gap-2 max-sm:flex-wrap text-ws-fg">
-          <span className="text-3xl font-semibold tracking-tight tabular-nums">
-            {waiting === undefined ? "—" : waiting.toLocaleString()}
-          </span>
+        <div className="mt-1 flex items-baseline gap-2 max-sm:flex-wrap text-ws-fg">
+          {waiting === undefined ? (
+            <Skeleton className="h-9 w-16" />
+          ) : (
+            <span className="text-3xl font-semibold tracking-tight tabular-nums">
+              {waiting.toLocaleString()}
+            </span>
+          )}
           <span className="text-sm font-medium text-ws-muted">
             {waiting === 1 ? tx("item waits") : tx("items wait")}{" "}
             {tx("on a decision")}
           </span>
-        </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 max-sm:flex-wrap">
@@ -346,7 +354,11 @@ function NoteRow({
         {tx(label)}
       </dt>
       <dd className="shrink-0 text-lg font-bold tabular-nums">
-        {value === undefined ? "—" : value.toLocaleString()}
+        {value === undefined ? (
+          <Skeleton className="h-5 w-8" />
+        ) : (
+          value.toLocaleString()
+        )}
       </dd>
     </>
   );
@@ -433,9 +445,7 @@ function QueueStream({
         </header>
 
         {loading ? (
-          <p className="py-10 text-center text-sm text-ws-faint">
-            {tx("Loading…")}
-          </p>
+          <LoadingState rows={5} className="border-none bg-transparent p-0" />
         ) : !showing?.length ? (
           <p className="py-10 text-center text-sm text-ws-faint">
             {tx("Nothing waiting. This queue is clear.")}
@@ -604,9 +614,13 @@ function DecisionCard({
           {tx(caption)}
         </span>
       </span>
-      <span className="shrink-0 text-2xl font-bold tabular-nums text-ws-fg">
-        {value === undefined ? "—" : value.toLocaleString()}
-      </span>
+      <div className="shrink-0 text-2xl font-bold tabular-nums text-ws-fg">
+        {value === undefined ? (
+          <Skeleton className="h-7 w-10" />
+        ) : (
+          value.toLocaleString()
+        )}
+      </div>
     </Link>
   );
 }
