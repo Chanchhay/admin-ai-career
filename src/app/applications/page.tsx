@@ -94,10 +94,10 @@ export default function ApplicationsPage() {
   }, [applications, filter]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 max-lg:min-w-0 max-lg:flex-none">
       <ReapplyCooldownPanel />
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel max-lg:min-w-0 max-lg:flex-none">
         <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
           <h2 className="font-semibold text-ws-fg">Review queue</h2>
           {data ? (
@@ -129,10 +129,10 @@ export default function ApplicationsPage() {
           />
         </div>
 
-        {/* The scroller is this pane, not the page: the toolbar stays put and
-            the footer stays on the bottom edge however many rows there are. */}
-        <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line">
-          <table className="w-full table-fixed border-collapse text-left">
+        {/* Desktop scrolls within the pane. On smaller screens the list grows
+            with its rows; horizontal scrolling keeps every column accessible. */}
+        <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line max-lg:flex-none max-sm:hidden">
+          <table className="w-full table-fixed border-collapse text-left max-lg:min-w-[960px]">
             <thead className="sticky top-0 z-10">
               <tr>
                 {COLUMNS.map((column) => (
@@ -173,6 +173,16 @@ export default function ApplicationsPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="space-y-3 border-t border-ws-line p-3 sm:hidden">
+          {isLoading ? <LoadingState rows={6} /> : isError ? (
+            <ErrorState message="Unable to load applications." onRetry={refetch} />
+          ) : rows.length === 0 ? (
+            <EmptyState filtered={applications.length > 0} />
+          ) : rows.map((item) => (
+            <CandidateCard key={item.application.id} item={item} />
+          ))}
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-3 border-t border-ws-line px-4 py-2.5">
@@ -295,6 +305,47 @@ function CandidateRow({ item }: { item: CandidateApplicationListItem }) {
         </Button>
       </td>
     </tr>
+  );
+}
+
+function CandidateCard({ item }: { item: CandidateApplicationListItem }) {
+  const href = `/applications/${item.application.id}`;
+  return (
+    <article className="min-w-0 rounded-xl border border-ws-line bg-ws-panel p-4 shadow-xs">
+      <Link href={href} className="flex min-w-0 items-center gap-3">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-chip-solid font-semibold text-chip-solid-fg">
+          {item.candidate?.headline?.trim().charAt(0).toUpperCase() || "?"}
+        </span>
+        <span className="min-w-0 break-words">
+          <span className="block text-sm font-semibold text-ws-fg">{orDash(item.candidate?.headline)}</span>
+          <span className="block text-xs text-ws-faint">{orDash(item.candidate?.currentPosition)}</span>
+        </span>
+      </Link>
+      <dl className="mt-3 divide-y divide-ws-line text-sm [&>div]:grid [&>div]:grid-cols-[5.5rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
+        <div><dt>Applied for</dt><dd>{orDash(item.application.jobTitle)}</dd></div>
+        <div><dt>Location</dt><dd>{orDash(item.candidate?.preferredLocation)}</dd></div>
+        <div><dt>AI interview</dt><dd>
+          {item.aiResult || item.aiScore != null ? (
+            <span className="flex flex-wrap items-center justify-end gap-2">
+              <span className="font-semibold tabular-nums">{item.aiScore ?? "—"}</span>
+              <ResultChip result={item.aiResult} />
+            </span>
+          ) : "Not finished"}
+        </dd></div>
+        <div><dt>Résumé</dt><dd>
+          {item.submittedResume?.resumeFileUrl ? (
+            <a href={resolveFileUrl(item.submittedResume.resumeFileUrl)} target="_blank" rel="noreferrer" className="inline-flex min-h-9 items-center gap-1.5 text-primary hover:underline">
+              <FileText aria-hidden="true" className="size-4" /> Open résumé
+            </a>
+          ) : "None"}
+        </dd></div>
+        <div><dt>Applied</dt><dd>{formatDateTime(item.application.appliedAt)}</dd></div>
+        <div><dt>Status</dt><dd>{item.review ? <ReviewStatusChip status={item.review.reviewStatus} /> : "—"}</dd></div>
+      </dl>
+      <Button variant="outline" className="mt-2 min-h-11 w-full" render={<Link href={href} />}>
+        Open application
+      </Button>
+    </article>
   );
 }
 

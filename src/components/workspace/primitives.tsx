@@ -238,10 +238,10 @@ export function FolderTabs<T extends string>({
   aside?: ReactNode;
 }) {
   return (
-    <div className="flex items-end gap-3">
+    <div className="flex items-end gap-3 max-lg:min-w-0 max-lg:flex-wrap">
       {/* The left pad lives on the scroller so the active tab's fillet has room
           inside the scroll box — outside it, overflow would clip it away. */}
-      <div className="ws-scroll flex items-end gap-4 overflow-x-auto pl-12 pr-4 pt-1">
+      <div className="ws-scroll flex items-end gap-4 overflow-x-auto pl-12 pr-4 pt-1 max-lg:min-w-0 max-lg:max-w-full max-lg:gap-2 max-lg:pl-4">
         {tabs.map((tab) => (
           <button
             key={tab}
@@ -284,7 +284,7 @@ export function PipelineTrack({
   const total = Math.max(filled, 1);
 
   return (
-    <div className="flex flex-wrap items-stretch gap-2 sm:flex-nowrap">
+    <div className="flex flex-wrap items-stretch gap-2 sm:flex-nowrap max-lg:flex-wrap">
       {segments
         .filter((segment) => segment.count > 0)
         .map((segment) => (

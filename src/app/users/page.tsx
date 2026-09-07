@@ -100,7 +100,7 @@ export default function UsersPage() {
   const users = data?.content ?? [];
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 max-lg:min-w-0 max-lg:flex-none">
       <Panel tone="soft" className="shrink-0">
         <p className="text-sm leading-6">
           Accounts live in Keycloak; this console changes their roles and
@@ -113,7 +113,7 @@ export default function UsersPage() {
         <CreateUserPanel onClose={() => setCreating(false)} />
       ) : null}
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel max-lg:min-w-0 max-lg:flex-none">
         <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
           <h2 className="font-semibold text-ws-fg">Accounts</h2>
           {data ? (
@@ -186,7 +186,7 @@ export default function UsersPage() {
           />
         </div>
 
-        <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line">
+        <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line max-lg:flex-none max-sm:hidden">
           <table
             aria-label="Accounts"
             className="w-full min-w-[800px] table-fixed border-collapse text-left"
@@ -277,6 +277,32 @@ export default function UsersPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="space-y-3 border-t border-ws-line p-3 sm:hidden">
+          {isLoading ? (
+            <LoadingState rows={5} />
+          ) : isError ? (
+            <ErrorState message="Unable to load users." onRetry={refetch} />
+          ) : users.length === 0 ? (
+            <p className="px-3 py-8 text-center text-sm text-ws-faint">No accounts match these filters.</p>
+          ) : users.map((user) => (
+            <article key={user.keycloakUserId} className="min-w-0 rounded-xl border border-ws-line bg-ws-panel p-4 shadow-xs">
+              <Link href={`/users/${user.keycloakUserId}`} className="block break-words text-sm font-semibold text-ws-fg hover:underline">
+                {orDash(user.username)}
+              </Link>
+              <dl className="mt-3 divide-y divide-ws-line text-sm [&>div]:grid [&>div]:grid-cols-[4rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
+                <div><dt>Email</dt><dd className="[overflow-wrap:anywhere]">{orDash(user.email)}</dd></div>
+                <div><dt>Roles</dt><dd><span className="flex flex-wrap justify-end gap-1.5"><RoleChips roles={user.roles} /></span></dd></div>
+                <div><dt>Status</dt><dd><AccountStatusChip status={user.status} /></dd></div>
+              </dl>
+              <Button variant="outline" className="mt-2 min-h-11 w-full"
+                aria-label={`Open account ${user.username || user.email || user.keycloakUserId}`}
+                render={<Link href={`/users/${user.keycloakUserId}`} />}>
+                Open account
+              </Button>
+            </article>
+          ))}
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-3 border-t border-ws-line px-4 py-2.5">

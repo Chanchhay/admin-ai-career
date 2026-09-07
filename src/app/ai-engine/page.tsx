@@ -217,7 +217,7 @@ export default function AiEnginePage() {
       : "no key at all";
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 max-lg:min-w-0 max-lg:shrink-0 max-sm:[&>section]:min-w-0 max-sm:[&>section]:p-3 max-sm:[&_code]:break-all">
       <Panel tone="soft">
         <p className="text-sm leading-6">
           Every AI feature on the platform — interview questions, scoring, voice
@@ -227,7 +227,7 @@ export default function AiEnginePage() {
         </p>
       </Panel>
 
-      <Panel>
+      <Panel className="max-sm:[&>header]:flex-wrap max-sm:[&>header>div]:ml-0 max-sm:[&>header>div]:w-full">
         <PanelHeader
           title="Provider key"
           icon={<KeyRound aria-hidden="true" className="size-4" />}
@@ -261,7 +261,7 @@ export default function AiEnginePage() {
               <label className="flex items-center gap-2 text-xs font-medium text-ws-muted">
                 <input
                   type="checkbox"
-                  className="size-4 accent-primary"
+                  className="size-4 accent-primary max-sm:shrink-0"
                   checked={form.clearApiKey}
                   onChange={(event) => set("clearApiKey", event.target.checked)}
                 />
@@ -289,7 +289,7 @@ export default function AiEnginePage() {
         )}
 
         <div className="mt-4">
-          <Button variant="outline" onClick={() => void runTest()} disabled={testState.isLoading}>
+          <Button variant="outline" className="max-sm:min-h-11 max-sm:w-full" onClick={() => void runTest()} disabled={testState.isLoading}>
             <PlugZap aria-hidden="true" className="size-4" />
             {testState.isLoading ? "Testing…" : "Test connection"}
           </Button>
@@ -321,14 +321,14 @@ export default function AiEnginePage() {
           {data.availableTasks.map((task) => (
             <li
               key={task}
-              className="flex flex-wrap items-center gap-3 rounded-xl bg-ws-card-hover px-4 py-3"
+              className="flex flex-wrap items-center gap-3 rounded-xl bg-ws-card-hover px-4 py-3 max-sm:min-w-0 max-sm:flex-col max-sm:items-stretch max-sm:px-3"
             >
-              <div className="min-w-40 flex-1">
+              <div className="min-w-40 flex-1 max-sm:min-w-0">
                 <p className="text-sm font-semibold text-ws-fg">{humanizeEnum(task)}</p>
                 <p className="mt-0.5 text-xs text-ws-faint">{TASK_HINTS[task]}</p>
               </div>
               <ModelSelect
-                className="w-60"
+                className="w-60 max-sm:min-w-0 max-sm:w-full"
                 ariaLabel={`${humanizeEnum(task)} model`}
                 value={form.overrides[task] ?? ""}
                 models={models}
@@ -403,7 +403,7 @@ export default function AiEnginePage() {
         </div>
       </Panel>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 max-sm:[&>button]:min-h-11 max-sm:[&>button]:flex-1 max-sm:[&>p]:w-full max-sm:[&>p]:break-words">
         <Button onClick={() => void submit()} disabled={saveState.isLoading}>
           {saveState.isLoading ? "Saving…" : "Save settings"}
         </Button>
@@ -510,6 +510,7 @@ function ModelSelect({
       onChange={onChange}
       options={options}
       placeholder={loading ? "Loading models…" : "Select a model"}
+      mobileDropdownBelow
       className={cn("w-full", className)}
     />
   );

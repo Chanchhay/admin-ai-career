@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
-import { LogOut, PanelLeftClose, PanelLeftOpen, ShieldAlert } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, ShieldAlert, X } from "lucide-react";
 import {
   PageHeadingProvider,
   usePageHeading,
@@ -43,6 +44,12 @@ function Frame({ children }: { children: ReactNode }) {
   const active = adminNavigation.find((link) => isActive(pathname, link.href));
   const title = heading?.title ?? active?.label ?? "Admin";
 
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  // A route change means a link was just followed — close the drawer behind it.
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
+
   const dispatch = useAppDispatch();
   const expanded = useAppSelector((state) => state.ui.sidebarExpanded);
 
@@ -79,7 +86,11 @@ function Frame({ children }: { children: ReactNode }) {
       <Rail pathname={pathname} expanded={expanded} onToggle={toggleRail} />
 
       <div className="ws-panel relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none lg:rounded-3xl">
-        <TopBar title={title} />
+        <TopBar
+          title={title}
+          mobileNavOpen={mobileNavOpen}
+          onOpenMobileNav={() => setMobileNavOpen(true)}
+        />
 
         {/*
           * A column rather than a block, and the page wrapper is given the
@@ -91,7 +102,7 @@ function Frame({ children }: { children: ReactNode }) {
         <main className="ws-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-4 lg:px-7 lg:pt-6">
           <div
             key={pathname}
-            className="flex min-h-full flex-1 flex-col animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out"
+            className="flex min-h-full flex-1 flex-col animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out max-lg:min-w-0"
           >
             <StaffRoleNotice />
             {children}
@@ -104,15 +115,18 @@ function Frame({ children }: { children: ReactNode }) {
               * card flush against the panel's edge with nothing after it. A
               * real element cannot be dropped: it is a flex sibling that never
               * shrinks, so it holds its height whether the page is short or
-              * scrolls for miles. On small screens it also clears the floating
-              * dock, which is why it is so much taller there.
+              * scrolls for miles.
               */}
-            <div aria-hidden="true" className="h-24 shrink-0 lg:h-10" />
+            <div aria-hidden="true" className="h-[calc(1.5rem+env(safe-area-inset-bottom))] shrink-0 lg:h-10" />
           </div>
         </main>
       </div>
 
-      <MobileDock pathname={pathname} />
+      <MobileNavDrawer
+        open={mobileNavOpen}
+        onOpenChange={setMobileNavOpen}
+        pathname={pathname}
+      />
     </div>
   );
 }
@@ -257,14 +271,32 @@ function Tooltip({ children }: { children: ReactNode }) {
 
 /* -------------------------------------------------------------- top bar --- */
 
-function TopBar({ title }: { title: string }) {
+function TopBar({
+  title,
+  mobileNavOpen,
+  onOpenMobileNav,
+}: {
+  title: string;
+  mobileNavOpen: boolean;
+  onOpenMobileNav: () => void;
+}) {
   return (
     <header className="sticky top-0 z-30 flex shrink-0 items-center gap-3 border-b border-ws-line/60 bg-ws-panel px-4 py-3 lg:px-7 lg:py-3.5">
-      <h1 className="min-w-0 truncate text-xl font-semibold tracking-tight">
+      <button
+        type="button"
+        onClick={onOpenMobileNav}
+        aria-label="Open navigation menu"
+        aria-expanded={mobileNavOpen}
+        className="-ml-1.5 flex size-9 shrink-0 items-center justify-center rounded-xl text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg lg:hidden"
+      >
+        <Menu aria-hidden="true" className="size-5" />
+      </button>
+
+      <h1 className="min-w-0 truncate text-xl font-semibold tracking-tight max-sm:text-lg">
         {title}
       </h1>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-2 max-lg:shrink-0 max-sm:gap-1">
         {/*
           * The console's own route prefixes. The inbox is shared with the
           * candidate and recruiter app, so notifications aimed at those roles
@@ -346,34 +378,81 @@ function StaffRoleNotice() {
   );
 }
 
-/* ---------------------------------------------------------- mobile dock --- */
+/* -------------------------------------------------------- mobile drawer --- */
 
-function MobileDock({ pathname }: { pathname: string }) {
+/**
+ * The rail's small-screen counterpart: the icon strip doesn't fit next to the
+ * page, so it lives behind the hamburger button in the top bar instead,
+ * sliding in from the left edge it's anchored to.
+ */
+function MobileNavDrawer({
+  open,
+  onOpenChange,
+  pathname,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  pathname: string;
+}) {
   return (
-    <nav
-      aria-label="Console navigation"
-      className="ws-scroll fixed inset-x-3 bottom-3 z-40 flex gap-1 overflow-x-auto rounded-full bg-ws-card/95 p-1.5 shadow-(--shadow-dropdown) backdrop-blur lg:hidden"
-    >
-      {adminNavigation.map((link) => {
-        const active = isActive(pathname, link.href);
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            aria-label={link.label}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "flex size-10 shrink-0 items-center justify-center rounded-full transition-colors",
-              active
-                ? "bg-chip-solid text-chip-solid-fg"
-                : "text-ws-faint hover:text-ws-fg",
-            )}
-          >
-            <link.icon aria-hidden="true" className="size-5" />
-          </Link>
-        );
-      })}
-    </nav>
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] transition-opacity data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 lg:hidden" />
+
+        <DialogPrimitive.Popup
+          className={cn(
+            "fixed inset-y-0 left-0 z-50 flex w-64 max-w-[80vw] flex-col gap-1 border-r border-ws-line bg-ws-panel p-3 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-(--shadow-dropdown) outline-none lg:hidden",
+            "transition-transform data-[ending-style]:-translate-x-full data-[starting-style]:-translate-x-full",
+          )}
+        >
+          <DialogPrimitive.Title className="sr-only">
+            Console navigation
+          </DialogPrimitive.Title>
+
+          <div className="mb-2 flex items-center justify-between px-1">
+            <BrandLogo height={28} priority />
+            <DialogPrimitive.Close
+              aria-label="Close navigation menu"
+              className="flex size-9 shrink-0 items-center justify-center rounded-xl text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
+            >
+              <X aria-hidden="true" className="size-4.5" />
+            </DialogPrimitive.Close>
+          </div>
+
+          <nav aria-label="Console navigation" className="ws-scroll flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
+            {adminNavigation.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "flex h-10 w-full shrink-0 items-center gap-3 rounded-xl px-3 transition-colors",
+                    active
+                      ? "bg-chip-solid text-chip-solid-fg"
+                      : "text-ws-faint hover:bg-ws-card hover:text-ws-fg",
+                  )}
+                >
+                  <link.icon aria-hidden="true" className="size-5 shrink-0" />
+                  <span className="truncate text-sm font-medium">{link.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <form action="/logout" method="post" className="pt-2">
+            <button
+              type="submit"
+              className="flex h-10 w-full items-center gap-3 rounded-xl px-3 text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
+            >
+              <LogOut aria-hidden="true" className="size-5 shrink-0" />
+              <span className="truncate text-sm font-medium">Sign out</span>
+            </button>
+          </form>
+        </DialogPrimitive.Popup>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
 

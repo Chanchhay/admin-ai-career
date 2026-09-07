@@ -434,6 +434,39 @@
   }
 }
 
+/* Company cards replace the dense table only on mobile and tablet. */
+@media (width < 64rem) {
+  .companies-table,
+  .companies-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .companies-table .company-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .companies-table .company-row > td {
+    min-width: 0;
+    padding: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .companies-table .company-row > td:first-child,
+  .companies-table .company-row > td:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .companies-table .company-row > td:last-child {
+    border-top: 1px solid var(--ws-line);
+    padding-top: 0.75rem;
+  }
+}
+
 @media print {
   body {
     background: white !important;

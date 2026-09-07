@@ -123,7 +123,7 @@ export default function OverviewPage() {
        * decisions already recorded on the right.
        */}
       <div className="grid gap-3 xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)_minmax(0,22rem)]">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:max-lg:grid md:max-lg:grid-cols-2">
           <QueueNote
             companies={companiesWaiting}
             candidates={candidatesWaiting}
@@ -194,7 +194,7 @@ function Hero({
         </p>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 max-sm:w-full max-sm:flex-wrap">
         <Link href="/companies" className={cnPill("solid")}>
           Companies
         </Link>
@@ -211,7 +211,7 @@ function Hero({
 
 /** Hero pills reuse the tone fills so they match the track below them. */
 function cnPill(tone: Tone) {
-  return `rounded-full px-6 py-3 text-sm font-semibold transition-transform hover:scale-[1.03] ${toneFill[tone]}`;
+  return `rounded-full px-6 py-3 text-sm font-semibold transition-transform hover:scale-[1.03] max-sm:flex-1 max-sm:px-3 max-sm:text-center ${toneFill[tone]}`;
 }
 
 /* --------------------------------------------------------------- notes --- */
