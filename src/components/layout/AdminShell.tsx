@@ -12,7 +12,6 @@ import {
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { BrandLogo, BrandMark } from "@/components/shared/BrandLogo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { adminNavigation, type NavigationItem } from "@/lib/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSidebarExpanded } from "@/store/uiSlice";
@@ -315,7 +314,6 @@ function TopBar({
             "/messages",
             "/finance",
           ]} />
-        <LanguageToggle />
         <ThemeToggle className="size-9 rounded-full bg-ws-card text-ws-muted hover:bg-ws-card-hover hover:text-ws-fg" />
         <Account />
       </div>
