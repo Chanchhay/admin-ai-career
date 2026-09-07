@@ -38,12 +38,16 @@ export function Pager<T>({
           <ChevronLeft aria-hidden="true" className="size-4" />
         </Arrow>
 
+        <span className="px-2 text-sm tabular-nums sm:hidden">
+          {page.number + 1} / {totalPages}
+        </span>
+
         {pageWindow(page.number, totalPages).map((entry, index) =>
           entry === null ? (
             <span
               key={`gap-${index}`}
               aria-hidden="true"
-              className="px-1 text-xs text-ws-faint"
+              className="hidden px-1 text-xs text-ws-faint sm:inline"
             >
               …
             </span>
@@ -55,7 +59,7 @@ export function Pager<T>({
               aria-current={entry === page.number ? "page" : undefined}
               aria-label={`Page ${entry + 1}`}
               className={cn(
-                "h-9 min-w-9 rounded-md px-2 text-sm font-medium tabular-nums transition-colors",
+                "hidden h-9 min-w-9 rounded-md px-2 text-sm font-medium tabular-nums transition-colors sm:inline-block",
                 entry === page.number
                   ? "bg-chip-solid text-chip-solid-fg"
                   : "text-ws-muted hover:bg-ws-card hover:text-ws-fg",

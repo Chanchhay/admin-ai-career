@@ -73,8 +73,8 @@ export function FinanceSummary({ onOpenCompany }: {
   const refresh = () => { void summary.refetch(); void companies.refetch(); };
 
   return (
-    <div className="flex flex-col gap-3">
-      <section className="rounded-xl border border-ws-line bg-ws-panel p-4">
+    <div className="flex flex-col gap-3 max-lg:min-w-0">
+      <section className="rounded-xl border border-ws-line bg-ws-panel p-4 max-sm:p-3">
         <div className="flex flex-wrap items-center gap-3">
           <div className="mr-auto">
             <h2 className="text-lg font-semibold">Payment summary</h2>
@@ -159,7 +159,7 @@ export function FinanceSummary({ onOpenCompany }: {
             {search ? <Button variant="ghost" type="button" onClick={() => { setSearch(""); setSearchInput(""); setPage(0); }}>Clear</Button> : null}
           </form>
         </div>
-        <div className="ws-scroll overflow-auto border-t border-ws-line">
+        <div className="ws-scroll overflow-auto border-t border-ws-line max-sm:hidden">
           <table className="w-full min-w-[780px] border-collapse text-left">
             <thead className="bg-ws-card text-xs text-ws-muted">
               <tr>{["Company", "Received", "Payments", "Invoices", "Last payment", "Actions"].map((heading) => (
@@ -184,6 +184,30 @@ export function FinanceSummary({ onOpenCompany }: {
             </tbody>
           </table>
         </div>
+        <div className="space-y-3 border-t border-ws-line p-3 sm:hidden">
+          {companies.isError ? (
+            <ErrorState message="Unable to load paying companies." onRetry={companies.refetch} />
+          ) : !companyPage ? (
+            <LoadingState rows={4} />
+          ) : companyPage.content.length === 0 ? (
+            <p className="px-3 py-8 text-center text-sm text-ws-faint">
+              {search ? "No paying companies match your search." : "No successful payments recorded for this period and currency."}
+            </p>
+          ) : companyPage.content.map((company) => (
+            <article key={company.companyId} className="min-w-0 rounded-xl border border-ws-line bg-ws-panel p-4 shadow-xs">
+              <h4 className="break-words text-sm font-semibold">{company.companyName}</h4>
+              <dl className="mt-3 divide-y divide-ws-line text-sm [&>div]:grid [&>div]:grid-cols-[6rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
+                <div><dt>Received</dt><dd className="font-semibold tabular-nums">{formatMoney(company.receivedAmount, company.currency)}</dd></div>
+                <div><dt>Payments</dt><dd className="tabular-nums">{company.paymentCount}</dd></div>
+                <div><dt>Invoices</dt><dd className="tabular-nums">{company.invoiceCount}</dd></div>
+                <div><dt>Last payment</dt><dd>{displayDate(company.lastPaymentAt)}</dd></div>
+              </dl>
+              <Button variant="outline" className="mt-2 min-h-11 w-full" onClick={() => onOpenCompany({ id: company.companyId, name: company.companyName })}>
+                View invoices
+              </Button>
+            </article>
+          ))}
+        </div>
         <div className="flex flex-wrap items-center gap-3 border-t border-ws-line px-4 py-2.5">
           <PageSizeSelect value={size} onChange={(next) => { setSize(next); setPage(0); }} id="finance-summary-page-size" />
           {companyPage ? <div className="ml-auto"><Pager page={companyPage} onPageChange={setPage} /></div> : null}
@@ -196,9 +220,9 @@ export function FinanceSummary({ onOpenCompany }: {
 function Metric({ label, value, detail, highlight = false }: {
   label: string; value: string; detail: string; highlight?: boolean;
 }) {
-  return <div className="rounded-xl border border-ws-line bg-ws-panel p-4">
+  return <div className="rounded-xl border border-ws-line bg-ws-panel p-4 max-lg:min-w-0 max-sm:p-3">
     <p className="text-sm text-ws-muted">{label}</p>
-    <p className={cn("mt-2 text-2xl font-semibold tabular-nums", highlight && "text-primary")}>{value}</p>
+    <p className={cn("mt-2 text-2xl font-semibold tabular-nums max-lg:break-words max-sm:text-xl", highlight && "text-primary")}>{value}</p>
     <p className="mt-2 text-xs leading-5 text-ws-faint">{detail}</p>
   </div>;
 }

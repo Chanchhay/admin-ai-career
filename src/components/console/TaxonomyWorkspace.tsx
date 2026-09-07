@@ -380,9 +380,9 @@ function CategoryManager<
   }
 
   return (
-    <div className="grid gap-3 lg:grid-cols-[1fr_360px] lg:items-start">
+    <div className="grid gap-3 lg:grid-cols-[1fr_360px] lg:items-start max-lg:min-w-0 max-lg:grid-cols-1">
       {/* -------------------------------------------------- category list --- */}
-      <Panel>
+      <Panel className="max-sm:min-w-0 max-sm:p-3">
         <header className="mb-4 flex items-center gap-2">
           <FolderOpen aria-hidden="true" className="size-4" />
           <h2 className="text-base font-semibold tracking-tight">
@@ -422,9 +422,9 @@ function CategoryManager<
                     >
                       {collapsed ? <ChevronRight aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
                     </Button>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-sm font-semibold">{parent.name}</h3>
-                      <div className="mt-0.5 truncate text-xs text-ws-muted">{renderMeta(parent)}</div>
+                    <div className="min-w-0 flex-1 max-sm:basis-[calc(100%-3rem)]">
+                      <h3 className="truncate text-sm font-semibold max-sm:whitespace-normal max-sm:break-words">{parent.name}</h3>
+                      <div className="mt-0.5 truncate text-xs text-ws-muted max-sm:whitespace-normal max-sm:break-words">{renderMeta(parent)}</div>
                       <p className="text-xs text-ws-faint">
                         {children.length} {children.length === 1 ? "subcategory" : "subcategories"}
                       </p>
@@ -453,13 +453,13 @@ function CategoryManager<
                       <ul className="divide-y divide-ws-line">
                         {children.map((item) => (
                           <li key={item.id} className={cn(
-                            "flex items-center gap-3 px-4 py-3 sm:pl-8",
+                            "flex items-center gap-3 px-4 py-3 sm:pl-8 max-sm:flex-wrap max-sm:px-3",
                             editingId === item.id && "bg-primary-tint",
                           )}>
                             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-ws-card text-ws-muted">{icon}</span>
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-semibold">{item.name}</p>
-                              <div className="mt-0.5 truncate text-xs text-ws-faint">{renderMeta(item)}</div>
+                            <div className="min-w-0 flex-1 max-sm:basis-[calc(100%-3rem)]">
+                              <p className="truncate text-sm font-semibold max-sm:whitespace-normal max-sm:break-words">{item.name}</p>
+                              <div className="mt-0.5 truncate text-xs text-ws-faint max-sm:whitespace-normal max-sm:break-words">{renderMeta(item)}</div>
                             </div>
                             {itemActions(item)}
                           </li>

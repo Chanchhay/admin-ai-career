@@ -103,10 +103,10 @@ export default function CompaniesPage() {
   }, [companies, filter]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 max-lg:min-w-0 max-lg:flex-none">
       <StatusSummary active={tab} onSelect={selectTab} />
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel max-lg:flex-none">
         <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
           <h2 className="font-semibold text-ws-fg">
             {tab === "All" ? "All companies" : `${tab} companies`}
@@ -121,18 +121,17 @@ export default function CompaniesPage() {
               value={filter}
               onChange={(event) => setFilter(event.target.value)}
               placeholder="Search this page"
+              aria-label="Search companies on this page"
               className="pl-9"
             />
           </div>
         </div>
 
-        {/* The scroller is this pane, not the page: the header stays put and
-            the footer stays on the bottom edge however many rows there are. */}
-        {/* The scroller is this pane, not the page: the toolbar stays put and
-            the footer stays on the bottom edge however many rows there are. */}
-        <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line">
-          <table className="w-full table-fixed border-collapse text-left">
-            <thead className="sticky top-0 z-10">
+        {/* Desktop scrolls inside the table pane. Mobile and tablet cards
+            grow with their content and scroll with the main page. */}
+        <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line max-lg:flex-none max-lg:overflow-visible">
+          <table className="companies-table w-full table-fixed border-collapse text-left">
+            <thead className="sticky top-0 z-10 max-lg:sr-only">
               <tr>
                 {COLUMNS.map((column) => (
                   <th
@@ -178,7 +177,7 @@ export default function CompaniesPage() {
           <PageSizeSelect value={size} onChange={selectSize} />
 
           {data ? (
-            <div className="ml-auto">
+            <div className="ml-auto max-sm:flex max-sm:w-full max-sm:justify-between">
               <Pager page={data} onPageChange={setPage} />
             </div>
           ) : null}
@@ -215,7 +214,7 @@ function StatusSummary({
   };
 
   return (
-    <div className="grid shrink-0 grid-cols-2 gap-px overflow-hidden rounded-xl border border-ws-line bg-ws-line sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid shrink-0 grid-cols-2 gap-px overflow-hidden rounded-xl border border-ws-line bg-ws-line sm:grid-cols-3 lg:grid-cols-5 max-lg:[&>button:first-child]:col-span-2 sm:max-lg:[&>button:first-child]:col-span-1 sm:max-lg:[&>button:last-child]:col-span-2">
       {TABS.map((tab) => {
         const selected = tab === active;
         return (
@@ -302,7 +301,7 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
   }
 
   return (
-    <tr className="border-b border-ws-line/70 transition-colors hover:bg-ws-card/60">
+    <tr className="company-row border-b border-ws-line/70 transition-colors hover:bg-ws-card/60">
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-ws-line bg-ws-card text-sm font-semibold text-ws-muted">
@@ -323,11 +322,11 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
           <span className="min-w-0">
             <Link
               href={`/companies/${company.id}`}
-              className="block truncate font-semibold text-ws-fg hover:underline"
+              className="block truncate font-semibold text-ws-fg hover:underline max-lg:whitespace-normal max-lg:break-words"
             >
               {company.name}
             </Link>
-            <span className="block truncate text-xs text-ws-faint">
+            <span className="block truncate text-xs text-ws-faint max-lg:whitespace-normal max-lg:break-all">
               {orDash(company.contactEmail)}
             </span>
           </span>
@@ -335,12 +334,14 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
       </td>
 
       <td className="px-4 py-3">
+        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Status</span>
         <CompanyStatusBadge status={company.verificationStatus} />
       </td>
 
       {/* Live first, because that is the number that matters when deciding
           what suspending this company would actually take down. */}
       <td className="px-4 py-3">
+        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Jobs</span>
         {company.jobCount === 0 ? (
           <span className="text-xs text-ws-faint">None</span>
         ) : (
@@ -358,10 +359,12 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
       </td>
 
       <td className="truncate px-4 py-3 text-sm text-ws-muted">
+        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Industry</span>
         {orDash(company.industryName)}
       </td>
 
       <td className="px-4 py-3">
+        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Candidates see</span>
         <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-ws-muted">
           {masked ? (
             <EyeOff aria-hidden="true" className="size-4 shrink-0" />
@@ -373,7 +376,7 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
       </td>
 
       <td className="px-4 py-3">
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2 max-lg:flex-wrap max-lg:justify-start max-lg:[&>button]:min-h-10 max-lg:[&>a]:min-h-10">
           {approved ? null : (
             <Button size="sm" disabled={isDeciding} onClick={() => void approve()}>
               <Check aria-hidden="true" /> Approve
