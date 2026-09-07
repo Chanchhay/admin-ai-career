@@ -13,6 +13,7 @@ import {
   useMarkNotificationReadMutation,
 } from "@/services/notificationsApi";
 import { cn } from "@/lib/utils";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 /**
  * The header bell and its dropdown.
@@ -29,6 +30,7 @@ export function NotificationBell({
   pathPrefixes: string[];
   className?: string;
 }) {
+  const tx = useWorkspaceTranslation();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +69,11 @@ export function NotificationBell({
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        aria-label={count > 0 ? `Notifications, ${count} unread` : "Notifications"}
+        aria-label={
+          count > 0
+            ? tx("Notifications, {count} unread", { count })
+            : tx("Notifications")
+        }
         aria-expanded={open}
         className={cn(
           "relative flex size-10 items-center justify-center rounded-full bg-ws-card text-ws-muted transition-colors hover:bg-ws-card-hover hover:text-ws-fg",
@@ -76,17 +82,17 @@ export function NotificationBell({
       >
         <Bell aria-hidden="true" className="size-4.5" />
         {count > 0 ? (
-          <span className="absolute -top-0.5 -right-0.5 flex min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+          <span className="absolute -top-0.5 -right-0.5 flex min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-none font-bold text-primary-foreground">
             {count > 99 ? "99+" : count}
           </span>
         ) : null}
       </button>
 
       {open ? (
-        <div className="absolute right-0 z-50 mt-2 w-88 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-ws-panel shadow-[var(--shadow-dropdown)]">
+        <div className="absolute right-0 z-50 mt-2 w-88 max-w-[calc(100vw-2rem)] max-lg:fixed max-lg:inset-x-4 max-lg:top-18 max-lg:mx-auto max-lg:w-auto max-lg:max-w-none max-lg:max-h-[calc(100dvh-10rem)] max-lg:overflow-y-auto overflow-hidden rounded-2xl bg-ws-panel shadow-[var(--shadow-dropdown)]">
           <div className="flex items-center justify-between px-4 py-3">
             <span className="text-sm font-semibold text-ws-fg">
-              Notifications
+              {tx("Notifications")}
             </span>
             {count > 0 ? (
               <button
@@ -95,8 +101,8 @@ export function NotificationBell({
                 disabled={markAllState.isLoading}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-ws-muted transition-colors hover:text-ws-fg disabled:opacity-50"
               >
-                <CheckCheck aria-hidden="true" className="size-3.5" /> Mark all
-                read
+                <CheckCheck aria-hidden="true" className="size-3.5" />{" "}
+                {tx("Mark all read")}
               </button>
             ) : null}
           </div>
@@ -104,15 +110,15 @@ export function NotificationBell({
           <div className="max-h-96 overflow-y-auto">
             {list.isLoading ? (
               <p className="px-4 py-8 text-center text-sm text-ws-faint">
-                Loading…
+                {tx("Loading…")}
               </p>
             ) : list.isError ? (
               <p className="px-4 py-8 text-center text-sm text-ws-faint">
-                Unable to load notifications.
+                {tx("Unable to load notifications.")}
               </p>
             ) : notifications.length === 0 ? (
               <p className="px-4 py-8 text-center text-sm text-ws-faint">
-                Nothing yet.
+                {tx("Nothing yet.")}
               </p>
             ) : (
               <ul>
@@ -142,6 +148,7 @@ function NotificationRow({
   pathPrefixes: string[];
   onNavigate: () => void;
 }) {
+  const tx = useWorkspaceTranslation();
   const [markRead] = useMarkNotificationReadMutation();
   const [remove, removeState] = useDeleteNotificationMutation();
 
@@ -176,8 +183,8 @@ function NotificationRow({
           {notification.body}
         </span>
       ) : null}
-      <span className="mt-1 block text-[11px] text-ws-faint">
-        {formatRelative(notification.createdAt)}
+      <span className="mt-1 block text-xs text-ws-faint">
+        {formatRelative(notification.createdAt, tx)}
       </span>
     </>
   );
@@ -211,7 +218,7 @@ function NotificationRow({
         type="button"
         onClick={() => void remove(notification.id)}
         disabled={removeState.isLoading}
-        aria-label={`Dismiss: ${notification.title}`}
+        aria-label={tx("Dismiss: {title}", { title: notification.title })}
         className="mt-3 flex size-7 shrink-0 items-center justify-center rounded-lg text-ws-faint opacity-0 transition hover:text-ws-fg focus-visible:opacity-100 group-hover/row:opacity-100 disabled:opacity-30"
       >
         <Trash2 aria-hidden="true" className="size-3.5" />
@@ -220,21 +227,24 @@ function NotificationRow({
   );
 }
 
-function formatRelative(value: string) {
+function formatRelative(
+  value: string,
+  tx: (value: string, params?: Record<string, unknown>) => string,
+) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
 
   const seconds = Math.round((Date.now() - date.getTime()) / 1000);
-  if (seconds < 60) return "just now";
+  if (seconds < 60) return tx("just now");
 
   const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return tx("{minutes}m ago", { minutes });
 
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return tx("{hours}h ago", { hours });
 
   const days = Math.round(hours / 24);
-  if (days < 7) return `${days}d ago`;
+  if (days < 7) return tx("{days}d ago", { days });
 
   return new Intl.DateTimeFormat("en", {
     month: "short",

@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Page } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 /**
  * Previous / next paging over a Spring `Page`. Deliberately not numbered: the
@@ -15,25 +16,30 @@ export function Pager<T>({
   page: Pick<Page<T>, "number" | "totalPages" | "totalElements" | "first" | "last">;
   onPageChange: (nextPage: number) => void;
 }) {
+  const tx = useWorkspaceTranslation();
+
   if (page.totalElements === 0) return null;
 
   return (
-    <div className="mt-4 flex items-center justify-between gap-3">
+    <div className="mt-4 flex items-center justify-between gap-3 max-sm:flex-wrap">
       <p className="text-xs text-ws-faint">
-        Page {page.number + 1} of {Math.max(page.totalPages, 1)} ·{" "}
-        {page.totalElements} total
+        {tx("Page {number} of {totalPages} · {total} total", {
+          number: page.number + 1,
+          totalPages: Math.max(page.totalPages, 1),
+          total: page.totalElements,
+        })}
       </p>
 
       <div className="flex items-center gap-1.5">
         <PagerButton
-          label="Previous page"
+          label={tx("Previous page")}
           disabled={page.first}
           onClick={() => onPageChange(page.number - 1)}
         >
           <ChevronLeft aria-hidden="true" className="size-4" />
         </PagerButton>
         <PagerButton
-          label="Next page"
+          label={tx("Next page")}
           disabled={page.last}
           onClick={() => onPageChange(page.number + 1)}
         >

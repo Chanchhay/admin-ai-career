@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 /**
  * Chip range — small fills only. `solid` is the brand primary, `soft` the
@@ -92,7 +93,7 @@ export function Panel({
   return (
     <section
       className={cn(
-        "rounded-[2rem] p-5",
+        "rounded-[2rem] p-5 max-lg:min-w-0 max-sm:rounded-3xl max-sm:p-4",
         tone ? toneFill[tone] : "bg-ws-card text-ws-fg",
         className,
       )}
@@ -111,12 +112,14 @@ export function PanelHeader({
   icon?: ReactNode;
   action?: ReactNode;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
-    <header className="mb-4 flex items-center gap-2">
+    <header className="mb-4 flex items-center gap-2 max-lg:flex-wrap">
       {icon}
-      <h2 className="text-[15px] font-semibold tracking-tight">{title}</h2>
+      <h2 className="text-lg font-semibold tracking-tight">{tx(title)}</h2>
       {action ? (
-        <div className="ml-auto flex items-center gap-1">{action}</div>
+        <div className="ml-auto flex items-center gap-1 max-lg:max-w-full max-lg:flex-wrap">{action}</div>
       ) : null}
     </header>
   );
@@ -134,6 +137,8 @@ export function PillTabs<T extends string>({
   onChange: (tab: T) => void;
   className?: string;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <div
       className={cn(
@@ -148,13 +153,13 @@ export function PillTabs<T extends string>({
           onClick={() => onChange(tab)}
           aria-pressed={value === tab}
           className={cn(
-            "shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors",
+            "shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
             value === tab
               ? "bg-ws-panel text-ws-fg"
               : "text-ws-faint hover:text-ws-fg",
           )}
         >
-          {tab}
+          {tx(tab)}
         </button>
       ))}
     </div>
@@ -183,12 +188,14 @@ export function NotchedPanel({
   className?: string;
   children: ReactNode;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
-    <section className={cn("ws-notch flex flex-col", noteVar[fill], className)}>
+    <section className={cn("ws-notch flex flex-col max-lg:min-w-0", noteVar[fill], className)}>
       <header className="ws-notch__top flex shrink-0 items-center gap-2 px-5">
         {icon}
-        <h2 className="truncate text-[15px] font-semibold tracking-tight">
-          {title}
+        <h2 className="truncate text-lg font-semibold tracking-tight">
+          {tx(title)}
         </h2>
       </header>
 
@@ -218,11 +225,13 @@ export function FolderTabs<T extends string>({
   /** Optional trailing note, kept clear of the tabs themselves. */
   aside?: ReactNode;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
-    <div className="flex items-end gap-3">
+    <div className="flex items-end gap-3 max-lg:min-w-0">
       {/* The left pad lives on the scroller so the active tab's fillet has room
           inside the scroll box — outside it, overflow would clip it away. */}
-      <div className="ws-scroll flex items-end gap-4 overflow-x-auto pl-12 pr-4 pt-1">
+      <div className="ws-scroll flex items-end gap-4 overflow-x-auto pl-12 pr-4 pt-1 max-lg:min-w-0 max-sm:gap-1 max-sm:pl-4 max-sm:pr-1">
         {tabs.map((tab) => (
           <button
             key={tab}
@@ -230,13 +239,13 @@ export function FolderTabs<T extends string>({
             onClick={() => onChange(tab)}
             aria-pressed={value === tab}
             className={cn(
-              "shrink-0 px-4 text-[13px] font-semibold transition-colors",
+              "shrink-0 px-4 text-sm font-semibold transition-colors",
               value === tab
                 ? "ws-foldertab pb-3 pt-2.5 text-ws-fg"
                 : "rounded-full py-2 text-ws-faint hover:bg-ws-card hover:text-ws-fg",
             )}
           >
-            {tab}
+            {tx(tab)}
           </button>
         ))}
       </div>
@@ -261,11 +270,12 @@ export function PipelineTrack({
   segments: { label: string; count: number; tone: Tone }[];
   restLabel: string;
 }) {
+  const tx = useWorkspaceTranslation();
   const filled = segments.reduce((sum, segment) => sum + segment.count, 0);
   const total = Math.max(filled, 1);
 
   return (
-    <div className="flex flex-wrap items-stretch gap-2 sm:flex-nowrap">
+    <div className="flex flex-wrap items-stretch gap-2 lg:flex-nowrap">
       {segments
         .filter((segment) => segment.count > 0)
         .map((segment) => (
@@ -273,17 +283,17 @@ export function PipelineTrack({
             key={segment.label}
             style={{ flexGrow: segment.count / total }}
             className={cn(
-              "flex min-w-fit items-center justify-between gap-3 rounded-full px-5 py-3 text-[13px] font-semibold",
+              "flex min-w-fit max-sm:basis-full items-center justify-between gap-3 rounded-full px-5 py-3 text-sm font-semibold",
               toneFill[segment.tone],
             )}
           >
-            <span className="truncate">{segment.label}</span>
+            <span className="truncate">{tx(segment.label)}</span>
             <span className="tabular-nums opacity-70">{segment.count}</span>
           </div>
         ))}
 
-      <div className="ws-track-rest flex min-w-fit grow items-center justify-end rounded-full px-5 py-3 text-[13px] font-medium text-ws-faint">
-        {restLabel}
+      <div className="ws-track-rest flex min-w-fit grow items-center justify-end rounded-full px-5 py-3 text-sm font-medium text-ws-faint">
+        {tx(restLabel)}
       </div>
     </div>
   );
@@ -303,20 +313,21 @@ export function IconAction({
   className?: string;
   children: ReactNode;
 }) {
+  const tx = useWorkspaceTranslation();
   const classes = cn(
     "flex size-9 items-center justify-center rounded-full opacity-60 transition-all hover:bg-current/10 hover:opacity-100",
     className,
   );
 
   return href ? (
-    <Link href={href} aria-label={label} className={classes}>
+    <Link href={href} aria-label={tx(label)} className={classes}>
       {children}
     </Link>
   ) : (
     <button
       type="button"
       onClick={onClick}
-      aria-label={label}
+      aria-label={tx(label)}
       className={classes}
     >
       {children}

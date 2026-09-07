@@ -10,11 +10,13 @@ import {
 } from "@/components/layout/PageHeader";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { adminNavigation, type NavigationItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { resolveFileUrl } from "@/lib/file-url";
 import { isStaff } from "@/lib/roles";
 import { useGetCurrentUserQuery, useGetSessionQuery } from "@/services/authApi";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 /**
  * The console frame: an icon rail beside a single rounded panel. Every page in
@@ -33,10 +35,11 @@ export function AdminShell({ children }: { children: ReactNode }) {
 }
 
 function Frame({ children }: { children: ReactNode }) {
+  const tx = useWorkspaceTranslation();
   const pathname = usePathname();
   const heading = usePageHeading();
   const active = adminNavigation.find((link) => isActive(pathname, link.href));
-  const title = heading?.title ?? active?.label ?? "Admin";
+  const title = heading?.title ?? (active ? tx(active.label) : tx("Admin"));
 
   return (
     /*
@@ -50,7 +53,7 @@ function Frame({ children }: { children: ReactNode }) {
       <div className="ws-panel relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none lg:rounded-[28px]">
         <TopBar title={title} />
 
-        <main className="ws-scroll min-h-0 flex-1 overflow-y-auto px-4 pb-28 pt-2 lg:px-7 lg:pb-8">
+        <main className="ws-scroll min-h-0 flex-1 overflow-y-auto px-4 pb-28 pt-2 max-lg:pb-[calc(7rem+env(safe-area-inset-bottom))] lg:px-7 lg:pb-8">
           <div
             key={pathname}
             className="animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out"
@@ -69,9 +72,11 @@ function Frame({ children }: { children: ReactNode }) {
 /* ---------------------------------------------------------------- rail --- */
 
 function Rail({ pathname }: { pathname: string }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <aside
-      aria-label="Console navigation"
+      aria-label={tx("Console navigation")}
       className="ws-panel hidden h-full w-17 shrink-0 flex-col items-center rounded-[28px] py-5 lg:flex"
     >
       <span className="flex size-10 items-center justify-center rounded-full bg-chip-solid text-lg font-black text-chip-solid-fg">
@@ -92,11 +97,11 @@ function Rail({ pathname }: { pathname: string }) {
       <form action="/logout" method="post" className="mt-auto pt-4">
         <button
           type="submit"
-          aria-label="Sign out"
+          aria-label={tx("Sign out")}
           className="group relative flex size-11 items-center justify-center rounded-[18px] text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
         >
           <LogOut aria-hidden="true" className="size-5" />
-          <Tooltip>Sign out</Tooltip>
+          <Tooltip>{tx("Sign out")}</Tooltip>
         </button>
       </form>
     </aside>
@@ -110,6 +115,7 @@ function RailLink({
   link: NavigationItem;
   pathname: string;
 }) {
+  const tx = useWorkspaceTranslation();
   const active = isActive(pathname, link.href);
 
   return (
@@ -124,7 +130,7 @@ function RailLink({
       )}
     >
       <link.icon aria-hidden="true" className="size-5" />
-      <Tooltip>{link.label}</Tooltip>
+      <Tooltip>{tx(link.label)}</Tooltip>
     </Link>
   );
 }
@@ -147,7 +153,7 @@ function TopBar({ title }: { title: string }) {
         {title}
       </h1>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-2 max-lg:shrink-0 max-sm:gap-1">
         {/*
           * The console's own route prefixes. The inbox is shared with the
           * candidate and recruiter app, so notifications aimed at those roles
@@ -163,6 +169,7 @@ function TopBar({ title }: { title: string }) {
             "/hires",
             "/finance",
           ]} />
+        <LanguageToggle />
         <ThemeToggle className="size-10 rounded-full bg-ws-card text-ws-muted hover:bg-ws-card-hover hover:text-ws-fg" />
         <Account />
       </div>
@@ -171,6 +178,7 @@ function TopBar({ title }: { title: string }) {
 }
 
 function Account() {
+  const tx = useWorkspaceTranslation();
   const { data: session } = useGetSessionQuery();
   const { data: user } = useGetCurrentUserQuery(undefined, {
     skip: !session?.authenticated,
@@ -178,7 +186,7 @@ function Account() {
 
   if (!session?.authenticated) return null;
 
-  const name = user?.fullName || session.username || session.email || "Account";
+  const name = user?.fullName || session.username || session.email || tx("Account");
   const avatar = resolveFileUrl(user?.avatarUrl);
 
   return (
@@ -204,6 +212,7 @@ function Account() {
  * actually stops the call.
  */
 function StaffRoleNotice() {
+  const tx = useWorkspaceTranslation();
   const { data: session } = useGetSessionQuery();
   const { data: user, isSuccess } = useGetCurrentUserQuery(undefined, {
     skip: !session?.authenticated,
@@ -221,10 +230,11 @@ function StaffRoleNotice() {
     >
       <ShieldAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
       <p>
-        This account has neither <strong>MODERATOR</strong> nor{" "}
-        <strong>SUPER_ADMIN</strong>, so the API will refuse every screen in this
-        console. Ask for the role in Keycloak, then sign out and back in — roles
-        are read from the token issued at sign-in.
+        {tx("This account has neither")} <strong>MODERATOR</strong>{" "}
+        {tx("nor")} <strong>SUPER_ADMIN</strong>,{" "}
+        {tx(
+          "so the API will refuse every screen in this console. Ask for the role in Keycloak, then sign out and back in — roles are read from the token issued at sign-in.",
+        )}
       </p>
     </div>
   );
@@ -233,10 +243,12 @@ function StaffRoleNotice() {
 /* ---------------------------------------------------------- mobile dock --- */
 
 function MobileDock({ pathname }: { pathname: string }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <nav
-      aria-label="Console navigation"
-      className="ws-scroll fixed inset-x-3 bottom-3 z-40 flex gap-1 overflow-x-auto rounded-full bg-ws-card/95 p-1.5 shadow-(--shadow-dropdown) backdrop-blur lg:hidden"
+      aria-label={tx("Console navigation")}
+      className="ws-scroll fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 flex gap-1 overflow-x-auto rounded-full bg-ws-card/95 p-1.5 shadow-(--shadow-dropdown) backdrop-blur lg:hidden"
     >
       {adminNavigation.map((link) => {
         const active = isActive(pathname, link.href);
@@ -244,7 +256,7 @@ function MobileDock({ pathname }: { pathname: string }) {
           <Link
             key={link.href}
             href={link.href}
-            aria-label={link.label}
+            aria-label={tx(link.label)}
             aria-current={active ? "page" : undefined}
             className={cn(
               "flex size-11 shrink-0 items-center justify-center rounded-full transition-colors",

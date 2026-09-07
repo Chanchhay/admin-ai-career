@@ -12,9 +12,11 @@ import { Input } from "@/components/ui/input";
 import { GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
 import { humanizeEnum, orDash } from "@/lib/format";
 import { useGetPublicJobsQuery } from "@/services/jobsApi";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 export default function JobsPage() {
-  useSetPageHeading("Published jobs");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Published jobs"));
   const [draftKeyword, setDraftKeyword] = useState("");
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
@@ -37,54 +39,55 @@ export default function JobsPage() {
     <div className="flex flex-col gap-5">
       <Panel tone="soft">
         <p className="text-sm leading-6">
-          This is the live public catalogue. It shows only jobs candidates can
-          currently discover; job drafting and publishing remain recruiter-owned.
+          {tx(
+            "This is the live public catalogue. It shows only jobs candidates can currently discover; job drafting and publishing remain recruiter-owned.",
+          )}
         </p>
       </Panel>
 
       <Panel>
         <PanelHeader
-          title={`${data?.totalElements ?? 0} published jobs`}
+          title={tx("{count} published jobs", { count: data?.totalElements ?? 0 })}
           icon={<BriefcaseBusiness aria-hidden="true" className="size-5" />}
         />
 
         <form
-          className="mb-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(160px,.45fr)_160px_auto]"
+          className="mb-4 grid gap-2 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(160px,.45fr)_160px_auto]"
           onSubmit={(event) => { event.preventDefault(); applySearch(); }}
         >
           <Input
             value={draftKeyword}
             onChange={(event) => setDraftKeyword(event.target.value)}
-            placeholder="Search title, company, or description"
-            aria-label="Search jobs"
+            placeholder={tx("Search title, company, or description")}
+            aria-label={tx("Search jobs")}
           />
           <Input
             value={location}
             onChange={(event) => { setLocation(event.target.value); setPage(0); }}
-            placeholder="Location"
-            aria-label="Filter by location"
+            placeholder={tx("Location")}
+            aria-label={tx("Filter by location")}
           />
           <select
             value={workMode}
             onChange={(event) => { setWorkMode(event.target.value); setPage(0); }}
-            aria-label="Filter by work mode"
+            aria-label={tx("Filter by work mode")}
             className="h-11 rounded-md border border-input bg-surface px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
           >
-            <option value="">All work modes</option>
-            <option value="ONSITE">Onsite</option>
-            <option value="REMOTE">Remote</option>
-            <option value="HYBRID">Hybrid</option>
+            <option value="">{tx("All work modes")}</option>
+            <option value="ONSITE">{tx("Onsite")}</option>
+            <option value="REMOTE">{tx("Remote")}</option>
+            <option value="HYBRID">{tx("Hybrid")}</option>
           </select>
           <Button type="submit" disabled={isFetching}>
-            <Search aria-hidden="true" className="size-4" /> Search
+            <Search aria-hidden="true" className="size-4" /> {tx("Search")}
           </Button>
         </form>
 
         {isLoading ? <LoadingState rows={6} /> : isError ? (
-          <ErrorState message="Unable to load published jobs." onRetry={refetch} />
+          <ErrorState message={tx("Unable to load published jobs.")} onRetry={refetch} />
         ) : !data?.content.length ? (
           <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            No published jobs match these filters.
+            {tx("No published jobs match these filters.")}
           </p>
         ) : (
           <ul className={isFetching ? "flex flex-col gap-2 opacity-60" : "flex flex-col gap-2"}>
@@ -98,8 +101,8 @@ export default function JobsPage() {
                     </span>
                     <span className="mt-2 flex flex-wrap gap-1.5">
                       <GhostChip><MapPin aria-hidden="true" className="size-3" />{orDash(job.location)}</GhostChip>
-                      {job.workMode ? <GhostChip>{humanizeEnum(job.workMode)}</GhostChip> : null}
-                      {job.jobType ? <GhostChip>{humanizeEnum(job.jobType)}</GhostChip> : null}
+                      {job.workMode ? <GhostChip>{tx(humanizeEnum(job.workMode))}</GhostChip> : null}
+                      {job.jobType ? <GhostChip>{tx(humanizeEnum(job.jobType))}</GhostChip> : null}
                     </span>
                   </span>
                   <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-ws-faint" />

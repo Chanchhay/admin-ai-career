@@ -47,6 +47,7 @@ import {
   useRescheduleHumanInterviewMutation,
   useScheduleHumanInterviewMutation,
 } from "@/services/moderationApi";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 const TABS = [
   "All candidates",
@@ -72,7 +73,8 @@ const tabStatus: Record<Tab, CandidateApplicationReviewStatus> = {
 };
 
 export default function ApplicationsPage() {
-  useSetPageHeading("Moderator results");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Moderator results"));
 
   const [tab, setTab] = useState<Tab>("All candidates");
   const [page, setPage] = useState(0);
@@ -98,9 +100,9 @@ export default function ApplicationsPage() {
           <Sparkles aria-hidden="true" className="size-4" />
         </span>
         <p className="max-w-5xl text-sm leading-6">
-          Candidates reach this queue once their AI interview is done. Approve
-          to clear them, schedule a human interview when the AI result is
-          borderline, and forward to hand the recruiter the file.
+          {tx(
+            "Candidates reach this queue once their AI interview is done. Approve to clear them, schedule a human interview when the AI result is borderline, and forward to hand the recruiter the file.",
+          )}
         </p>
       </Panel>
 
@@ -112,15 +114,21 @@ export default function ApplicationsPage() {
             action={
               data ? (
                 <span className="rounded-full bg-ws-card-hover px-3 py-1 text-xs font-semibold text-ws-muted">
-                  {data.totalElements} {data.totalElements === 1 ? "candidate" : "candidates"}
+                  {tx(
+                    data.totalElements === 1
+                      ? "{count} candidate"
+                      : "{count} candidates",
+                    { count: data.totalElements },
+                  )}
                 </span>
               ) : null
             }
           />
 
         <p className="mt-1 max-w-2xl text-sm leading-6 text-ws-muted">
-          Review AI assessments, coordinate interviews, and make the final
-          application decision from one place.
+          {tx(
+            "Review AI assessments, coordinate interviews, and make the final application decision from one place.",
+          )}
         </p>
 
         <PillTabs
@@ -136,10 +144,10 @@ export default function ApplicationsPage() {
         {isLoading ? (
           <LoadingState rows={5} />
         ) : isError ? (
-          <ErrorState message="Unable to load applications." onRetry={refetch} />
+          <ErrorState message={tx("Unable to load applications.")} onRetry={refetch} />
         ) : applications.length === 0 ? (
           <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            Nothing in {tab.toLowerCase()}.
+            {tx("Nothing in {tab}.", { tab: tx(tab).toLowerCase() })}
           </p>
         ) : (
           <ul className="grid gap-4">
@@ -157,6 +165,7 @@ export default function ApplicationsPage() {
 }
 
 function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
+  const tx = useWorkspaceTranslation();
   const applicationId = item.application.id;
   const { data: detail, isLoading } = useGetApplicationQuery(applicationId);
   const aiFeedback = detail?.aiResult?.feedback;
@@ -189,20 +198,22 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
   const [meetingUrl, setMeetingUrl] = useState("");
 
   const approve = async () => {
-    if (!window.confirm(`Approve ${candidateName}?`)) return;
+    if (!window.confirm(tx("Approve {name}?", { name: candidateName }))) return;
     try {
       await decide({ applicationId, decision: "approve" }).unwrap();
-      toast.success("Application approved.");
+      toast.success(tx("Application approved."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to approve this application."));
+      toast.error(getApiErrorMessage(error, tx("Unable to approve this application.")));
     }
   };
 
   const reject = async () => {
-    const note = window.prompt(`Why is ${candidateName} being rejected?`);
+    const note = window.prompt(
+      tx("Why is {name} being rejected?", { name: candidateName }),
+    );
     if (note === null) return;
     if (!note.trim()) {
-      toast.error("A rejection note is required.");
+      toast.error(tx("A rejection note is required."));
       return;
     }
     try {
@@ -211,33 +222,34 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
         decision: "reject",
         body: { decisionNote: note.trim() },
       }).unwrap();
-      toast.success("Application rejected.");
+      toast.success(tx("Application rejected."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to reject this application."));
+      toast.error(getApiErrorMessage(error, tx("Unable to reject this application.")));
     }
   };
 
   const forward = async () => {
-    if (!window.confirm(`Forward ${candidateName} to the recruiter?`)) return;
+    if (!window.confirm(tx("Forward {name} to the recruiter?", { name: candidateName })))
+      return;
     try {
       await decide({ applicationId, decision: "forward" }).unwrap();
-      toast.success("Application forwarded.");
+      toast.success(tx("Application forwarded."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to forward this application."));
+      toast.error(getApiErrorMessage(error, tx("Unable to forward this application.")));
     }
   };
 
   const cancel = async () => {
     if (!latestInterview) return;
-    if (!window.confirm("Cancel this interview?")) return;
+    if (!window.confirm(tx("Cancel this interview?"))) return;
     try {
       await cancelInterview({
         interviewId: latestInterview.id,
         applicationId,
       }).unwrap();
-      toast.success("Interview cancelled.");
+      toast.success(tx("Interview cancelled."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to cancel the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to cancel the interview.")));
     }
   };
 
@@ -262,7 +274,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
 
   const saveInterview = async () => {
     if (!scheduledAt || !meetingUrl.trim()) {
-      toast.error("A date and a meeting link are both required.");
+      toast.error(tx("A date and a meeting link are both required."));
       return;
     }
 
@@ -271,14 +283,14 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
     try {
       if (panel === "schedule") {
         await scheduleInterview({ applicationId, body }).unwrap();
-        toast.success("Interview scheduled.");
+        toast.success(tx("Interview scheduled."));
       } else if (panel === "reschedule" && latestInterview) {
         await rescheduleInterview({
           interviewId: latestInterview.id,
           applicationId,
           body,
         }).unwrap();
-        toast.success("Interview rescheduled.");
+        toast.success(tx("Interview rescheduled."));
       }
       setPanel(null);
     } catch (error) {
@@ -286,8 +298,8 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
         getApiErrorMessage(
           error,
           panel === "schedule"
-            ? "Unable to schedule the interview."
-            : "Unable to reschedule the interview.",
+            ? tx("Unable to schedule the interview.")
+            : tx("Unable to reschedule the interview."),
         ),
       );
     }
@@ -302,11 +314,14 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
         body: { result },
       }).unwrap();
       toast.success(
-        `Interview marked ${result === "NEEDS_REVIEW" ? "needs review" : result.toLowerCase()}.`,
+        tx("Interview marked {result}.", {
+          result:
+            result === "NEEDS_REVIEW" ? tx("needs review") : tx(result.toLowerCase()),
+        }),
       );
       setPanel(null);
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to complete the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to complete the interview.")));
     }
   };
 
@@ -348,7 +363,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
             <BriefcaseBusiness aria-hidden="true" className="size-4" />
           </span>
           <span className="min-w-0">
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-ws-faint">Applied for</span>
+            <span className="block text-xs font-semibold uppercase tracking-[0.1em] text-ws-faint">{tx("Applied for")}</span>
             <span className="mt-1 block truncate text-sm font-semibold text-ws-fg">{orDash(item.application.jobTitle)}</span>
             <span className="mt-0.5 block truncate text-xs text-ws-muted">{formatDateTime(item.application.appliedAt)}</span>
           </span>
@@ -359,8 +374,8 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
             {isLoading ? "…" : (aiFeedback?.overallScore ?? "—")}
           </span>
           <span>
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-ws-faint">AI assessment</span>
-            <span className="mt-1.5 block">{aiFeedback ? <ResultChip result={aiFeedback.result} /> : <span className="text-xs text-ws-muted">Awaiting result</span>}</span>
+            <span className="block text-xs font-semibold uppercase tracking-[0.1em] text-ws-faint">{tx("AI assessment")}</span>
+            <span className="mt-1.5 block">{aiFeedback ? <ResultChip result={aiFeedback.result} /> : <span className="text-xs text-ws-muted">{tx("Awaiting result")}</span>}</span>
           </span>
         </div>
 
@@ -369,14 +384,14 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
             <CalendarClock aria-hidden="true" className="size-4" />
           </span>
           <span className="min-w-0">
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-ws-faint">Human interview</span>
+            <span className="block text-xs font-semibold uppercase tracking-[0.1em] text-ws-faint">{tx("Human interview")}</span>
             {latestInterview ? (
               <span className="mt-1 flex flex-wrap items-center gap-2">
                 <InterviewStatusChip status={latestInterview.status} />
                 <span className="text-xs text-ws-muted">{formatDateTime(latestInterview.scheduledAt)}</span>
               </span>
             ) : (
-              <span className="mt-1.5 block text-xs text-ws-muted">Not scheduled</span>
+              <span className="mt-1.5 block text-xs text-ws-muted">{tx("Not scheduled")}</span>
             )}
           </span>
         </div>
@@ -384,7 +399,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
 
       {!isDecisionFinal ? (
         <div className="flex flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-          <span className="text-xs font-medium text-ws-faint">Choose the next step for this application</span>
+          <span className="text-xs font-medium text-ws-faint">{tx("Choose the next step for this application")}</span>
           <span className="flex flex-wrap items-center gap-2">
             <>
               <ActionButton label="Approve" icon={Check} onClick={approve} disabled={busy} />
@@ -434,7 +449,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
       {panel === "schedule" || panel === "reschedule" ? (
         <div className="mx-5 mb-5 grid gap-3 rounded-2xl border border-ws-line/70 bg-ws-card-hover/50 p-4 sm:mx-6 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            {panel === "schedule" ? "When (your local time)" : "New date and time"}
+            {panel === "schedule" ? tx("When (your local time)") : tx("New date and time")}
             <Input
               type="datetime-local"
               value={scheduledAt}
@@ -442,7 +457,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            Meeting link
+            {tx("Meeting link")}
             <Input
               type="url"
               value={meetingUrl}
@@ -452,7 +467,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
           </label>
           <div className="flex gap-2 sm:col-span-2">
             <Button size="sm" disabled={busy} onClick={() => void saveInterview()}>
-              {panel === "schedule" ? "Schedule" : "Save new time"}
+              {panel === "schedule" ? tx("Schedule") : tx("Save new time")}
             </Button>
             <Button
               size="sm"
@@ -460,15 +475,15 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
               disabled={busy}
               onClick={() => setPanel(null)}
             >
-              Cancel
+              {tx("Cancel")}
             </Button>
           </div>
         </div>
       ) : panel === "complete" ? (
         <div className="mx-5 mb-5 flex flex-wrap items-center gap-2 rounded-2xl border border-ws-line/70 bg-ws-card-hover/50 p-4 sm:mx-6">
-          <span className="text-xs font-medium text-ws-muted">Mark interview as</span>
+          <span className="text-xs font-medium text-ws-muted">{tx("Mark interview as")}</span>
           <Button size="sm" disabled={busy} onClick={() => void finish("PASSED")}>
-            Passed
+            {tx("Passed")}
           </Button>
           <Button
             size="sm"
@@ -476,7 +491,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
             disabled={busy}
             onClick={() => void finish("NEEDS_REVIEW")}
           >
-            Needs review
+            {tx("Needs review")}
           </Button>
           <Button
             size="sm"
@@ -484,7 +499,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
             disabled={busy}
             onClick={() => void finish("FAILED")}
           >
-            Failed
+            {tx("Failed")}
           </Button>
           <Button
             size="sm"
@@ -492,7 +507,7 @@ function CandidateReviewRow({ item }: { item: CandidateApplicationListItem }) {
             disabled={busy}
             onClick={() => setPanel(null)}
           >
-            Cancel
+            {tx("Cancel")}
           </Button>
         </div>
       ) : null}
@@ -513,6 +528,8 @@ function ActionLink({
   primary?: boolean;
   tone?: "danger";
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <Link
       href={href}
@@ -525,7 +542,7 @@ function ActionLink({
       }
     >
       <Icon aria-hidden="true" className="size-3.5" />
-      {label}
+      {tx(label)}
     </Link>
   );
 }
@@ -544,6 +561,8 @@ function ActionButton({
   disabled?: boolean;
   tone?: "danger";
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <button
       type="button"
@@ -557,7 +576,7 @@ function ActionButton({
       )}
     >
       <Icon aria-hidden="true" className="size-3.5" />
-      {label}
+      {tx(label)}
     </button>
   );
 }

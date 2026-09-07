@@ -40,8 +40,10 @@ import {
   useRescheduleHumanInterviewMutation,
   useScheduleHumanInterviewMutation,
 } from "@/services/moderationApi";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 export default function ApplicationDetailPage() {
+  const tx = useWorkspaceTranslation();
   const { applicationId } = useParams<{ applicationId: string }>();
   const id = Number(applicationId);
 
@@ -51,11 +53,11 @@ export default function ApplicationDetailPage() {
   const [decide, { isLoading: isDeciding }] = useDecideApplicationMutation();
   const [note, setNote] = useState("");
 
-  useSetPageHeading(data?.candidate?.headline ?? "Application");
+  useSetPageHeading(data?.candidate?.headline ?? tx("Application"));
 
   const submit = async (decision: "approve" | "reject" | "forward") => {
     if (decision === "reject" && !note.trim()) {
-      toast.error("Explain the rejection in the note first.");
+      toast.error(tx("Explain the rejection in the note first."));
       return;
     }
 
@@ -73,20 +75,20 @@ export default function ApplicationDetailPage() {
       // Not `${decision}d`: that reads "rejectd" and "forwardd".
       toast.success(
         decision === "approve"
-          ? "Application approved. You can forward it to the recruiter now."
+          ? tx("Application approved. You can forward it to the recruiter now.")
           : decision === "forward"
-            ? "Forwarded to the recruiter."
-            : "Application rejected.",
+            ? tx("Forwarded to the recruiter.")
+            : tx("Application rejected."),
       );
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to record the decision."));
+      toast.error(getApiErrorMessage(error, tx("Unable to record the decision.")));
     }
   };
 
   if (isLoading) return <LoadingState rows={6} />;
   if (isError || !data) {
     return (
-      <ErrorState message="Unable to load this application." onRetry={refetch} />
+      <ErrorState message={tx("Unable to load this application.")} onRetry={refetch} />
     );
   }
 
@@ -113,7 +115,7 @@ export default function ApplicationDetailPage() {
         className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-ws-faint transition-colors hover:text-ws-fg"
       >
         <ArrowLeft aria-hidden="true" className="size-3.5" />
-        Back to queue
+        {tx("Back to queue")}
       </Link>
 
       <Panel>
@@ -123,8 +125,10 @@ export default function ApplicationDetailPage() {
               {orDash(candidate?.headline)}
             </h2>
             <p className="mt-1 text-sm text-ws-faint">
-              Applied to {orDash(application.jobTitle)} ·{" "}
-              {formatDateTime(application.appliedAt)}
+              {tx("Applied to {job} · {date}", {
+                job: orDash(application.jobTitle),
+                date: formatDateTime(application.appliedAt),
+              })}
             </p>
           </div>
           {review ? <ReviewStatusChip status={review.reviewStatus} /> : null}
@@ -139,8 +143,8 @@ export default function ApplicationDetailPage() {
 
         {application.coverLetter ? (
           <div className="mt-4 rounded-[18px] bg-ws-card-hover px-4 py-3">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-ws-faint">
-              Cover letter
+            <p className="text-xs uppercase tracking-[0.18em] text-ws-faint">
+              {tx("Cover letter")}
             </p>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ws-muted">
               {application.coverLetter}
@@ -165,7 +169,7 @@ export default function ApplicationDetailPage() {
             <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ws-fg">
               {orDash(submittedResume.title)}
             </span>
-            <GhostChip>{humanizeEnum(submittedResume.visibility)}</GhostChip>
+            <GhostChip>{tx(humanizeEnum(submittedResume.visibility))}</GhostChip>
           </a>
         </Panel>
       ) : null}
@@ -210,7 +214,7 @@ export default function ApplicationDetailPage() {
 
       <StartConversation
         applicationId={id}
-        label="Message candidate"
+        label={tx("Message candidate")}
       />
 
       <Panel>
@@ -227,7 +231,7 @@ export default function ApplicationDetailPage() {
             </span>
             <span>
               <span className="block text-xs font-medium uppercase tracking-wide text-ws-faint">
-                Application status
+                {tx("Application status")}
               </span>
               <span className="mt-1 block">
                 <ReviewStatusChip status={reviewStatus} />
@@ -239,12 +243,13 @@ export default function ApplicationDetailPage() {
         {isApproved ? (
           <div className="mt-3">
             <p className="mb-3 text-sm text-ws-muted">
-              Approved, and not yet with the recruiter. Forwarding hands them the
-              candidate&rsquo;s resume and AI interview result.
+              {tx(
+                "Approved, and not yet with the recruiter. Forwarding hands them the candidate’s resume and AI interview result.",
+              )}
             </p>
             <Button disabled={isDeciding} onClick={() => void submit("forward")}>
               <Send aria-hidden="true" className="size-4" />
-              Forward to recruiter
+              {tx("Forward to recruiter")}
             </Button>
           </div>
         ) : null}
@@ -252,18 +257,18 @@ export default function ApplicationDetailPage() {
         {isDecided ? null : (
           <>
             <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-              Decision note
+              {tx("Decision note")}
               <Textarea
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
-                placeholder="Why this candidate is being approved or turned down."
+                placeholder={tx("Why this candidate is being approved or turned down.")}
               />
             </label>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Button disabled={isDeciding} onClick={() => void submit("approve")}>
                 <Check aria-hidden="true" className="size-4" />
-                Approve
+                {tx("Approve")}
               </Button>
               {/*
                 * No Forward here: the backend refuses it until the review is
@@ -276,7 +281,7 @@ export default function ApplicationDetailPage() {
                 onClick={() => void submit("reject")}
               >
                 <X aria-hidden="true" className="size-4" />
-                Reject
+                {tx("Reject")}
               </Button>
             </div>
           </>
@@ -284,7 +289,7 @@ export default function ApplicationDetailPage() {
 
         {review?.decisionNote ? (
           <p className="mt-4 rounded-[18px] bg-ws-card-hover px-4 py-3 text-sm leading-6 text-ws-muted">
-            Last note: {review.decisionNote}
+            {tx("Last note: {note}", { note: review.decisionNote })}
           </p>
         ) : null}
       </Panel>
@@ -301,6 +306,7 @@ function HumanInterviews({
   applicationId: number;
   interviews: HumanInterviewResponse[];
 }) {
+  const tx = useWorkspaceTranslation();
   const [schedule, { isLoading: isScheduling }] =
     useScheduleHumanInterviewMutation();
   const [complete, { isLoading: isCompleting }] =
@@ -319,7 +325,7 @@ function HumanInterviews({
 
   const book = async () => {
     if (!scheduledAt || !meetingUrl.trim()) {
-      toast.error("A date and a meeting link are both required.");
+      toast.error(tx("A date and a meeting link are both required."));
       return;
     }
 
@@ -330,27 +336,31 @@ function HumanInterviews({
       }).unwrap();
       setScheduledAt("");
       setMeetingUrl("");
-      toast.success("Interview scheduled.");
+      toast.success(tx("Interview scheduled."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to schedule the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to schedule the interview.")));
     }
   };
 
   const finish = async (interviewId: number, result: InterviewResult) => {
     try {
       await complete({ interviewId, applicationId, body: { result } }).unwrap();
-      toast.success(`Interview marked ${humanizeEnum(result).toLowerCase()}.`);
+      toast.success(
+        tx("Interview marked {result}.", {
+          result: tx(humanizeEnum(result).toLowerCase()),
+        }),
+      );
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to complete the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to complete the interview.")));
     }
   };
 
   const drop = async (interviewId: number) => {
     try {
       await cancel({ interviewId, applicationId }).unwrap();
-      toast.success("Interview cancelled.");
+      toast.success(tx("Interview cancelled."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to cancel the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to cancel the interview.")));
     }
   };
 
@@ -368,7 +378,7 @@ function HumanInterviews({
 
   const saveReschedule = async (interviewId: number) => {
     if (!rescheduledAt || !rescheduledMeetingUrl.trim()) {
-      toast.error("A date and a meeting link are both required.");
+      toast.error(tx("A date and a meeting link are both required."));
       return;
     }
 
@@ -382,9 +392,9 @@ function HumanInterviews({
         },
       }).unwrap();
       setEditingInterviewId(null);
-      toast.success("Interview rescheduled.");
+      toast.success(tx("Interview rescheduled."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to reschedule the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to reschedule the interview.")));
     }
   };
 
@@ -393,7 +403,7 @@ function HumanInterviews({
   return (
     <Panel>
       <PanelHeader
-        title={`Human interviews (${interviews.length})`}
+        title={tx("Human interviews ({count})", { count: interviews.length })}
         icon={<Video aria-hidden="true" className="size-5" />}
       />
 
@@ -432,7 +442,7 @@ function HumanInterviews({
               {editingInterviewId === interview.id ? (
                 <div className="mt-3 grid gap-3 rounded-[16px] bg-ws-card p-3 sm:grid-cols-2">
                   <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-                    New date and time
+                    {tx("New date and time")}
                     <Input
                       type="datetime-local"
                       value={rescheduledAt}
@@ -440,7 +450,7 @@ function HumanInterviews({
                     />
                   </label>
                   <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-                    Meeting link
+                    {tx("Meeting link")}
                     <Input
                       type="url"
                       value={rescheduledMeetingUrl}
@@ -455,7 +465,7 @@ function HumanInterviews({
                       disabled={busy}
                       onClick={() => void saveReschedule(interview.id)}
                     >
-                      Save new time
+                      {tx("Save new time")}
                     </Button>
                     <Button
                       size="sm"
@@ -463,7 +473,7 @@ function HumanInterviews({
                       disabled={busy}
                       onClick={() => setEditingInterviewId(null)}
                     >
-                      Close
+                      {tx("Close")}
                     </Button>
                   </div>
                 </div>
@@ -479,14 +489,14 @@ function HumanInterviews({
                     disabled={busy}
                     onClick={() => startRescheduling(interview)}
                   >
-                    Reschedule
+                    {tx("Reschedule")}
                   </Button>
                   <Button
                     size="sm"
                     disabled={busy}
                     onClick={() => void finish(interview.id, "PASSED")}
                   >
-                    Passed
+                    {tx("Passed")}
                   </Button>
                   <Button
                     size="sm"
@@ -494,7 +504,7 @@ function HumanInterviews({
                     disabled={busy}
                     onClick={() => void finish(interview.id, "NEEDS_REVIEW")}
                   >
-                    Needs review
+                    {tx("Needs review")}
                   </Button>
                   <Button
                     size="sm"
@@ -502,7 +512,7 @@ function HumanInterviews({
                     disabled={busy}
                     onClick={() => void finish(interview.id, "FAILED")}
                   >
-                    Failed
+                    {tx("Failed")}
                   </Button>
                   <Button
                     size="sm"
@@ -510,7 +520,7 @@ function HumanInterviews({
                     disabled={busy}
                     onClick={() => void drop(interview.id)}
                   >
-                    Cancel
+                    {tx("Cancel")}
                   </Button>
                 </div>
               )}
@@ -520,10 +530,10 @@ function HumanInterviews({
       ) : null}
 
       <div className="rounded-[22px] bg-ws-card-hover p-4">
-        <p className="text-xs font-medium text-ws-muted">Schedule an interview</p>
+        <p className="text-xs font-medium text-ws-muted">{tx("Schedule an interview")}</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            When (your local time)
+            {tx("When (your local time)")}
             <Input
               type="datetime-local"
               value={scheduledAt}
@@ -531,7 +541,7 @@ function HumanInterviews({
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            Meeting link
+            {tx("Meeting link")}
             <Input
               type="url"
               value={meetingUrl}
@@ -547,7 +557,7 @@ function HumanInterviews({
           onClick={() => void book()}
         >
           <CalendarPlus aria-hidden="true" className="size-4" />
-          Schedule
+          {tx("Schedule")}
         </Button>
       </div>
     </Panel>
@@ -557,10 +567,12 @@ function HumanInterviews({
 /* -------------------------------------------------------------- pieces --- */
 
 function Field({ label, value }: { label: string; value?: string }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <div className="rounded-[18px] bg-ws-card-hover px-4 py-3">
-      <dt className="text-[11px] uppercase tracking-[0.18em] text-ws-faint">
-        {label}
+      <dt className="text-xs uppercase tracking-[0.18em] text-ws-faint">
+        {tx(label)}
       </dt>
       <dd className="mt-1.5 break-words text-sm font-semibold text-ws-fg">
         {orDash(value)}
@@ -570,10 +582,12 @@ function Field({ label, value }: { label: string; value?: string }) {
 }
 
 function Score({ label, value }: { label: string; value: number | null }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <div className="rounded-[18px] bg-ws-card-hover px-4 py-3">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-ws-faint">
-        {label}
+      <p className="text-xs uppercase tracking-[0.18em] text-ws-faint">
+        {tx(label)}
       </p>
       <p className="mt-1.5 text-xl font-bold tabular-nums text-ws-fg">
         {value ?? "—"}
@@ -583,10 +597,12 @@ function Score({ label, value }: { label: string; value: number | null }) {
 }
 
 function Prose({ label, value }: { label: string; value?: string }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <div className="rounded-[18px] bg-ws-card-hover px-4 py-3">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-ws-faint">
-        {label}
+      <p className="text-xs uppercase tracking-[0.18em] text-ws-faint">
+        {tx(label)}
       </p>
       <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ws-muted">
         {orDash(value)}

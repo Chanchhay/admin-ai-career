@@ -4,8 +4,10 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 export function ThemeToggle({ className }: { className?: string }) {
+  const tx = useWorkspaceTranslation();
   const { resolvedTheme, setTheme } = useTheme();
 
   return (
@@ -17,7 +19,11 @@ export function ThemeToggle({ className }: { className?: string }) {
         "relative size-11 rounded-full border border-transparent text-heading hover:border-brand/20 hover:bg-brand-tint hover:text-brand",
         className,
       )}
-      aria-label={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={
+        resolvedTheme === "dark"
+          ? tx("Switch to light mode")
+          : tx("Switch to dark mode")
+      }
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
       <Moon aria-hidden="true" className="size-5 dark:hidden" />

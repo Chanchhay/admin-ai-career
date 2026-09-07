@@ -17,6 +17,7 @@ import {
   PillTabs,
 } from "@/components/workspace/primitives";
 import type { HiringRecordResponse, HiringRecordStatus } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDate, orDash } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
@@ -37,7 +38,8 @@ const tabStatus: Record<Tab, HiringRecordStatus | undefined> = {
 };
 
 export default function HiresPage() {
-  useSetPageHeading("Hires");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Hires"));
 
   const [tab, setTab] = useState<Tab>("Awaiting review");
   const [page, setPage] = useState(0);
@@ -58,10 +60,9 @@ export default function HiresPage() {
     <div className="flex flex-col gap-5">
       <Panel tone="soft">
         <p className="text-sm leading-6">
-          Recruiters report their own hires, and they are also the party the
-          commission is charged to. Confirming here is what creates that
-          commission and marks the application as hired — so check the offer
-          before you do.
+          {tx(
+            "Recruiters report their own hires, and they are also the party the commission is charged to. Confirming here is what creates that commission and marks the application as hired — so check the offer before you do.",
+          )}
         </p>
       </Panel>
 
@@ -81,10 +82,10 @@ export default function HiresPage() {
         {isLoading ? (
           <LoadingState rows={5} />
         ) : isError ? (
-          <ErrorState message="Unable to load hires." onRetry={refetch} />
+          <ErrorState message={tx("Unable to load hires.")} onRetry={refetch} />
         ) : hires.length === 0 ? (
           <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            Nothing here.
+            {tx("Nothing here.")}
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
@@ -103,6 +104,7 @@ export default function HiresPage() {
 }
 
 function HireCard({ hire }: { hire: HiringRecordResponse }) {
+  const tx = useWorkspaceTranslation();
   const [confirmHire, confirmState] = useConfirmHireMutation();
   const [rejectHire, rejectState] = useRejectHireMutation();
   const [note, setNote] = useState("");
@@ -112,7 +114,7 @@ function HireCard({ hire }: { hire: HiringRecordResponse }) {
 
   async function act(action: "confirm" | "reject") {
     if (action === "reject" && !note.trim()) {
-      toast.error("Say why the report is being rejected.");
+      toast.error(tx("Say why the report is being rejected."));
       return;
     }
 
@@ -125,19 +127,23 @@ function HireCard({ hire }: { hire: HiringRecordResponse }) {
           body,
         }).unwrap();
         toast.success(
-          `Confirmed. Commission ${formatMoney(
-            result.commission?.commissionAmount ?? null,
-            result.commission?.currency ?? null,
-          )}.`,
+          tx("Confirmed. Commission {amount}.", {
+            amount: formatMoney(
+              result.commission?.commissionAmount ?? null,
+              result.commission?.currency ?? null,
+            ),
+          }),
         );
       } else {
         await rejectHire({ hiringRecordId: hire.id, body }).unwrap();
-        toast.success("Report rejected.");
+        toast.success(tx("Report rejected."));
       }
 
       setNote("");
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to record the decision."));
+      toast.error(
+        getApiErrorMessage(error, tx("Unable to record the decision.")),
+      );
     }
   }
 
@@ -154,9 +160,13 @@ function HireCard({ hire }: { hire: HiringRecordResponse }) {
         <GhostChip>{hire.companyName}</GhostChip>
         <GhostChip>{orDash(hire.candidateLabel)}</GhostChip>
         <GhostChip>
-          Offer {formatMoney(hire.offeredSalary, hire.salaryCurrency)}
+          {tx("Offer {amount}", {
+            amount: formatMoney(hire.offeredSalary, hire.salaryCurrency),
+          })}
         </GhostChip>
-        <GhostChip>Reported {formatDate(hire.hiredAt)}</GhostChip>
+        <GhostChip>
+          {tx("Reported {date}", { date: formatDate(hire.hiredAt) })}
+        </GhostChip>
       </div>
 
       {hire.note ? (
@@ -165,15 +175,22 @@ function HireCard({ hire }: { hire: HiringRecordResponse }) {
 
       {hire.commission ? (
         <p className="mt-2 text-xs font-semibold text-ws-fg">
-          Commission{" "}
-          {formatMoney(
-            hire.commission.commissionAmount,
-            hire.commission.currency,
-          )}{" "}
-          at {hire.commission.commissionRate}%
           {hire.commission.invoiceNo
-            ? ` · invoiced ${hire.commission.invoiceNo}`
-            : " · not yet invoiced"}
+            ? tx("Commission {amount} at {rate}% · invoiced {invoiceNo}", {
+                amount: formatMoney(
+                  hire.commission.commissionAmount,
+                  hire.commission.currency,
+                ),
+                rate: hire.commission.commissionRate,
+                invoiceNo: hire.commission.invoiceNo,
+              })
+            : tx("Commission {amount} at {rate}% · not yet invoiced", {
+                amount: formatMoney(
+                  hire.commission.commissionAmount,
+                  hire.commission.currency,
+                ),
+                rate: hire.commission.commissionRate,
+              })}
         </p>
       ) : null}
 
@@ -186,20 +203,20 @@ function HireCard({ hire }: { hire: HiringRecordResponse }) {
           <Textarea
             value={note}
             onChange={(event) => setNote(event.target.value)}
-            placeholder="Decision note (required to reject)"
+            placeholder={tx("Decision note (required to reject)")}
             rows={2}
             maxLength={2000}
           />
-          <div className="flex gap-2">
+          <div className="flex gap-2 max-lg:flex-wrap">
             <Button disabled={pending} onClick={() => void act("confirm")}>
-              {confirmState.isLoading ? "Confirming…" : "Confirm hire"}
+              {confirmState.isLoading ? tx("Confirming…") : tx("Confirm hire")}
             </Button>
             <Button
               variant="destructive"
               disabled={pending}
               onClick={() => void act("reject")}
             >
-              Reject
+              {tx("Reject")}
             </Button>
           </div>
         </div>

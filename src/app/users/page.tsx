@@ -21,6 +21,7 @@ import type {
   AdminUserCreateRequest,
   ManageableRole,
 } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { orDash } from "@/lib/format";
 import { useCreateUserMutation, useGetUsersQuery } from "@/services/usersApi";
@@ -62,7 +63,8 @@ const ASSIGNABLE_ROLES: ManageableRole[] = [
 ];
 
 export default function UsersPage() {
-  useSetPageHeading("Users");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Users"));
 
   const [roleTab, setRoleTab] = useState<RoleTab>("All");
   const [statusTab, setStatusTab] = useState<StatusTab>("Any status");
@@ -91,9 +93,9 @@ export default function UsersPage() {
     <div className="flex flex-col gap-5">
       <Panel tone="soft">
         <p className="text-sm leading-6">
-          Accounts live in Keycloak; this console changes their roles and
-          whether they may sign in. Suspending an account disables the Keycloak
-          user and blocks its existing tokens on the next request.
+          {tx(
+            "Accounts live in Keycloak; this console changes their roles and whether they may sign in. Suspending an account disables the Keycloak user and blocks its existing tokens on the next request.",
+          )}
         </p>
       </Panel>
 
@@ -108,14 +110,14 @@ export default function UsersPage() {
           action={
             creating ? null : (
               <Button size="sm" onClick={() => setCreating(true)}>
-                <Plus aria-hidden="true" /> New staff account
+                <Plus aria-hidden="true" /> {tx("New staff account")}
               </Button>
             )
           }
         />
 
         <form
-          className="mb-4 flex items-center gap-2"
+          className="mb-4 flex items-center gap-2 max-lg:flex-wrap"
           onSubmit={(event) => {
             event.preventDefault();
             setSearch(searchInput.trim());
@@ -130,12 +132,12 @@ export default function UsersPage() {
             <Input
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search by username, email, or name"
+              placeholder={tx("Search by username, email, or name")}
               className="pl-9"
             />
           </div>
           <Button type="submit" variant="secondary">
-            Search
+            {tx("Search")}
           </Button>
           {search ? (
             <Button
@@ -147,7 +149,7 @@ export default function UsersPage() {
                 setPage(0);
               }}
             >
-              <X aria-hidden="true" /> Clear
+              <X aria-hidden="true" /> {tx("Clear")}
             </Button>
           ) : null}
         </form>
@@ -168,10 +170,10 @@ export default function UsersPage() {
         {isLoading ? (
           <LoadingState rows={5} />
         ) : isError ? (
-          <ErrorState message="Unable to load users." onRetry={refetch} />
+          <ErrorState message={tx("Unable to load users.")} onRetry={refetch} />
         ) : users.length === 0 ? (
           <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            No accounts match these filters.
+            {tx("No accounts match these filters.")}
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
@@ -211,6 +213,7 @@ export default function UsersPage() {
 }
 
 function CreateUserPanel({ onClose }: { onClose: () => void }) {
+  const tx = useWorkspaceTranslation();
   const [createUser, { isLoading }] = useCreateUserMutation();
   const [form, setForm] = useState<AdminUserCreateRequest>({
     username: "",
@@ -239,21 +242,21 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
     event.preventDefault();
 
     if (form.roles.length === 0) {
-      toast.error("Give the account at least one role.");
+      toast.error(tx("Give the account at least one role."));
       return;
     }
 
     if (form.password.length < 8) {
-      toast.error("The password must be at least 8 characters.");
+      toast.error(tx("The password must be at least 8 characters."));
       return;
     }
 
     try {
       const created = await createUser(form).unwrap();
-      toast.success(`Created ${created.username}.`);
+      toast.success(tx("Created {username}.", { username: created.username }));
       onClose();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to create the account."));
+      toast.error(getApiErrorMessage(error, tx("Unable to create the account.")));
     }
   }
 
@@ -264,14 +267,15 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
         icon={<Plus aria-hidden="true" className="size-5" />}
         action={
           <Button variant="ghost" size="sm" onClick={onClose}>
-            <X aria-hidden="true" /> Cancel
+            <X aria-hidden="true" /> {tx("Cancel")}
           </Button>
         }
       />
 
       <p className="mb-4 text-sm text-ws-muted">
-        Self-registration only issues seeker and recruiter accounts. Everything
-        else is created here.
+        {tx(
+          "Self-registration only issues seeker and recruiter accounts. Everything else is created here.",
+        )}
       </p>
 
       <form className="flex flex-col gap-3" onSubmit={submit}>
@@ -320,12 +324,12 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
             checked={form.temporaryPassword ?? false}
             onChange={(event) => set("temporaryPassword", event.target.checked)}
           />
-          Require a password change at first sign-in
+          {tx("Require a password change at first sign-in")}
         </label>
 
         <fieldset>
           <legend className="mb-2 text-xs font-semibold text-ws-muted">
-            Roles
+            {tx("Roles")}
           </legend>
           <div className="flex flex-wrap gap-1.5">
             {ASSIGNABLE_ROLES.map((role) => (
@@ -339,9 +343,9 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
           </div>
         </fieldset>
 
-        <div className="mt-1 flex gap-2">
+        <div className="mt-1 flex gap-2 max-lg:flex-wrap">
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Creating…" : "Create account"}
+            {isLoading ? tx("Creating…") : tx("Create account")}
           </Button>
         </div>
       </form>
@@ -356,9 +360,11 @@ function Field({
   label: string;
   children: React.ReactNode;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-semibold text-ws-muted">{label}</span>
+      <span className="text-xs font-semibold text-ws-muted">{tx(label)}</span>
       {children}
     </label>
   );

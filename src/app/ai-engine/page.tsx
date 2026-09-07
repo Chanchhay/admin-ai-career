@@ -15,6 +15,7 @@ import type {
   AiTask,
   AiThinking,
 } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDateTime, humanizeEnum } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -78,7 +79,8 @@ const THINKING_LABELS: Record<AiThinking, string> = {
 };
 
 export default function AiEnginePage() {
-  useSetPageHeading("AI engine");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("AI engine"));
 
   const { data, error, isError, refetch } = useGetAiProviderConfigQuery();
   const catalog = useGetAiModelCatalogQuery();
@@ -112,12 +114,13 @@ export default function AiEnginePage() {
         <div className="flex items-start gap-3">
           <ShieldAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
           <div>
-            <h2 className="text-[15px] font-semibold">Needs the SUPER_ADMIN role</h2>
+            <h2 className="text-lg font-semibold">{tx("Needs the SUPER_ADMIN role")}</h2>
             <p className="mt-1 text-sm leading-6">
-              The API key stored here can spend real money, so it is held to the
-              platform&apos;s narrowest role. Ask whoever administers Keycloak to add{" "}
+              {tx(
+                "The API key stored here can spend real money, so it is held to the platform's narrowest role. Ask whoever administers Keycloak to add",
+              )}{" "}
               <code className="rounded bg-ws-card px-1 py-0.5 text-xs">SUPER_ADMIN</code>{" "}
-              to your account, then sign out and back in.
+              {tx("to your account, then sign out and back in.")}
             </p>
           </div>
         </div>
@@ -127,7 +130,7 @@ export default function AiEnginePage() {
 
   if (isError) {
     return (
-      <ErrorState message="Unable to load the AI engine settings." onRetry={refetch} />
+      <ErrorState message={tx("Unable to load the AI engine settings.")} onRetry={refetch} />
     );
   }
 
@@ -153,15 +156,15 @@ export default function AiEnginePage() {
   };
 
   const invalid = () => {
-    if (!form.model.trim()) return "A default model is required.";
+    if (!form.model.trim()) return tx("A default model is required.");
     if (!(numbers.temperature >= 0 && numbers.temperature <= 2))
-      return "Temperature must be between 0 and 2.";
+      return tx("Temperature must be between 0 and 2.");
     if (!Number.isInteger(numbers.maxOutputTokens) || numbers.maxOutputTokens < 256)
-      return "Max output tokens must be a whole number of at least 256.";
+      return tx("Max output tokens must be a whole number of at least 256.");
     if (!Number.isInteger(numbers.timeoutSeconds) || numbers.timeoutSeconds < 5)
-      return "Timeout must be a whole number of at least 5 seconds.";
+      return tx("Timeout must be a whole number of at least 5 seconds.");
     if (!Number.isInteger(numbers.maxRetries) || numbers.maxRetries < 0)
-      return "Retries must be 0 or more.";
+      return tx("Retries must be 0 or more.");
     return null;
   };
 
@@ -184,9 +187,9 @@ export default function AiEnginePage() {
         thinking: form.thinking,
         ...numbers,
       }).unwrap();
-      toast.success("AI engine settings saved.");
+      toast.success(tx("AI engine settings saved."));
     } catch (caught) {
-      toast.error(getApiErrorMessage(caught, "Unable to save these settings."));
+      toast.error(getApiErrorMessage(caught, tx("Unable to save these settings.")));
     }
   };
 
@@ -199,30 +202,33 @@ export default function AiEnginePage() {
 
       if (result.success) {
         toast.success(
-          `${result.model} answered in ${result.latencyMillis} ms using the ${result.keySource} key.`,
+          tx("{model} answered in {latency} ms using the {keySource} key.", {
+            model: result.model,
+            latency: result.latencyMillis,
+            keySource: result.keySource,
+          }),
         );
       } else {
         toast.error(result.message);
       }
     } catch (caught) {
-      toast.error(getApiErrorMessage(caught, "The connection test could not run."));
+      toast.error(getApiErrorMessage(caught, tx("The connection test could not run.")));
     }
   };
 
   const keyInUse = data.apiKeyStored
-    ? "a key saved here"
+    ? tx("a key saved here")
     : data.environmentKeyAvailable
-      ? "the server's GEMINI_API_KEY"
-      : "no key at all";
+      ? tx("the server's {envVar} key", { envVar: "GEMINI_API_KEY" })
+      : tx("no key at all");
 
   return (
     <div className="flex flex-col gap-5">
       <Panel tone="soft">
         <p className="text-sm leading-6">
-          Every AI feature on the platform — interview questions, scoring, voice
-          transcripts and recruiter job imports — runs on these settings. Changes
-          apply to the next call; nothing needs restarting, and an interview
-          already under way keeps the model it started on.
+          {tx(
+            "Every AI feature on the platform — interview questions, scoring, voice transcripts and recruiter job imports — runs on these settings. Changes apply to the next call; nothing needs restarting, and an interview already under way keeps the model it started on.",
+          )}
         </p>
       </Panel>
 
@@ -230,29 +236,30 @@ export default function AiEnginePage() {
         <PanelHeader
           title="Provider key"
           icon={<KeyRound aria-hidden="true" className="size-4" />}
-          action={<GhostChip>Currently using {keyInUse}</GhostChip>}
+          action={<GhostChip>{tx("Currently using {name}", { name: keyInUse })}</GhostChip>}
         />
 
         {data.apiKeyEditable ? (
           <div className="flex flex-col gap-3">
             <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-              {data.apiKeyStored ? "Replace the saved key" : "API key"}
+              {data.apiKeyStored ? tx("Replace the saved key") : tx("API key")}
               <Input
                 type="password"
                 autoComplete="off"
                 spellCheck={false}
                 placeholder={
                   data.apiKeyMask
-                    ? `Saved: ${data.apiKeyMask} — leave blank to keep it`
-                    : "Paste the provider API key"
+                    ? tx("Saved: {mask} — leave blank to keep it", { mask: data.apiKeyMask })
+                    : tx("Paste the provider API key")
                 }
                 value={form.apiKey}
                 onChange={(event) => set("apiKey", event.target.value)}
                 disabled={form.clearApiKey}
               />
               <span className="font-normal text-ws-faint">
-                Stored encrypted and never shown again. Leaving this blank keeps
-                whatever is already saved.
+                {tx(
+                  "Stored encrypted and never shown again. Leaving this blank keeps whatever is already saved.",
+                )}
               </span>
             </label>
 
@@ -264,37 +271,39 @@ export default function AiEnginePage() {
                   checked={form.clearApiKey}
                   onChange={(event) => set("clearApiKey", event.target.checked)}
                 />
-                Remove the saved key on save
                 {data.environmentKeyAvailable
-                  ? " and fall back to the server's own key"
-                  : " (no fallback exists — AI features will stop until a new key is set)"}
+                  ? tx("Remove the saved key on save and fall back to the server's own key")
+                  : tx(
+                      "Remove the saved key on save (no fallback exists — AI features will stop until a new key is set)",
+                    )}
               </label>
             ) : null}
           </div>
         ) : (
           <p className="rounded-[18px] bg-ws-card-hover px-4 py-3 text-sm leading-6 text-ws-muted">
-            This server has no secret encryption key, so a provider key cannot be
-            stored here — it would have to be written to the database in the
-            clear. Set{" "}
+            {tx(
+              "This server has no secret encryption key, so a provider key cannot be stored here — it would have to be written to the database in the clear. Set",
+            )}{" "}
             <code className="rounded bg-ws-card px-1 py-0.5 text-xs">
               AI_SETTINGS_ENCRYPTION_KEY
             </code>{" "}
-            to a base64-encoded 32-byte value (
+            {tx("to a base64-encoded 32-byte value (")}
             <code className="rounded bg-ws-card px-1 py-0.5 text-xs">
               openssl rand -base64 32
             </code>
-            ) and restart it. Everything else on this page still works.
+            {tx(") and restart it. Everything else on this page still works.")}
           </p>
         )}
 
         <div className="mt-4">
           <Button variant="outline" onClick={() => void runTest()} disabled={testState.isLoading}>
             <PlugZap aria-hidden="true" className="size-4" />
-            {testState.isLoading ? "Testing…" : "Test connection"}
+            {testState.isLoading ? tx("Testing…") : tx("Test connection")}
           </Button>
           <p className="mt-2 text-xs text-ws-faint">
-            Sends one tiny prompt using the model and key entered above, so a typo
-            is caught here rather than by the next candidate.
+            {tx(
+              "Sends one tiny prompt using the model and key entered above, so a typo is caught here rather than by the next candidate.",
+            )}
           </p>
         </div>
       </Panel>
@@ -303,7 +312,7 @@ export default function AiEnginePage() {
         <PanelHeader title="Models" />
 
         <label className="flex max-w-md flex-col gap-1.5 text-xs font-medium text-ws-muted">
-          Default model
+          {tx("Default model")}
           <ModelSelect
             value={form.model}
             models={models}
@@ -311,7 +320,7 @@ export default function AiEnginePage() {
             onChange={(value) => set("model", value)}
           />
           <span className="font-normal text-ws-faint">
-            Used for everything that has no override below.
+            {tx("Used for everything that has no override below.")}
             {catalog.data ? ` ${catalog.data.message}` : ""}
           </span>
         </label>
@@ -324,15 +333,17 @@ export default function AiEnginePage() {
             >
               <div className="min-w-40 flex-1">
                 <p className="text-sm font-semibold text-ws-fg">{humanizeEnum(task)}</p>
-                <p className="mt-0.5 text-xs text-ws-faint">{TASK_HINTS[task]}</p>
+                <p className="mt-0.5 text-xs text-ws-faint">{tx(TASK_HINTS[task])}</p>
               </div>
               <ModelSelect
-                className="w-60"
-                ariaLabel={`${humanizeEnum(task)} model`}
+                className="w-60 max-lg:w-full"
+                ariaLabel={tx("{task} model", { task: humanizeEnum(task) })}
                 value={form.overrides[task] ?? ""}
                 models={models}
                 loading={catalog.isLoading}
-                defaultLabel={`Default (${form.model || "unset"})`}
+                defaultLabel={tx("Default ({model})", {
+                  model: form.model || tx("unset"),
+                })}
                 onChange={(value) =>
                   set("overrides", { ...form.overrides, [task]: value })
                 }
@@ -346,7 +357,7 @@ export default function AiEnginePage() {
         <PanelHeader title="Tuning" />
 
         <label className="mb-4 flex max-w-md flex-col gap-1.5 text-xs font-medium text-ws-muted">
-          Thinking
+          {tx("Thinking")}
           <select
             value={form.thinking}
             onChange={(event) => set("thinking", event.target.value as AiThinking)}
@@ -354,16 +365,14 @@ export default function AiEnginePage() {
           >
             {data.availableThinkingLevels.map((level) => (
               <option key={level} value={level}>
-                {THINKING_LABELS[level] ?? level}
+                {tx(THINKING_LABELS[level] ?? level)}
               </option>
             ))}
           </select>
           <span className="font-normal text-ws-faint">
-            The biggest speed dial there is. Every job here is filling in a fixed
-            structure — writing questions, scoring answers, splitting a transcript —
-            where deliberating adds seconds and little else. A few models, Gemini
-            2.5 Pro among them, refuse to have it switched off; use Provider
-            default for those.
+            {tx(
+              "The biggest speed dial there is. Every job here is filling in a fixed structure — writing questions, scoring answers, splitting a transcript — where deliberating adds seconds and little else. A few models, Gemini 2.5 Pro among them, refuse to have it switched off; use Provider default for those.",
+            )}
           </span>
         </label>
 
@@ -406,7 +415,7 @@ export default function AiEnginePage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={() => void submit()} disabled={saveState.isLoading}>
-          {saveState.isLoading ? "Saving…" : "Save settings"}
+          {saveState.isLoading ? tx("Saving…") : tx("Save settings")}
         </Button>
         <Button
           variant="ghost"
@@ -414,14 +423,17 @@ export default function AiEnginePage() {
           disabled={saveState.isLoading}
         >
           <RotateCcw aria-hidden="true" className="size-4" />
-          Reset
+          {tx("Reset")}
         </Button>
         <p className="text-xs text-ws-faint">
           {data.updatedAt
-            ? `Last changed ${formatDateTime(data.updatedAt)}${
-                data.updatedBy ? ` by ${data.updatedBy}` : ""
-              }.`
-            : "Never changed — running on the server's own configuration."}
+            ? data.updatedBy
+              ? tx("Last changed {date} by {user}.", {
+                  date: formatDateTime(data.updatedAt),
+                  user: data.updatedBy,
+                })
+              : tx("Last changed {date}.", { date: formatDateTime(data.updatedAt) })
+            : tx("Never changed — running on the server's own configuration.")}
         </p>
       </div>
     </div>
@@ -445,9 +457,11 @@ function NumberField({
   step?: string;
   onChange: (value: string) => void;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-      {label}
+      {tx(label)}
       <Input
         type="number"
         inputMode="decimal"
@@ -457,7 +471,7 @@ function NumberField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />
-      <span className="font-normal text-ws-faint">{hint}</span>
+      <span className="font-normal text-ws-faint">{tx(hint)}</span>
     </label>
   );
 }
@@ -485,6 +499,8 @@ function ModelSelect({
   ariaLabel?: string;
   className?: string;
 }) {
+  const tx = useWorkspaceTranslation();
+
   // A value the catalogue does not carry still has to appear, or opening this
   // select would quietly rewrite a setting the admin never touched.
   const missing = value && !models.some((model) => model.id === value);
@@ -501,8 +517,10 @@ function ModelSelect({
       )}
     >
       {defaultLabel ? <option value="">{defaultLabel}</option> : null}
-      {loading ? <option value={value}>Loading models…</option> : null}
-      {missing ? <option value={value}>{value} (in use)</option> : null}
+      {loading ? <option value={value}>{tx("Loading models…")}</option> : null}
+      {missing ? (
+        <option value={value}>{tx("{model} (in use)", { model: value })}</option>
+      ) : null}
       {models.map((model) => (
         <option key={model.id} value={model.id}>
           {model.displayName === model.id

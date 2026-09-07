@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
 import type { InvoiceResponse } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDate } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
@@ -25,8 +26,9 @@ import {
 } from "@/services/financeApi";
 
 export default function InvoiceDetailPage() {
+  const tx = useWorkspaceTranslation();
   const { invoiceId } = useParams<{ invoiceId: string }>();
-  useSetPageHeading("Invoice");
+  useSetPageHeading(tx("Invoice"));
 
   const { data, isLoading, isError, refetch } = useGetInvoiceQuery(
     Number(invoiceId),
@@ -34,7 +36,12 @@ export default function InvoiceDetailPage() {
 
   if (isLoading) return <LoadingState rows={6} />;
   if (isError || !data) {
-    return <ErrorState message="Unable to load this invoice." onRetry={refetch} />;
+    return (
+      <ErrorState
+        message={tx("Unable to load this invoice.")}
+        onRetry={refetch}
+      />
+    );
   }
 
   return (
@@ -43,7 +50,7 @@ export default function InvoiceDetailPage() {
         href="/finance"
         className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ws-muted transition-colors hover:text-ws-fg"
       >
-        <ArrowLeft aria-hidden="true" className="size-4" /> All invoices
+        <ArrowLeft aria-hidden="true" className="size-4" /> {tx("All invoices")}
       </Link>
 
       <Panel>
@@ -55,15 +62,19 @@ export default function InvoiceDetailPage() {
 
         <div className="mb-4 flex flex-wrap items-center gap-1.5">
           <GhostChip>{data.companyName}</GhostChip>
-          <GhostChip>Issued {formatDate(data.issuedAt)}</GhostChip>
-          <GhostChip>Due {formatDate(data.dueAt)}</GhostChip>
+          <GhostChip>
+            {tx("Issued {date}", { date: formatDate(data.issuedAt) })}
+          </GhostChip>
+          <GhostChip>
+            {tx("Due {date}", { date: formatDate(data.dueAt) })}
+          </GhostChip>
         </div>
 
         <ul className="flex flex-col gap-2">
           {data.items.map((item) => (
             <li
               key={item.id}
-              className="flex items-center justify-between gap-4 rounded-[18px] bg-ws-card-hover px-4 py-3"
+              className="flex items-center justify-between gap-4 max-lg:flex-wrap rounded-[18px] bg-ws-card-hover px-4 py-3"
             >
               <span className="min-w-0 flex-1 truncate text-sm text-ws-fg">
                 {item.description}
@@ -76,12 +87,19 @@ export default function InvoiceDetailPage() {
         </ul>
 
         <dl className="mt-4 space-y-1.5 text-sm">
-          <Row label="Subtotal" value={formatMoney(data.subtotalAmount, data.currency)} />
-          <Row label="Tax" value={formatMoney(data.taxAmount, data.currency)} />
-          <Row label="Total" value={formatMoney(data.totalAmount, data.currency)} strong />
-          <Row label="Paid" value={formatMoney(data.paidAmount, data.currency)} />
           <Row
-            label="Outstanding"
+            label={tx("Subtotal")}
+            value={formatMoney(data.subtotalAmount, data.currency)}
+          />
+          <Row label={tx("Tax")} value={formatMoney(data.taxAmount, data.currency)} />
+          <Row
+            label={tx("Total")}
+            value={formatMoney(data.totalAmount, data.currency)}
+            strong
+          />
+          <Row label={tx("Paid")} value={formatMoney(data.paidAmount, data.currency)} />
+          <Row
+            label={tx("Outstanding")}
             value={formatMoney(data.outstandingAmount, data.currency)}
             strong
           />
@@ -102,7 +120,7 @@ export default function InvoiceDetailPage() {
             icon={<Wallet aria-hidden="true" className="size-5" />}
           />
           <p className="text-sm text-ws-faint">
-            Issue this invoice to record payments against it.
+            {tx("Issue this invoice to record payments against it.")}
           </p>
         </Panel>
       ) : data.status !== "CANCELLED" ? (
@@ -113,6 +131,7 @@ export default function InvoiceDetailPage() {
 }
 
 function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
+  const tx = useWorkspaceTranslation();
   const [issueInvoice, issueState] = useIssueInvoiceMutation();
   const [cancelInvoice, cancelState] = useCancelInvoiceMutation();
 
@@ -122,13 +141,15 @@ function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
     try {
       if (action === "issue") {
         await issueInvoice(invoice.id).unwrap();
-        toast.success("Invoice issued. The recruiter has been notified.");
+        toast.success(tx("Invoice issued. The recruiter has been notified."));
       } else {
         await cancelInvoice(invoice.id).unwrap();
-        toast.success("Invoice cancelled. Its commissions are billable again.");
+        toast.success(
+          tx("Invoice cancelled. Its commissions are billable again."),
+        );
       }
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to update the invoice."));
+      toast.error(getApiErrorMessage(error, tx("Unable to update the invoice.")));
     }
   }
 
@@ -140,7 +161,8 @@ function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
     <div className="mt-4 flex flex-wrap gap-2">
       {invoice.status === "DRAFT" ? (
         <Button disabled={pending} onClick={() => void run("issue")}>
-          <Send aria-hidden="true" /> {issueState.isLoading ? "Issuing…" : "Issue invoice"}
+          <Send aria-hidden="true" />{" "}
+          {issueState.isLoading ? tx("Issuing…") : tx("Issue invoice")}
         </Button>
       ) : null}
 
@@ -150,7 +172,7 @@ function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
           disabled={pending}
           onClick={() => void run("cancel")}
         >
-          <Ban aria-hidden="true" /> Cancel
+          <Ban aria-hidden="true" /> {tx("Cancel")}
         </Button>
       ) : null}
     </div>
@@ -158,6 +180,7 @@ function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
 }
 
 function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
+  const tx = useWorkspaceTranslation();
   const [recordPayment, { isLoading }] = useRecordPaymentMutation();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("");
@@ -168,7 +191,7 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
     const value = Number(amount);
 
     if (!Number.isFinite(value) || value <= 0) {
-      toast.error("Enter the amount received.");
+      toast.error(tx("Enter the amount received."));
       return;
     }
 
@@ -183,13 +206,13 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
         },
       }).unwrap();
 
-      toast.success("Payment recorded.");
+      toast.success(tx("Payment recorded."));
       setAmount("");
       setMethod("");
       setReference("");
       setNote("");
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to record the payment."));
+      toast.error(getApiErrorMessage(error, tx("Unable to record the payment.")));
     }
   }
 
@@ -205,7 +228,7 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
           {invoice.payments.map((payment) => (
             <li
               key={payment.id}
-              className="flex items-center justify-between gap-4 rounded-[18px] bg-ws-card-hover px-4 py-3 text-sm"
+              className="flex items-center justify-between gap-4 max-lg:flex-wrap rounded-[18px] bg-ws-card-hover px-4 py-3 text-sm"
             >
               <span className="text-ws-muted">
                 {formatDate(payment.paidAt)}
@@ -221,7 +244,9 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
           ))}
         </ul>
       ) : (
-        <p className="mb-4 text-sm text-ws-faint">Nothing received yet.</p>
+        <p className="mb-4 text-sm text-ws-faint">
+          {tx("Nothing received yet.")}
+        </p>
       )}
 
       {/*
@@ -233,7 +258,7 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
           <div className="grid gap-3 sm:grid-cols-3">
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-ws-muted">
-                Amount ({invoice.currency})
+                {tx("Amount ({currency})", { currency: invoice.currency })}
               </span>
               <Input
                 type="number"
@@ -244,16 +269,18 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
               />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-ws-muted">Method</span>
+              <span className="text-xs font-semibold text-ws-muted">
+                {tx("Method")}
+              </span>
               <Input
                 value={method}
                 onChange={(event) => setMethod(event.target.value)}
-                placeholder="Bank transfer"
+                placeholder={tx("Bank transfer")}
               />
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-ws-muted">
-                Reference
+                {tx("Reference")}
               </span>
               <Input
                 value={reference}
@@ -265,14 +292,14 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
           <Textarea
             value={note}
             onChange={(event) => setNote(event.target.value)}
-            placeholder="Note (optional)"
+            placeholder={tx("Note (optional)")}
             rows={2}
             maxLength={2000}
           />
 
           <div>
             <Button disabled={isLoading} onClick={() => void submit()}>
-              {isLoading ? "Recording…" : "Record payment"}
+              {isLoading ? tx("Recording…") : tx("Record payment")}
             </Button>
           </div>
         </div>

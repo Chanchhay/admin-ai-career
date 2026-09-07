@@ -17,6 +17,7 @@ import {
   useMarkConversationReadMutation,
   useSendMessageMutation,
 } from "@/services/conversationsApi";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 /**
  * The inbox: thread list on the left, the open thread on the right.
@@ -31,6 +32,7 @@ export function MessagesWorkspace({
   basePath: string;
   conversationId?: number;
 }) {
+  const tx = useWorkspaceTranslation();
   const router = useRouter();
   const conversations = useGetConversationsQuery({ size: 30 });
 
@@ -46,7 +48,7 @@ export function MessagesWorkspace({
   if (conversations.isError) {
     return (
       <ErrorState
-        message="Unable to load conversations."
+        message={tx("Unable to load conversations.")}
         onRetry={conversations.refetch}
       />
     );
@@ -56,9 +58,9 @@ export function MessagesWorkspace({
     return (
       <div className="rounded-[24px] bg-ws-card px-6 py-16 text-center">
         <MessageSquare className="mx-auto size-10 text-ws-faint" />
-        <h2 className="mt-4 font-semibold text-ws-fg">No conversations</h2>
+        <h2 className="mt-4 font-semibold text-ws-fg">{tx("No conversations")}</h2>
         <p className="mt-2 text-sm text-ws-muted">
-          Open one from a candidate application or a company.
+          {tx("Open one from a candidate application or a company.")}
         </p>
       </div>
     );
@@ -66,7 +68,7 @@ export function MessagesWorkspace({
 
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
-      <ul className="flex max-h-[70vh] flex-col gap-1.5 overflow-y-auto">
+      <ul className="flex max-h-[70vh] flex-col gap-1.5 overflow-y-auto max-lg:max-h-[30dvh]">
         {threads.map((thread) => (
           <li key={thread.id}>
             <ThreadRow
@@ -94,6 +96,7 @@ function ThreadRow({
   active: boolean;
   onSelect: () => void;
 }) {
+  const tx = useWorkspaceTranslation();
   const other = thread.participants.find((participant) => !participant.self);
 
   return (
@@ -107,25 +110,25 @@ function ThreadRow({
     >
       <span className="flex items-center gap-2">
         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ws-fg">
-          {thread.title || "Conversation"}
+          {thread.title || tx("Conversation")}
         </span>
         {thread.unreadCount > 0 ? (
-          <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+          <span className="rounded-full bg-primary px-1.5 py-0.5 text-xs font-bold text-primary-foreground">
             {thread.unreadCount}
           </span>
         ) : null}
       </span>
       <span className="mt-1 block truncate text-xs text-ws-muted">
-        {other ? other.displayLabel : "No other participant"}
+        {other ? other.displayLabel : tx("No other participant")}
       </span>
       {thread.lastMessage ? (
         <span className="mt-1 block truncate text-xs text-ws-faint">
-          {thread.lastMessage.content ?? "Message deleted"}
+          {thread.lastMessage.content ?? tx("Message deleted")}
         </span>
       ) : null}
       {thread.status !== "OPEN" ? (
-        <span className="mt-1 inline-block rounded-full bg-chip-quiet px-2 py-0.5 text-[10px] font-semibold text-chip-quiet-fg">
-          {thread.status.toLowerCase()}
+        <span className="mt-1 inline-block rounded-full bg-chip-quiet px-2 py-0.5 text-xs font-semibold text-chip-quiet-fg">
+          {tx(thread.status.toLowerCase())}
         </span>
       ) : null}
     </button>
@@ -133,6 +136,7 @@ function ThreadRow({
 }
 
 function Thread({ conversation }: { conversation: ConversationResponse }) {
+  const tx = useWorkspaceTranslation();
   const messages = useGetMessagesQuery({
     conversationId: conversation.id,
     size: 50,
@@ -181,11 +185,11 @@ function Thread({ conversation }: { conversation: ConversationResponse }) {
   }
 
   return (
-    <section className="flex max-h-[70vh] flex-col rounded-[22px] bg-ws-card">
+    <section className="flex max-h-[70vh] flex-col rounded-[22px] max-lg:min-h-[50dvh] max-lg:max-h-[65dvh] bg-ws-card">
       <header className="flex items-start gap-3 px-5 py-4">
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-sm font-semibold text-ws-fg">
-            {conversation.title || "Conversation"}
+            {conversation.title || tx("Conversation")}
           </h2>
           <p className="mt-0.5 truncate text-xs text-ws-muted">
             {conversation.participants
@@ -201,10 +205,10 @@ function Thread({ conversation }: { conversation: ConversationResponse }) {
         {messages.isLoading ? (
           <LoadingState rows={4} />
         ) : messages.isError ? (
-          <ErrorState message="Unable to load messages." />
+          <ErrorState message={tx("Unable to load messages.")} />
         ) : ordered.length === 0 ? (
           <p className="py-8 text-center text-sm text-ws-faint">
-            No messages yet.
+            {tx("No messages yet.")}
           </p>
         ) : (
           ordered.map((message) => (
@@ -220,8 +224,9 @@ function Thread({ conversation }: { conversation: ConversationResponse }) {
 
       {closed ? (
         <p className="px-5 py-4 text-xs text-ws-faint">
-          This conversation is {conversation.status.toLowerCase()} and no longer
-          accepts messages.
+          {tx("This conversation is {status} and no longer accepts messages.", {
+            status: tx(conversation.status.toLowerCase()),
+          })}
         </p>
       ) : (
         <form className="flex items-end gap-2 px-5 py-4" onSubmit={submit}>
@@ -238,13 +243,13 @@ function Thread({ conversation }: { conversation: ConversationResponse }) {
             }}
             rows={2}
             maxLength={4000}
-            placeholder="Write a message"
+            placeholder={tx("Write a message")}
             className="min-w-0 flex-1 resize-none rounded-xl bg-ws-panel px-3.5 py-2.5 text-sm text-ws-fg outline-none placeholder:text-ws-faint"
           />
           <button
             type="submit"
             disabled={sendState.isLoading || !draft.trim()}
-            aria-label="Send message"
+            aria-label={tx("Send message")}
             className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-40"
           >
             <SendHorizontal aria-hidden="true" className="size-4" />
@@ -257,6 +262,7 @@ function Thread({ conversation }: { conversation: ConversationResponse }) {
 
 /** Closing is a moderator's call — the other side can reply until it is closed. */
 function CloseThread({ id }: { id: number }) {
+  const tx = useWorkspaceTranslation();
   const [closeConversation, { isLoading }] = useCloseConversationMutation();
 
   return (
@@ -266,7 +272,7 @@ function CloseThread({ id }: { id: number }) {
       disabled={isLoading}
       className="shrink-0 rounded-full bg-ws-card-hover px-3 py-1.5 text-xs font-semibold text-ws-muted transition-colors hover:text-ws-fg disabled:opacity-50"
     >
-      {isLoading ? "Closing…" : "Close thread"}
+      {isLoading ? tx("Closing…") : tx("Close thread")}
     </button>
   );
 }
@@ -278,6 +284,7 @@ function Bubble({
   message: MessageResponse;
   conversationId: number;
 }) {
+  const tx = useWorkspaceTranslation();
   const [remove, removeState] = useDeleteMessageMutation();
   const deleted = message.status === "DELETED";
 
@@ -292,15 +299,15 @@ function Bubble({
           type="button"
           onClick={() => void remove({ conversationId, messageId: message.id })}
           disabled={removeState.isLoading}
-          aria-label="Delete message"
-          className="mb-1 flex size-7 items-center justify-center rounded-lg text-ws-faint opacity-0 transition hover:text-ws-fg focus-visible:opacity-100 group-hover/msg:opacity-100 disabled:opacity-30"
+          aria-label={tx("Delete message")}
+          className="mb-1 flex size-7 items-center justify-center rounded-lg text-ws-faint opacity-0 max-lg:opacity-100 transition hover:text-ws-fg focus-visible:opacity-100 group-hover/msg:opacity-100 disabled:opacity-30"
         >
           <Trash2 aria-hidden="true" className="size-3.5" />
         </button>
       ) : null}
 
       <div
-        className={`max-w-[75%] rounded-2xl px-3.5 py-2.5 ${
+        className={`max-w-[75%] max-sm:max-w-[90%] max-lg:wrap-anywhere rounded-2xl px-3.5 py-2.5 ${
           message.mine
             ? "bg-primary text-primary-foreground"
             : "bg-ws-panel text-ws-fg"
@@ -311,10 +318,10 @@ function Bubble({
             deleted ? "italic opacity-60" : ""
           }`}
         >
-          {deleted ? "This message was deleted" : message.content}
+          {deleted ? tx("This message was deleted") : message.content}
         </p>
         <p
-          className={`mt-1 text-[10px] ${
+          className={`mt-1 text-xs ${
             message.mine ? "text-primary-foreground/70" : "text-ws-faint"
           }`}
         >

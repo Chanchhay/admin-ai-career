@@ -12,6 +12,7 @@ import { Panel, PanelHeader, PillTabs } from "@/components/workspace/primitives"
 import type { CompanyVerificationStatus } from "@/contracts";
 import { orDash } from "@/lib/format";
 import { useGetCompaniesQuery } from "@/services/moderationApi";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 const TABS = ["Pending", "Approved", "Rejected", "Suspended"] as const;
 type Tab = (typeof TABS)[number];
@@ -23,8 +24,16 @@ const tabStatus: Record<Tab, CompanyVerificationStatus> = {
   Suspended: "SUSPENDED",
 };
 
+const emptyQueueMessages: Record<Tab, string> = {
+  Pending: "No pending companies.",
+  Approved: "No approved companies.",
+  Rejected: "No rejected companies.",
+  Suspended: "No suspended companies.",
+};
+
 export default function CompaniesPage() {
-  useSetPageHeading("Companies");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Companies"));
 
   const [tab, setTab] = useState<Tab>("Pending");
   const [page, setPage] = useState(0);
@@ -46,9 +55,9 @@ export default function CompaniesPage() {
     <div className="flex flex-col gap-5">
       <Panel tone="soft">
         <p className="text-sm leading-6">
-          A recruiter cannot publish a job until their company is approved.
-          Open a company to read its registration details and documents before
-          deciding.
+          {tx(
+            "A recruiter cannot publish a job until their company is approved. Open a company to read its registration details and documents before deciding.",
+          )}
         </p>
       </Panel>
 
@@ -68,10 +77,13 @@ export default function CompaniesPage() {
         {isLoading ? (
           <LoadingState rows={5} />
         ) : isError ? (
-          <ErrorState message="Unable to load companies." onRetry={refetch} />
+          <ErrorState
+            message={tx("Unable to load companies.")}
+            onRetry={refetch}
+          />
         ) : companies.length === 0 ? (
           <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            No {tab.toLowerCase()} companies.
+            {tx(emptyQueueMessages[tab])}
           </p>
         ) : (
           <ul className="flex flex-col gap-2">

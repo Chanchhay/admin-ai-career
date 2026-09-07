@@ -19,6 +19,7 @@ import {
   PillTabs,
 } from "@/components/workspace/primitives";
 import type { InvoiceStatus } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDate } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
@@ -40,7 +41,8 @@ const tabStatus: Record<Tab, InvoiceStatus | undefined> = {
 };
 
 export default function FinancePage() {
-  useSetPageHeading("Finance");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Finance"));
 
   const [tab, setTab] = useState<Tab>("All");
   const [page, setPage] = useState(0);
@@ -77,10 +79,15 @@ export default function FinancePage() {
         {isLoading ? (
           <LoadingState rows={5} />
         ) : isError ? (
-          <ErrorState message="Unable to load invoices." onRetry={refetch} />
+          <ErrorState
+            message={tx("Unable to load invoices.")}
+            onRetry={refetch}
+          />
         ) : invoices.length === 0 ? (
           <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            No invoices here. Draft one from a company in Ready to bill above.
+            {tx(
+              "No invoices here. Draft one from a company in Ready to bill above.",
+            )}
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
@@ -95,7 +102,10 @@ export default function FinancePage() {
                       {invoice.invoiceNo}
                     </span>
                     <span className="block truncate text-xs text-ws-faint">
-                      {invoice.companyName} · due {formatDate(invoice.dueAt)}
+                      {tx("{company} · due {date}", {
+                        company: invoice.companyName,
+                        date: formatDate(invoice.dueAt),
+                      })}
                     </span>
                   </span>
 
@@ -126,6 +136,7 @@ export default function FinancePage() {
  * the hire is confirmed, so nothing already billed is restated.
  */
 function SettingsPanel() {
+  const tx = useWorkspaceTranslation();
   const { data, isLoading } = useGetFinanceSettingsQuery();
   const [updateSettings, { isLoading: isSaving }] =
     useUpdateFinanceSettingsMutation();
@@ -146,12 +157,12 @@ function SettingsPanel() {
     const paymentTermsDays = Number(termsValue);
 
     if (!Number.isFinite(commissionRate) || commissionRate < 0 || commissionRate > 100) {
-      toast.error("The commission rate must be between 0 and 100.");
+      toast.error(tx("The commission rate must be between 0 and 100."));
       return;
     }
 
     if (!Number.isInteger(paymentTermsDays) || paymentTermsDays < 0) {
-      toast.error("Payment terms must be a whole number of days.");
+      toast.error(tx("Payment terms must be a whole number of days."));
       return;
     }
 
@@ -161,11 +172,11 @@ function SettingsPanel() {
         paymentTermsDays,
         currency: data!.currency,
       }).unwrap();
-      toast.success("Finance settings saved.");
+      toast.success(tx("Finance settings saved."));
       setRate(null);
       setTerms(null);
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to save the settings."));
+      toast.error(getApiErrorMessage(error, tx("Unable to save the settings.")));
     }
   }
 
@@ -177,14 +188,15 @@ function SettingsPanel() {
       />
 
       <p className="mb-4 text-sm text-ws-muted">
-        Applied to hires confirmed from now on. Commissions already calculated
-        keep the rate they were created with.
+        {tx(
+          "Applied to hires confirmed from now on. Commissions already calculated keep the rate they were created with.",
+        )}
       </p>
 
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-ws-muted">
-            Commission rate (%)
+            {tx("Commission rate (%)")}
           </span>
           <Input
             type="number"
@@ -199,7 +211,7 @@ function SettingsPanel() {
 
         <label className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-ws-muted">
-            Payment terms (days)
+            {tx("Payment terms (days)")}
           </span>
           <Input
             type="number"
@@ -216,7 +228,7 @@ function SettingsPanel() {
         </GhostChip>
 
         <Button disabled={!changed || isSaving} onClick={() => void save()}>
-          {isSaving ? "Saving…" : "Save"}
+          {isSaving ? tx("Saving…") : tx("Save")}
         </Button>
       </div>
     </Panel>

@@ -19,6 +19,7 @@ import type {
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";
 import { humanizeEnum, orDash } from "@/lib/format";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import {
   useCreateIndustryMutation,
   useCreateJobCategoryMutation,
@@ -147,9 +148,11 @@ type ManagerProps<TItem extends TaxonomyItem, TForm extends Record<string, strin
 };
 
 export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
+  const tx = useWorkspaceTranslation();
+
   useSetPageHeading(
-    "Categories",
-    "The industry, job-category and skill vocabulary the rest of the console selects from.",
+    tx("Categories"),
+    tx("The industry, job-category and skill vocabulary the rest of the console selects from."),
   );
 
   const [tab, setTab] = useState<TaxonomyTab>(initialTab);
@@ -182,7 +185,7 @@ export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
       status: item.status ?? "ACTIVE",
     }),
     renderMeta: (item) =>
-      [humanizeEnum(item.status), item.description].filter(Boolean).join(" · "),
+      [tx(humanizeEnum(item.status)), item.description].filter(Boolean).join(" · "),
     onCreate: (form) => createIndustry(form).unwrap(),
     onUpdate: (id, form) => updateIndustry({ id, body: form }).unwrap(),
     onDelete: (id) => deleteIndustry(id).unwrap(),
@@ -231,7 +234,7 @@ export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
   return (
     <div className="flex flex-col gap-5">
       <Panel tone="soft">
-        <p className="text-sm leading-6">{TAB_DESCRIPTION[tab]}</p>
+        <p className="text-sm leading-6">{tx(TAB_DESCRIPTION[tab])}</p>
       </Panel>
 
       <PillTabs
@@ -271,6 +274,8 @@ function CategoryManager<
   plural,
   icon,
 }: ManagerProps<TItem, TForm>) {
+  const tx = useWorkspaceTranslation();
+
   // `null` = the panel is a blank "add" form, a number = editing that row.
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<TForm>(emptyForm);
@@ -290,37 +295,39 @@ function CategoryManager<
       (field) => field.required && !form[field.name]?.trim(),
     );
     if (missing) {
-      toast.error(`${missing.label} is required.`);
+      toast.error(tx("{label} is required.", { label: tx(missing.label) }));
       return;
     }
 
     try {
       if (editingId === null) {
         await onCreate(form);
-        toast.success(`${humanizeEnum(singular)} created.`);
+        toast.success(tx("{label} created.", { label: tx(humanizeEnum(singular)) }));
         setForm(emptyForm);
       } else {
         await onUpdate(editingId, form);
-        toast.success("Changes saved.");
+        toast.success(tx("Changes saved."));
         resetToCreate();
       }
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to save this entry."));
+      toast.error(getApiErrorMessage(error, tx("Unable to save this entry.")));
     }
   };
 
   const remove = async (item: TItem) => {
     const confirmed = window.confirm(
-      `Delete "${item.name}"? Anything still referencing it will lose the link.`,
+      tx('Delete "{name}"? Anything still referencing it will lose the link.', {
+        name: item.name,
+      }),
     );
     if (!confirmed) return;
 
     try {
       await onDelete(item.id);
-      toast.success(`"${item.name}" deleted.`);
+      toast.success(tx('"{name}" deleted.', { name: item.name }));
       if (editingId === item.id) resetToCreate();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to delete this entry."));
+      toast.error(getApiErrorMessage(error, tx("Unable to delete this entry.")));
     }
   };
 
@@ -328,23 +335,29 @@ function CategoryManager<
     setForm((prev) => ({ ...prev, [name]: value }));
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_360px] lg:items-start">
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
       {/* -------------------------------------------------- category list --- */}
       <Panel>
         <header className="mb-4 flex items-center gap-2">
           <FolderOpen aria-hidden="true" className="size-5" />
-          <h2 className="text-[15px] font-semibold tracking-tight">
-            {items?.length ?? 0} {items?.length === 1 ? singular : plural}
+          <h2 className="text-lg font-semibold tracking-tight">
+            {tx("{count} {label}", {
+              count: items?.length ?? 0,
+              label: tx(items?.length === 1 ? singular : plural),
+            })}
           </h2>
         </header>
 
         {isLoading ? (
           <LoadingState rows={5} />
         ) : isError ? (
-          <ErrorState message={`Unable to load ${plural}.`} onRetry={refetch} />
+          <ErrorState
+            message={tx("Unable to load {plural}.", { plural: tx(plural) })}
+            onRetry={refetch}
+          />
         ) : (items?.length ?? 0) === 0 ? (
           <p className="rounded-[22px] bg-ws-card-hover px-5 py-8 text-center text-sm text-ws-faint">
-            Nothing here yet. Add the first entry using the panel on the right.
+            {tx("Nothing here yet. Add the first entry using the panel on the right.")}
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
@@ -374,7 +387,7 @@ function CategoryManager<
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Edit ${item.name}`}
+                  aria-label={tx("Edit {name}", { name: item.name })}
                   onClick={() => openEdit(item)}
                 >
                   <Pencil aria-hidden="true" className="size-4" />
@@ -382,7 +395,7 @@ function CategoryManager<
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Delete ${item.name}`}
+                  aria-label={tx("Delete {name}", { name: item.name })}
                   onClick={() => void remove(item)}
                 >
                   <Trash2 aria-hidden="true" className="size-4" />
@@ -394,15 +407,19 @@ function CategoryManager<
       </Panel>
 
       {/* -------------------------------------------------- add / edit panel --- */}
-      <Panel className="lg:sticky lg:top-5">
+      <Panel className="xl:sticky xl:top-5">
         <header className="mb-1">
-          <h2 className="text-[15px] font-semibold tracking-tight">
-            {editingId === null ? `Add ${singular}` : `Edit ${singular}`}
+          <h2 className="text-lg font-semibold tracking-tight">
+            {editingId === null
+              ? tx("Add {label}", { label: tx(singular) })
+              : tx("Edit {label}", { label: tx(singular) })}
           </h2>
           <p className="mt-1 text-xs text-ws-faint">
             {editingId === null
-              ? ADD_HINT[singular] ?? `Define how ${singular} entries are grouped.`
-              : "Update this entry — the row updates as soon as you save."}
+              ? ADD_HINT[singular]
+                ? tx(ADD_HINT[singular])
+                : tx("Define how {label} entries are grouped.", { label: tx(singular) })
+              : tx("Update this entry — the row updates as soon as you save.")}
           </p>
         </header>
 
@@ -418,12 +435,12 @@ function CategoryManager<
               key={field.name}
               className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted"
             >
-              {field.label}
+              {tx(field.label)}
               {field.kind === "textarea" ? (
                 <Textarea
                   value={form[field.name] ?? ""}
                   onChange={(event) => set(field.name, event.target.value)}
-                  placeholder={field.placeholder}
+                  placeholder={tx(field.placeholder)}
                   className="min-h-24"
                 />
               ) : field.kind === "select" ? (
@@ -434,7 +451,7 @@ function CategoryManager<
                 >
                   {field.options?.map((option) => (
                     <option key={option.value} value={option.value}>
-                      {option.label}
+                      {tx(option.label)}
                     </option>
                   ))}
                 </select>
@@ -442,23 +459,23 @@ function CategoryManager<
                 <Input
                   value={form[field.name] ?? ""}
                   onChange={(event) => set(field.name, event.target.value)}
-                  placeholder={field.placeholder}
+                  placeholder={tx(field.placeholder)}
                 />
               )}
             </label>
           ))}
 
-          <div className="mt-2 flex items-center gap-2">
+          <div className="mt-2 flex items-center gap-2 max-lg:flex-wrap">
             <Button type="submit" className="flex-1" disabled={isSaving}>
               {isSaving
-                ? "Saving…"
+                ? tx("Saving…")
                 : editingId === null
-                  ? `Add ${singular}`
-                  : "Save changes"}
+                  ? tx("Add {label}", { label: tx(singular) })
+                  : tx("Save changes")}
             </Button>
             {editingId !== null ? (
               <Button type="button" variant="ghost" onClick={resetToCreate}>
-                Cancel
+                {tx("Cancel")}
               </Button>
             ) : null}
           </div>
