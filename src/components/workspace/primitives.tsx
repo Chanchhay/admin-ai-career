@@ -147,9 +147,10 @@ export function PillTabs<T extends string>({
   return (
     <div
       className={cn(
-        "ws-scroll flex items-center gap-1 overflow-x-auto",
+        "ws-scroll min-w-0 flex items-center gap-1 overflow-x-auto",
         className,
       )}
+      style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x" }}
     >
       {tabs.map((tab) => (
         <button
