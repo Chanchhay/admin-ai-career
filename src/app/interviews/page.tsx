@@ -402,7 +402,7 @@ export default function InterviewSchedulePage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 max-lg:min-w-0 max-lg:shrink-0">
       {/* Invisible collectors for all applications */}
       {applicationsList.map((app) => (
         <ApplicationInterviewCollector
@@ -470,12 +470,12 @@ export default function InterviewSchedulePage() {
       </div>
 
       {/* Main Panel */}
-      <Panel>
+      <Panel className="max-lg:min-w-0 max-sm:p-3">
         {/* Controls: Search, Status filter, View switch */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ws-line/60 pb-4">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 max-lg:min-w-0 max-sm:w-full">
             {/* Search */}
-            <div className="relative min-w-56">
+            <div className="relative min-w-56 max-sm:min-w-0 max-sm:w-full">
               <Search
                 aria-hidden="true"
                 className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ws-faint"
@@ -490,7 +490,7 @@ export default function InterviewSchedulePage() {
             </div>
 
             {/* Status filters */}
-            <div className="flex items-center rounded-lg bg-ws-card-hover p-1 text-xs">
+            <div className="flex items-center rounded-lg bg-ws-card-hover p-1 text-xs max-sm:max-w-full max-sm:flex-wrap">
               <button
                 type="button"
                 onClick={() => setStatusFilter("ALL")}
@@ -531,7 +531,7 @@ export default function InterviewSchedulePage() {
           </div>
 
           {/* View switcher */}
-          <div className="flex items-center rounded-lg bg-ws-card-hover p-1 text-xs">
+          <div className="flex items-center rounded-lg bg-ws-card-hover p-1 text-xs max-sm:w-full max-sm:flex-wrap">
             <button
               type="button"
               onClick={() => setViewMode("calendar")}
@@ -563,11 +563,11 @@ export default function InterviewSchedulePage() {
 
         {viewMode === "calendar" ? (
           /* Calendar view: Month grid + Day agenda */
-          <div className="mt-4 grid gap-6 lg:grid-cols-12">
+          <div className="mt-4 grid gap-6 lg:grid-cols-12 max-lg:min-w-0 max-lg:grid-cols-1">
             {/* Calendar on left (7 cols) */}
-            <div className="rounded-2xl border border-ws-line/70 bg-ws-card-hover/40 p-5 lg:col-span-7">
+            <div className="rounded-2xl border border-ws-line/70 bg-ws-card-hover/40 p-5 lg:col-span-7 max-lg:min-w-0 max-sm:p-2">
               {/* Header */}
-              <div className="mb-4 flex items-center justify-between">
+              <div className="mb-4 flex items-center justify-between max-lg:flex-wrap max-lg:gap-3">
                 <div>
                   <h3 className="text-lg font-bold tracking-tight text-ws-fg">
                     {MONTH_NAMES[currentMonth]} {currentYear}
@@ -606,7 +606,7 @@ export default function InterviewSchedulePage() {
               </div>
 
               {/* Weekday headers */}
-              <div className="mb-1.5 grid grid-cols-7 text-center">
+              <div className="mb-1.5 grid grid-cols-7 gap-1.5 text-center max-sm:gap-0.5">
                 {WEEKDAYS.map((day) => (
                   <div
                     key={day}
@@ -618,7 +618,7 @@ export default function InterviewSchedulePage() {
               </div>
 
               {/* Day cells */}
-              <div className="grid grid-cols-7 gap-1.5">
+              <div className="grid grid-cols-7 gap-1.5 max-sm:gap-0.5">
                 {calendarCells.map((cell) => {
                   const hasInterviews = cell.interviews.length > 0;
                   const activeInterviews = cell.interviews.filter((i) =>
@@ -631,7 +631,7 @@ export default function InterviewSchedulePage() {
                       type="button"
                       onClick={() => setSelectedDateKey(cell.key)}
                       className={cn(
-                        "group relative flex min-h-[68px] flex-col justify-between rounded-xl p-2 text-left transition-all outline-none",
+                        "group relative flex min-h-[68px] flex-col justify-between rounded-xl p-2 text-left transition-all outline-none max-lg:min-w-0 max-sm:min-h-11 max-sm:justify-center max-sm:rounded-lg max-sm:p-0.5",
                         cell.isOutside
                           ? "text-ws-faint/50 hover:bg-ws-card-hover/40"
                           : "text-ws-fg hover:bg-ws-card-hover",
@@ -640,7 +640,7 @@ export default function InterviewSchedulePage() {
                           "bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary",
                       )}
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="relative flex w-full items-center justify-center">
                         <span
                           className={cn(
                             "flex size-6 items-center justify-center rounded-full text-xs",
@@ -655,7 +655,7 @@ export default function InterviewSchedulePage() {
                         {hasInterviews ? (
                           <span
                             className={cn(
-                              "size-2 rounded-full",
+                              "absolute right-0 top-0 size-2 rounded-full",
                               cell.isSelected
                                 ? "bg-white"
                                 : activeInterviews.length > 0
@@ -692,7 +692,7 @@ export default function InterviewSchedulePage() {
                           ) : null}
                         </div>
                       ) : (
-                        <span className="h-4" />
+                        <span className="h-4 max-sm:hidden" />
                       )}
                     </button>
                   );
@@ -701,9 +701,9 @@ export default function InterviewSchedulePage() {
             </div>
 
             {/* Day Agenda on right (5 cols) */}
-            <div className="flex flex-col gap-4 lg:col-span-5">
+            <div className="flex flex-col gap-4 lg:col-span-5 max-lg:min-w-0">
               <div className="rounded-2xl border border-ws-line/70 bg-ws-card-hover/40 p-5">
-                <div className="mb-4 flex items-center justify-between border-b border-ws-line/60 pb-3">
+                <div className="mb-4 flex items-center justify-between border-b border-ws-line/60 pb-3 max-lg:flex-wrap max-lg:gap-2">
                   <div className="flex items-center gap-2">
                     <CalendarIcon aria-hidden="true" className="size-4 text-primary" />
                     <div>
@@ -741,8 +741,8 @@ export default function InterviewSchedulePage() {
                         key={interview.id}
                         className="rounded-xl border border-ws-line/70 bg-ws-panel p-4 shadow-xs"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex items-start gap-2.5">
+                        <div className="flex items-start justify-between gap-2 max-lg:flex-wrap">
+                          <div className="flex items-start gap-2.5 max-lg:min-w-0 max-lg:max-w-full">
                             <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">
                               <User aria-hidden="true" className="size-4" />
                             </div>
@@ -879,12 +879,12 @@ export default function InterviewSchedulePage() {
                     className="rounded-xl border border-ws-line/70 bg-ws-card-hover/70 p-4 transition-all"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 max-lg:min-w-0 max-lg:max-w-full max-lg:break-words">
                         <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">
                           <Video aria-hidden="true" className="size-4" />
                         </div>
                         <div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 max-lg:flex-wrap">
                             <Link
                               href={`/applications/${interview.applicationId}`}
                               className="text-sm font-bold text-ws-fg hover:text-primary transition-colors flex items-center gap-1"

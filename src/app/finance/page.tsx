@@ -84,8 +84,8 @@ export default function FinancePage() {
   const readyCount = billable.data?.length ?? 0;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 max-lg:min-w-0 max-lg:flex-none">
+      <div className="flex flex-wrap items-center gap-2 max-sm:[&>button]:flex-1 max-sm:[&>button]:min-h-10">
         <Button variant="outline" onClick={() => setBilling(true)}>
           <HandCoins aria-hidden="true" /> Ready to bill
           {readyCount > 0 ? (
@@ -122,7 +122,7 @@ export default function FinancePage() {
           {view === "Hire review" ? <HiresTable /> : (
             <>
               {company ? (
-                <div className="flex items-center justify-between gap-2 rounded-lg border border-ws-line px-4 py-2 text-sm">
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-ws-line px-4 py-2 text-sm max-lg:flex-wrap max-lg:break-words">
                   <span>Invoices for <strong>{company.name}</strong></span>
                   <Button variant="ghost" size="sm" onClick={() => setCompany(null)}>All companies</Button>
                 </div>
@@ -634,7 +634,7 @@ function TableCard<T>({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel max-lg:min-w-0 max-lg:flex-none">
       <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
         <h2 className="font-semibold text-ws-fg">{title}</h2>
         {page ? (
@@ -659,10 +659,9 @@ function TableCard<T>({
 
       <div className="shrink-0 px-4 pb-3">{tabs}</div>
 
-      {/* The scroller is this pane, not the page: the toolbar stays put and
-          the footer stays on the bottom edge however many rows there are. */}
-      <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line">
-        <table className="w-full table-fixed border-collapse text-left">
+      {/* Small screens scroll with the page; wide columns scroll horizontally. */}
+      <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line max-lg:flex-none">
+        <table className={cn("w-full table-fixed border-collapse text-left", !isLoading && !isError && !empty && "max-lg:min-w-[1100px]")}>
           <thead className="sticky top-0 z-10">
             <tr>
               {columns.map((column) => (
@@ -713,7 +712,7 @@ function TableCard<T>({
         <PageSizeSelect value={size} onChange={onSize} id={sizeId} />
         <p className="hidden text-xs text-ws-faint lg:block">{note}</p>
         {page ? (
-          <div className="ml-auto">
+          <div className="ml-auto max-sm:w-full max-sm:[&>div]:justify-end">
             <Pager page={page} onPageChange={onPageChange} />
           </div>
         ) : null}

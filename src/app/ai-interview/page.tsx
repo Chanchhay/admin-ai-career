@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { GuestInterviewSettingsPanel } from "@/components/console/GuestInterviewSettingsPanel";
 import { GhostChip, Panel, PanelHeader } from "@/components/workspace/primitives";
 import type { AiInterviewConfigResponse } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDateTime, humanizeEnum } from "@/lib/format";
 import {
@@ -49,7 +50,8 @@ function toForm(config: AiInterviewConfigResponse): Form {
 }
 
 export default function AiInterviewConfigPage() {
-  useSetPageHeading("AI interview");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("AI interview"));
 
   const { data, isError, refetch } = useGetAiInterviewConfigQuery();
   const [save, saveState] = useUpdateAiInterviewConfigMutation();
@@ -81,7 +83,7 @@ export default function AiInterviewConfigPage() {
   if (isError) {
     return (
       <ErrorState
-        message="Unable to load the AI interview settings."
+        message={tx("Unable to load the AI interview settings.")}
         onRetry={refetch}
       />
     );
@@ -108,15 +110,19 @@ export default function AiInterviewConfigPage() {
 
   const submit = async () => {
     if (total < 1) {
-      toast.error("Give at least one question type a question.");
+      toast.error(tx("Give at least one question type a question."));
       return;
     }
     if (total > MAX_QUESTIONS) {
-      toast.error(`An interview may not exceed ${MAX_QUESTIONS} questions.`);
+      toast.error(tx("An interview may not exceed {max} questions.", { max: MAX_QUESTIONS }));
       return;
     }
     if (!Number.isInteger(maxScore) || maxScore < 1 || maxScore > MAX_SCORE_CEILING) {
-      toast.error(`Max score must be a whole number between 1 and ${MAX_SCORE_CEILING}.`);
+      toast.error(
+        tx("Max score must be a whole number between 1 and {max}.", {
+          max: MAX_SCORE_CEILING,
+        }),
+      );
       return;
     }
 
@@ -132,9 +138,9 @@ export default function AiInterviewConfigPage() {
           .map(([type, count]) => ({ type, count })),
         additionalInstructions: form.additionalInstructions.trim() || null,
       }).unwrap();
-      toast.success("AI interview settings saved.");
+      toast.success(tx("AI interview settings saved."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to save these settings."));
+      toast.error(getApiErrorMessage(error, tx("Unable to save these settings.")));
     }
   };
 
@@ -142,9 +148,9 @@ export default function AiInterviewConfigPage() {
     <div className="flex flex-col gap-3">
       <Panel tone="soft">
         <p className="text-sm leading-6">
-          What every AI interview generated from now on will look like. Existing
-          interviews keep the shape they were generated with — a candidate part
-          way through one is not affected by a change here.
+          {tx(
+            "What every AI interview generated from now on will look like. Existing interviews keep the shape they were generated with — a candidate part way through one is not affected by a change here.",
+          )}
         </p>
       </Panel>
 
@@ -153,15 +159,18 @@ export default function AiInterviewConfigPage() {
           title="Question mix"
           action={
             <GhostChip>
-              {total} {total === 1 ? "question" : "questions"} total
+              {tx("{count} {unit} total", {
+                count: total,
+                unit: total === 1 ? tx("question") : tx("questions"),
+              })}
             </GhostChip>
           }
         />
 
         <p className="mb-4 text-sm text-ws-muted">
-          How many questions of each type to ask. A type set to zero is left out
-          of the interview entirely, and the total is what the interview length
-          becomes.
+          {tx(
+            "How many questions of each type to ask. A type set to zero is left out of the interview entirely, and the total is what the interview length becomes.",
+          )}
         </p>
 
         <ul className="flex flex-col gap-2">
@@ -170,16 +179,16 @@ export default function AiInterviewConfigPage() {
             return (
               <li
                 key={type}
-                className="flex items-center gap-3 rounded-xl bg-ws-card-hover px-4 py-3"
+                className="flex items-center gap-3 max-sm:flex-wrap rounded-[18px] bg-ws-card-hover px-4 py-3"
               >
-                <p className="min-w-0 flex-1 truncate text-sm font-semibold text-ws-fg">
+                <p className="min-w-0 flex-1 max-sm:basis-full truncate text-sm font-semibold text-ws-fg">
                   {humanizeEnum(type)}
                 </p>
 
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`One fewer ${humanizeEnum(type)} question`}
+                  aria-label={tx("One fewer {type} question", { type: humanizeEnum(type) })}
                   disabled={count === 0}
                   onClick={() => setCount(type, count - 1)}
                 >
@@ -191,7 +200,7 @@ export default function AiInterviewConfigPage() {
                   min={0}
                   max={MAX_QUESTIONS}
                   inputMode="numeric"
-                  aria-label={`${humanizeEnum(type)} questions`}
+                  aria-label={tx("{type} questions", { type: humanizeEnum(type) })}
                   value={String(count)}
                   onChange={(event) =>
                     setCount(type, Math.trunc(Number(event.target.value) || 0))
@@ -202,7 +211,7 @@ export default function AiInterviewConfigPage() {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`One more ${humanizeEnum(type)} question`}
+                  aria-label={tx("One more {type} question", { type: humanizeEnum(type) })}
                   disabled={total >= MAX_QUESTIONS}
                   onClick={() => setCount(type, count + 1)}
                 >
@@ -219,7 +228,7 @@ export default function AiInterviewConfigPage() {
 
         <div className="flex flex-col gap-4">
           <label className="flex max-w-xs flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            Max score per question
+            {tx("Max score per question")}
             <Input
               type="number"
               min={1}
@@ -231,25 +240,28 @@ export default function AiInterviewConfigPage() {
               }
             />
             <span className="font-normal text-ws-faint">
-              A whole interview is worth {total * (maxScore || 0)} points at this
-              setting.
+              {tx("A whole interview is worth {points} points at this setting.", {
+                points: total * (maxScore || 0),
+              })}
             </span>
           </label>
 
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            Extra instructions for the interviewer (optional)
+            {tx("Extra instructions for the interviewer (optional)")}
             <Textarea
               value={form.additionalInstructions}
               onChange={(event) =>
                 setForm({ ...form, additionalInstructions: event.target.value })
               }
-              placeholder="e.g. Favour practical scenarios over textbook definitions, and never ask about salary."
+              placeholder={tx(
+                "e.g. Favour practical scenarios over textbook definitions, and never ask about salary.",
+              )}
               className="min-h-28"
             />
             <span className="font-normal text-ws-faint">
-              Appended to the prompt that generates the questions. Keep it to
-              rules about the questions themselves — it is read by the model, not
-              by the candidate.
+              {tx(
+                "Appended to the prompt that generates the questions. Keep it to rules about the questions themselves — it is read by the model, not by the candidate.",
+              )}
             </span>
           </label>
         </div>
@@ -260,7 +272,7 @@ export default function AiInterviewConfigPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={() => void submit()} disabled={saveState.isLoading}>
-          {saveState.isLoading ? "Saving…" : "Save settings"}
+          {saveState.isLoading ? tx("Saving…") : tx("Save settings")}
         </Button>
         <Button
           variant="ghost"
@@ -268,14 +280,17 @@ export default function AiInterviewConfigPage() {
           disabled={saveState.isLoading}
         >
           <RotateCcw aria-hidden="true" className="size-4" />
-          Reset
+          {tx("Reset")}
         </Button>
         <p className="text-xs text-ws-faint">
           {data.updatedAt
-            ? `Last changed ${formatDateTime(data.updatedAt)}${
-                data.updatedBy ? ` by ${data.updatedBy}` : ""
-              }.`
-            : "Never changed — running on the platform defaults."}
+            ? data.updatedBy
+              ? tx("Last changed {date} by {user}.", {
+                  date: formatDateTime(data.updatedAt),
+                  user: data.updatedBy,
+                })
+              : tx("Last changed {date}.", { date: formatDateTime(data.updatedAt) })
+            : tx("Never changed — running on the platform defaults.")}
         </p>
       </div>
     </div>
