@@ -23,6 +23,7 @@ import {
   DEFAULT_PAGE_SIZE,
   useGetApplicationsQuery,
 } from "@/services/moderationApi";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 const TABS = [
   "All",
@@ -61,7 +62,8 @@ const COLUMNS = [
 ] as const;
 
 export default function ApplicationsPage() {
-  useSetPageHeading("Moderator results");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Moderator results"));
 
   const [tab, setTab] = useState<Tab>("All");
   const [page, setPage] = useState(0);

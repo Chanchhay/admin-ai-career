@@ -12,6 +12,7 @@ import {
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { BrandLogo, BrandMark } from "@/components/shared/BrandLogo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { adminNavigation, type NavigationItem } from "@/lib/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSidebarExpanded } from "@/store/uiSlice";
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { resolveFileUrl } from "@/lib/file-url";
 import { isStaff } from "@/lib/roles";
 import { useGetCurrentUserQuery, useGetSessionQuery } from "@/services/authApi";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 /**
  * The console frame: an icon rail beside a single rounded panel. Every page in
@@ -39,10 +41,11 @@ export function AdminShell({ children }: { children: ReactNode }) {
 const RAIL_STORAGE_KEY = "admin.sidebarExpanded";
 
 function Frame({ children }: { children: ReactNode }) {
+  const tx = useWorkspaceTranslation();
   const pathname = usePathname();
   const heading = usePageHeading();
   const active = adminNavigation.find((link) => isActive(pathname, link.href));
-  const title = heading?.title ?? active?.label ?? "Admin";
+  const title = heading?.title ?? (active ? tx(active.label) : tx("Admin"));
 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   // A route change means a link was just followed — close the drawer behind it.
@@ -235,6 +238,7 @@ function RailLink({
   pathname: string;
   expanded: boolean;
 }) {
+  const tx = useWorkspaceTranslation();
   const active = isActive(pathname, link.href);
 
   return (
@@ -251,10 +255,10 @@ function RailLink({
     >
       <link.icon aria-hidden="true" className="size-5 shrink-0" />
       {expanded ? (
-        <span className="truncate text-sm font-medium">{link.label}</span>
+        <span className="truncate text-sm font-medium">{tx(link.label)}</span>
       ) : (
         /* The label is the tooltip only while there is no room for it inline. */
-        <Tooltip>{link.label}</Tooltip>
+        <Tooltip>{tx(link.label)}</Tooltip>
       )}
     </Link>
   );
@@ -311,6 +315,7 @@ function TopBar({
             "/messages",
             "/finance",
           ]} />
+        <LanguageToggle />
         <ThemeToggle className="size-9 rounded-full bg-ws-card text-ws-muted hover:bg-ws-card-hover hover:text-ws-fg" />
         <Account />
       </div>
@@ -319,6 +324,7 @@ function TopBar({
 }
 
 function Account() {
+  const tx = useWorkspaceTranslation();
   const { data: session } = useGetSessionQuery();
   const { data: user } = useGetCurrentUserQuery(undefined, {
     skip: !session?.authenticated,
@@ -326,7 +332,7 @@ function Account() {
 
   if (!session?.authenticated) return null;
 
-  const name = user?.fullName || session.username || session.email || "Account";
+  const name = user?.fullName || session.username || session.email || tx("Account");
   const avatar = resolveFileUrl(user?.avatarUrl);
 
   return (
@@ -352,6 +358,7 @@ function Account() {
  * actually stops the call.
  */
 function StaffRoleNotice() {
+  const tx = useWorkspaceTranslation();
   const { data: session } = useGetSessionQuery();
   const { data: user, isSuccess } = useGetCurrentUserQuery(undefined, {
     skip: !session?.authenticated,
@@ -369,10 +376,11 @@ function StaffRoleNotice() {
     >
       <ShieldAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
       <p>
-        This account has neither <strong>MODERATOR</strong> nor{" "}
-        <strong>SUPER_ADMIN</strong>, so the API will refuse every screen in this
-        console. Ask for the role in Keycloak, then sign out and back in — roles
-        are read from the token issued at sign-in.
+        {tx("This account has neither")} <strong>MODERATOR</strong>{" "}
+        {tx("nor")} <strong>SUPER_ADMIN</strong>,{" "}
+        {tx(
+          "so the API will refuse every screen in this console. Ask for the role in Keycloak, then sign out and back in — roles are read from the token issued at sign-in.",
+        )}
       </p>
     </div>
   );

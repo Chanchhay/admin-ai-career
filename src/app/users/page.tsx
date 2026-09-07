@@ -22,6 +22,7 @@ import type {
   AdminUserCreateRequest,
   ManageableRole,
 } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { orDash } from "@/lib/format";
 import { DEFAULT_PAGE_SIZE } from "@/services/moderationApi";
@@ -72,7 +73,8 @@ const COLUMNS = [
 ] as const;
 
 export default function UsersPage() {
-  useSetPageHeading("Users");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Users"));
 
   const [roleTab, setRoleTab] = useState<RoleTab>("All");
   const [statusTab, setStatusTab] = useState<StatusTab>("Any status");
@@ -103,9 +105,9 @@ export default function UsersPage() {
     <div className="flex min-h-0 flex-1 flex-col gap-3 max-lg:min-w-0 max-lg:flex-none">
       <Panel tone="soft" className="shrink-0">
         <p className="text-sm leading-6">
-          Accounts live in Keycloak; this console changes their roles and
-          whether they may sign in. Suspending an account disables the Keycloak
-          user and blocks its existing tokens on the next request.
+          {tx(
+            "Accounts live in Keycloak; this console changes their roles and whether they may sign in. Suspending an account disables the Keycloak user and blocks its existing tokens on the next request.",
+          )}
         </p>
       </Panel>
 
@@ -115,7 +117,7 @@ export default function UsersPage() {
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel max-lg:min-w-0 max-lg:flex-none">
         <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
-          <h2 className="font-semibold text-ws-fg">Accounts</h2>
+          <h2 className="font-semibold text-ws-fg">{tx("Accounts")}</h2>
           {data ? (
             <span className="rounded-md bg-ws-card px-2 py-0.5 text-xs font-medium text-ws-muted">
               {data.totalElements}
@@ -127,7 +129,7 @@ export default function UsersPage() {
               size="sm"
               onClick={() => setCreating(true)}
             >
-              <Plus aria-hidden="true" /> New staff account
+              <Plus aria-hidden="true" /> {tx("New staff account")}
             </Button>
           )}
         </div>
@@ -148,13 +150,13 @@ export default function UsersPage() {
             <Input
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search by username, email, or name"
-              aria-label="Search by username, email, or name"
+              placeholder={tx("Search by username, email, or name")}
+              aria-label={tx("Search by username, email, or name")}
               className="pl-9"
             />
           </div>
           <Button type="submit" variant="secondary">
-            Search
+            {tx("Search")}
           </Button>
           {search ? (
             <Button
@@ -166,7 +168,7 @@ export default function UsersPage() {
                 setPage(0);
               }}
             >
-              <X aria-hidden="true" /> Clear
+              <X aria-hidden="true" /> {tx("Clear")}
             </Button>
           ) : null}
         </form>
@@ -188,7 +190,7 @@ export default function UsersPage() {
 
         <div className="ws-scroll min-h-0 flex-1 overflow-auto border-t border-ws-line max-lg:flex-none max-sm:hidden">
           <table
-            aria-label="Accounts"
+            aria-label={tx("Accounts")}
             className="w-full min-w-[800px] table-fixed border-collapse text-left"
           >
             <thead className="sticky top-0 z-10">
@@ -199,7 +201,7 @@ export default function UsersPage() {
                     scope="col"
                     className={`${column.className} bg-ws-card px-4 py-2.5 text-xs font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
                   >
-                    {column.label || <span className="sr-only">Actions</span>}
+                    {column.label ? tx(column.label) : <span className="sr-only">{tx("Actions")}</span>}
                   </th>
                 ))}
               </tr>
@@ -215,7 +217,7 @@ export default function UsersPage() {
                 <tr>
                   <td colSpan={COLUMNS.length} className="p-4">
                     <ErrorState
-                      message="Unable to load users."
+                      message={tx("Unable to load users.")}
                       onRetry={refetch}
                     />
                   </td>
@@ -226,7 +228,7 @@ export default function UsersPage() {
                     colSpan={COLUMNS.length}
                     className="px-4 py-14 text-center text-sm text-ws-faint"
                   >
-                    No accounts match these filters.
+                    {tx("No accounts match these filters.")}
                   </td>
                 </tr>
               ) : (
@@ -266,10 +268,10 @@ export default function UsersPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        aria-label={`Open account ${user.username || user.email || user.keycloakUserId}`}
+                        aria-label={tx("Open account {name}", { name: user.username || user.email || user.keycloakUserId })}
                         render={<Link href={`/users/${user.keycloakUserId}`} />}
                       >
-                        Open
+                        {tx("Open")}
                       </Button>
                     </td>
                   </tr>
@@ -283,23 +285,23 @@ export default function UsersPage() {
           {isLoading ? (
             <LoadingState rows={5} />
           ) : isError ? (
-            <ErrorState message="Unable to load users." onRetry={refetch} />
+            <ErrorState message={tx("Unable to load users.")} onRetry={refetch} />
           ) : users.length === 0 ? (
-            <p className="px-3 py-8 text-center text-sm text-ws-faint">No accounts match these filters.</p>
+            <p className="px-3 py-8 text-center text-sm text-ws-faint">{tx("No accounts match these filters.")}</p>
           ) : users.map((user) => (
             <article key={user.keycloakUserId} className="min-w-0 rounded-xl border border-ws-line bg-ws-panel p-4 shadow-xs">
               <Link href={`/users/${user.keycloakUserId}`} className="block break-words text-sm font-semibold text-ws-fg hover:underline">
                 {orDash(user.username)}
               </Link>
               <dl className="mt-3 divide-y divide-ws-line text-sm [&>div]:grid [&>div]:grid-cols-[4rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
-                <div><dt>Email</dt><dd className="[overflow-wrap:anywhere]">{orDash(user.email)}</dd></div>
-                <div><dt>Roles</dt><dd><span className="flex flex-wrap justify-end gap-1.5"><RoleChips roles={user.roles} /></span></dd></div>
-                <div><dt>Status</dt><dd><AccountStatusChip status={user.status} /></dd></div>
+                <div><dt>{tx("Email")}</dt><dd className="[overflow-wrap:anywhere]">{orDash(user.email)}</dd></div>
+                <div><dt>{tx("Roles")}</dt><dd><span className="flex flex-wrap justify-end gap-1.5"><RoleChips roles={user.roles} /></span></dd></div>
+                <div><dt>{tx("Status")}</dt><dd><AccountStatusChip status={user.status} /></dd></div>
               </dl>
               <Button variant="outline" className="mt-2 min-h-11 w-full"
-                aria-label={`Open account ${user.username || user.email || user.keycloakUserId}`}
+                aria-label={tx("Open account {name}", { name: user.username || user.email || user.keycloakUserId })}
                 render={<Link href={`/users/${user.keycloakUserId}`} />}>
-                Open account
+                {tx("Open account")}
               </Button>
             </article>
           ))}
@@ -323,6 +325,7 @@ export default function UsersPage() {
 }
 
 function CreateUserPanel({ onClose }: { onClose: () => void }) {
+  const tx = useWorkspaceTranslation();
   const [createUser, { isLoading }] = useCreateUserMutation();
   const [form, setForm] = useState<AdminUserCreateRequest>({
     username: "",
@@ -351,21 +354,21 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
     event.preventDefault();
 
     if (form.roles.length === 0) {
-      toast.error("Give the account at least one role.");
+      toast.error(tx("Give the account at least one role."));
       return;
     }
 
     if (form.password.length < 8) {
-      toast.error("The password must be at least 8 characters.");
+      toast.error(tx("The password must be at least 8 characters."));
       return;
     }
 
     try {
       const created = await createUser(form).unwrap();
-      toast.success(`Created ${created.username}.`);
+      toast.success(tx("Created {username}.", { username: created.username }));
       onClose();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to create the account."));
+      toast.error(getApiErrorMessage(error, tx("Unable to create the account.")));
     }
   }
 
@@ -376,14 +379,15 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
         icon={<Plus aria-hidden="true" className="size-4" />}
         action={
           <Button variant="ghost" size="sm" onClick={onClose}>
-            <X aria-hidden="true" /> Cancel
+            <X aria-hidden="true" /> {tx("Cancel")}
           </Button>
         }
       />
 
       <p className="mb-4 text-sm text-ws-muted">
-        Self-registration only issues seeker and recruiter accounts. Everything
-        else is created here.
+        {tx(
+          "Self-registration only issues seeker and recruiter accounts. Everything else is created here.",
+        )}
       </p>
 
       <form className="flex flex-col gap-3" onSubmit={submit}>
@@ -432,12 +436,12 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
             checked={form.temporaryPassword ?? false}
             onChange={(event) => set("temporaryPassword", event.target.checked)}
           />
-          Require a password change at first sign-in
+          {tx("Require a password change at first sign-in")}
         </label>
 
         <fieldset>
           <legend className="mb-2 text-xs font-semibold text-ws-muted">
-            Roles
+            {tx("Roles")}
           </legend>
           <div className="flex flex-wrap gap-1.5">
             {ASSIGNABLE_ROLES.map((role) => (
@@ -451,9 +455,9 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
           </div>
         </fieldset>
 
-        <div className="mt-1 flex gap-2">
+        <div className="mt-1 flex gap-2 max-lg:flex-wrap">
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Creating…" : "Create account"}
+            {isLoading ? tx("Creating…") : tx("Create account")}
           </Button>
         </div>
       </form>
@@ -468,9 +472,11 @@ function Field({
   label: string;
   children: React.ReactNode;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-semibold text-ws-muted">{label}</span>
+      <span className="text-xs font-semibold text-ws-muted">{tx(label)}</span>
       {children}
     </label>
   );
