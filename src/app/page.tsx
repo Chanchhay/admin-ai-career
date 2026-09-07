@@ -39,6 +39,7 @@ import type {
   CandidateApplicationListItem,
   ModeratorCompanyListItem,
 } from "@/contracts/api/moderation";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 
 const queueTabs = ["Companies", "Candidates"] as const;
 type QueueTab = (typeof queueTabs)[number];
@@ -50,7 +51,8 @@ type QueueTab = (typeof queueTabs)[number];
  * that gives the number also fills the stream beneath it.
  */
 export default function OverviewPage() {
-  useSetPageHeading("Overview");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Overview"));
 
   const firstPage = { page: 0, size: 5 } as const;
 
@@ -114,7 +116,9 @@ export default function OverviewPage() {
             tone: "quiet",
           },
         ]}
-        restLabel={`${failedApplications.data?.totalElements ?? 0} rejected`}
+        restLabel={tx("{count} rejected", {
+          count: failedApplications.data?.totalElements ?? 0,
+        })}
       />
 
       {/*
@@ -122,8 +126,8 @@ export default function OverviewPage() {
        * standing counts on the left, the live queue in the middle, the
        * decisions already recorded on the right.
        */}
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)_minmax(0,22rem)]">
-        <div className="flex flex-col gap-3 md:max-lg:grid md:max-lg:grid-cols-2">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,19rem)]">
+        <div className="flex flex-col gap-5 md:max-xl:grid md:max-xl:grid-cols-2">
           <QueueNote
             companies={companiesWaiting}
             candidates={candidatesWaiting}
@@ -156,7 +160,7 @@ export default function OverviewPage() {
 /* ---------------------------------------------------------------- hero --- */
 
 /**
- * The page's single anchor: one number, sized like a balance, for everything
+ * The page's single anchor: one compact count for everything
  * still waiting on a moderator. The two queue links sit opposite it as the
  * only filled controls on the page.
  */
@@ -167,39 +171,44 @@ function Hero({
   waiting: number | undefined;
   companies: number | undefined;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-ws-muted">
-            Moderation queue
+            {tx("Moderation queue")}
           </span>
           {waiting === 0 ? (
-            <Chip tone="solid">All clear</Chip>
+            <Chip tone="solid">{tx("All clear")}</Chip>
           ) : (
-            <Chip tone="soft">Oldest first</Chip>
+            <Chip tone="soft">{tx("Oldest first")}</Chip>
           )}
           <GhostChip>
-            {companies === undefined ? "—" : companies} awaiting verification
+            {tx("{count} awaiting verification", {
+              count: companies === undefined ? "—" : companies,
+            })}
           </GhostChip>
         </div>
 
-        <p className="mt-1 flex items-baseline gap-2 text-ws-fg">
-          <span className="text-5xl font-semibold tracking-tight tabular-nums lg:text-6xl">
+        <p className="mt-1 flex items-baseline gap-2 max-sm:flex-wrap text-ws-fg">
+          <span className="text-3xl font-semibold tracking-tight tabular-nums">
             {waiting === undefined ? "—" : waiting.toLocaleString()}
           </span>
           <span className="text-sm font-medium text-ws-muted">
-            {waiting === 1 ? "item waits" : "items wait"} on a decision
+            {waiting === 1 ? tx("item waits") : tx("items wait")}{" "}
+            {tx("on a decision")}
           </span>
         </p>
       </div>
 
-      <div className="flex items-center gap-2 max-sm:w-full max-sm:flex-wrap">
+      <div className="flex items-center gap-2 max-sm:flex-wrap">
         <Link href="/companies" className={cnPill("solid")}>
-          Companies
+          {tx("Companies")}
         </Link>
         <Link href="/applications" className={cnPill("soft")}>
-          Candidates
+          {tx("Candidates")}
         </Link>
         <IconAction label="More" href="/users" className="bg-ws-card">
           <MoreHorizontal aria-hidden="true" className="size-4" />
@@ -211,7 +220,7 @@ function Hero({
 
 /** Hero pills reuse the tone fills so they match the track below them. */
 function cnPill(tone: Tone) {
-  return `rounded-full px-6 py-3 text-sm font-semibold transition-transform hover:scale-[1.03] max-sm:flex-1 max-sm:px-3 max-sm:text-center ${toneFill[tone]}`;
+  return `rounded-full px-6 py-3 text-sm font-semibold transition-transform hover:scale-[1.03] ${toneFill[tone]}`;
 }
 
 /* --------------------------------------------------------------- notes --- */
@@ -226,6 +235,8 @@ function QueueNote({
   candidates: number | undefined;
   interviews: number | undefined;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <NotchedPanel
       fill="warm"
@@ -256,10 +267,10 @@ function QueueNote({
         <NoteRow label="Interviews booked" value={interviews} />
       </dl>
 
-      <p className="mt-4 text-xs leading-5 opacity-75">
-        Companies wait on verification before their recruiters can post jobs;
-        candidates wait on review before a recruiter ever sees them. Both queues
-        are worked oldest-first.
+      <p className="mt-6 text-xs leading-7 opacity-75">
+        {tx(
+          "Companies wait on verification before their recruiters can post jobs; candidates wait on review before a recruiter ever sees them. Both queues are worked oldest-first.",
+        )}
       </p>
     </NotchedPanel>
   );
@@ -327,11 +338,12 @@ function NoteRow({
   href?: string;
   icon?: React.ReactNode;
 }) {
+  const tx = useWorkspaceTranslation();
   const body = (
     <>
       {icon ? <span className="shrink-0 opacity-60">{icon}</span> : null}
       <dt className="min-w-0 flex-1 truncate text-sm font-medium opacity-80">
-        {label}
+        {tx(label)}
       </dt>
       <dd className="shrink-0 text-lg font-bold tabular-nums">
         {value === undefined ? "—" : value.toLocaleString()}
@@ -369,6 +381,7 @@ function QueueStream({
   companiesLoading: boolean;
   candidatesLoading: boolean;
 }) {
+  const tx = useWorkspaceTranslation();
   const [tab, setTab] = useState<QueueTab>("Companies");
   const showing = tab === "Companies" ? companies : candidates;
   const loading = tab === "Companies" ? companiesLoading : candidatesLoading;
@@ -379,7 +392,7 @@ function QueueStream({
         tabs={queueTabs}
         value={tab}
         onChange={setTab}
-        aside="Oldest first"
+        aside={tx("Oldest first")}
       />
 
       {/*
@@ -401,11 +414,17 @@ function QueueStream({
               className="size-4 shrink-0 text-ws-muted"
             />
           )}
-          <h2 className="truncate text-base font-semibold tracking-tight">
-            {tab === "Companies" ? "Awaiting verification" : "Awaiting review"}
+          <h2 className="truncate text-lg font-semibold tracking-tight">
+            {tab === "Companies"
+              ? tx("Awaiting verification")
+              : tx("Awaiting review")}
           </h2>
           <IconAction
-            label={`Open all ${tab.toLowerCase()}`}
+            label={
+              tab === "Companies"
+                ? tx("Open all companies")
+                : tx("Open all candidates")
+            }
             href={tab === "Companies" ? "/companies" : "/applications"}
             className="ml-auto"
           >
@@ -414,10 +433,12 @@ function QueueStream({
         </header>
 
         {loading ? (
-          <p className="py-10 text-center text-sm text-ws-faint">Loading…</p>
+          <p className="py-10 text-center text-sm text-ws-faint">
+            {tx("Loading…")}
+          </p>
         ) : !showing?.length ? (
           <p className="py-10 text-center text-sm text-ws-faint">
-            Nothing waiting. This queue is clear.
+            {tx("Nothing waiting. This queue is clear.")}
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
@@ -440,7 +461,7 @@ function QueueStream({
                     meta={
                       item.candidate.headline ||
                       item.candidate.currentPosition ||
-                      "Candidate"
+                      tx("Candidate")
                     }
                     chip={humanize(item.review.reviewStatus)}
                     chipTone="soft"
@@ -466,6 +487,8 @@ function StreamRow({
   chip: string;
   chipTone: Tone;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <li>
       <Link
@@ -476,10 +499,12 @@ function StreamRow({
           <span className="block truncate text-sm font-semibold text-ws-fg">
             {title}
           </span>
-          <span className="block truncate text-xs text-ws-faint">{meta}</span>
+          <span className="block truncate text-xs text-ws-faint">
+            {tx(meta)}
+          </span>
         </span>
         <Chip tone={chipTone} className="shrink-0">
-          {chip}
+          {tx(chip)}
         </Chip>
       </Link>
     </li>
@@ -557,6 +582,8 @@ function DecisionCard({
   icon: React.ReactNode;
   href: string;
 }) {
+  const tx = useWorkspaceTranslation();
+
   return (
     <Link
       href={href}
@@ -570,11 +597,11 @@ function DecisionCard({
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold text-ws-fg">
-          {label}
+        <span className="block truncate text-sm font-semibold text-ws-fg">
+          {tx(label)}
         </span>
-        <span className="block text-sm text-ws-faint">
-          {caption}
+        <span className="block truncate text-xs text-ws-faint">
+          {tx(caption)}
         </span>
       </span>
       <span className="shrink-0 text-2xl font-bold tabular-nums text-ws-fg">
