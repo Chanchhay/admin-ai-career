@@ -434,6 +434,18 @@
   }
 }
 
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="skeleton"]::after {
+    animation: none !important;
+  }
+}
+
 @media print {
   body {
     background: white !important;
