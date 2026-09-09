@@ -520,6 +520,9 @@
   .ws-shell [data-slot="button"] {
     max-width: 100%;
     white-space: normal;
+  }
+}
+
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
