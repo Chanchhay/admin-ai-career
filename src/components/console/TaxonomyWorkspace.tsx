@@ -30,6 +30,7 @@ import type {
   JobCategoryResponse,
   SkillResponse,
 } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { getListDeleteErrorMessage } from "@/lib/list-delete-error";
 import { cn } from "@/lib/utils";
@@ -162,9 +163,10 @@ type ManagerProps<TItem extends TaxonomyItem, TForm extends Record<string, strin
 };
 
 export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
+  const tx = useWorkspaceTranslation();
   useSetPageHeading(
-    "Platform lists",
-    "Manage industries, job categories, and skills.",
+    tx("Platform lists"),
+    tx("Manage industries, job categories, and skills."),
   );
 
   const [tab, setTab] = useState<TaxonomyTab>(initialTab);
@@ -247,7 +249,7 @@ export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
   return (
     <div className="flex flex-col gap-3">
       <Panel tone="soft">
-        <p className="text-sm leading-6">{TAB_DESCRIPTION[tab]}</p>
+        <p className="text-sm leading-6">{tx(TAB_DESCRIPTION[tab])}</p>
       </Panel>
 
       <PillTabs
@@ -287,6 +289,7 @@ function CategoryManager<
   plural,
   icon,
 }: ManagerProps<TItem, TForm>) {
+  const tx = useWorkspaceTranslation();
   // A selected ID edits that entry; null opens the add form.
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<TForm>(emptyForm);
@@ -314,29 +317,29 @@ function CategoryManager<
 
   const submit = async () => {
     if (entryLevel === "Subcategory" && !form.parentId) {
-      toast.error("Choose a parent category for this subcategory.");
+      toast.error(tx("Choose a parent category for this subcategory."));
       return;
     }
     const missing = fields.find(
       (field) => field.required && !form[field.name]?.trim(),
     );
     if (missing) {
-      toast.error(`${missing.label} is required.`);
+      toast.error(tx("{label} is required.", { label: tx(missing.label) }));
       return;
     }
 
     try {
       if (editingId === null) {
         await onCreate(form);
-        toast.success(`${humanizeEnum(entryLabel)} created.`);
+        toast.success(tx("{label} created.", { label: humanizeEnum(tx(entryLabel)) }));
         setForm({ ...emptyForm, parentId: form.parentId });
       } else {
         await onUpdate(editingId, form);
-        toast.success("Changes saved.");
+        toast.success(tx("Changes saved."));
         resetToCreate();
       }
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to save this entry."));
+      toast.error(getApiErrorMessage(error, tx("Unable to save this entry.")));
     }
   };
 
@@ -348,7 +351,7 @@ function CategoryManager<
 
     try {
       await onDelete(item.id);
-      toast.success(`"${item.name}" deleted.`);
+      toast.success(tx("\"{name}\" deleted.", { name: item.name }));
       if (editingId === item.id) resetToCreate();
       setDeleteTarget(null);
     } catch (error) {
@@ -364,11 +367,11 @@ function CategoryManager<
   function itemActions(item: TItem) {
     return (
       <>
-        <Button variant="ghost" size="icon-sm" aria-label={`Edit ${item.name}`}
+        <Button variant="ghost" size="icon-sm" aria-label={tx("Edit {name}", { name: item.name })}
           disabled={isSaving || isDeleting} onClick={() => openEdit(item)}>
           <Pencil aria-hidden="true" className="size-4" />
         </Button>
-        <Button variant="ghost" size="icon-sm" aria-label={`Delete ${item.name}`}
+        <Button variant="ghost" size="icon-sm" aria-label={tx("Delete {name}", { name: item.name })}
           disabled={isSaving || isDeleting} onClick={() => {
             setDeleteError(null);
             setDeleteTarget(item);
@@ -386,18 +389,20 @@ function CategoryManager<
         <header className="mb-4 flex items-center gap-2">
           <FolderOpen aria-hidden="true" className="size-4" />
           <h2 className="text-base font-semibold tracking-tight">
-            {parents.length} {parents.length === 1 ? "parent category" : "parent categories"}
-            <span className="ml-2 text-xs font-normal text-ws-faint">{childCount} subcategories</span>
+            {tx(parents.length === 1 ? "{count} parent category" : "{count} parent categories", { count: parents.length })}
+            <span className="ml-2 text-xs font-normal text-ws-faint">
+              {tx(childCount === 1 ? "{count} subcategory" : "{count} subcategories", { count: childCount })}
+            </span>
           </h2>
         </header>
 
         {isLoading ? (
           <LoadingState rows={5} />
         ) : isError ? (
-          <ErrorState message={`Unable to load ${plural}.`} onRetry={refetch} />
+          <ErrorState message={tx("Unable to load {plural}.", { plural: tx(plural) })} onRetry={refetch} />
         ) : (items?.length ?? 0) === 0 ? (
           <p className="rounded-xl bg-ws-card-hover px-4 py-6 text-center text-sm text-ws-faint">
-            Nothing here yet. Add the first entry using the panel on the right.
+            {tx("Nothing here yet. Add the first entry using the panel on the right.")}
           </p>
         ) : (
           <div className="flex flex-col gap-3">
@@ -410,7 +415,7 @@ function CategoryManager<
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label={`${collapsed ? "Expand" : "Collapse"} ${parent.name}`}
+                      aria-label={tx(collapsed ? "Expand {name}" : "Collapse {name}", { name: parent.name })}
                       aria-expanded={!collapsed}
                       aria-controls={`list-group-${parent.id}`}
                       onClick={() => setCollapsedIds((current) => {
@@ -426,13 +431,13 @@ function CategoryManager<
                       <h3 className="truncate text-sm font-semibold max-sm:whitespace-normal max-sm:break-words">{parent.name}</h3>
                       <div className="mt-0.5 truncate text-xs text-ws-muted max-sm:whitespace-normal max-sm:break-words">{renderMeta(parent)}</div>
                       <p className="text-xs text-ws-faint">
-                        {children.length} {children.length === 1 ? "subcategory" : "subcategories"}
+                        {tx(children.length === 1 ? "{count} subcategory" : "{count} subcategories", { count: children.length })}
                       </p>
                     </div>
                     <Button
                       size="icon-sm"
                       variant="ghost"
-                      aria-label={`Add subcategory to ${parent.name}`}
+                      aria-label={tx("Add subcategory to {name}", { name: parent.name })}
                       disabled={isSaving || isDeleting}
                       onClick={() => {
                         setEditingId(null);
@@ -447,7 +452,7 @@ function CategoryManager<
                   <div id={`list-group-${parent.id}`} hidden={collapsed}>
                     {children.length === 0 ? (
                       <p className="px-5 py-5 text-sm text-ws-faint">
-                        No subcategories yet. Use the + button to add one.
+                        {tx("No subcategories yet. Use the + button to add one.")}
                       </p>
                     ) : (
                       <ul className="divide-y divide-ws-line">
@@ -478,12 +483,12 @@ function CategoryManager<
       <Panel className="lg:sticky lg:top-5">
         <header className="mb-1">
           <h2 className="text-base font-semibold tracking-tight">
-            {editingId === null ? `Add ${entryLabel}` : `Edit ${entryLabel}`}
+            {tx(editingId === null ? "Add {label}" : "Edit {label}", { label: tx(entryLabel) })}
           </h2>
           <p className="mt-1 text-xs text-ws-faint">
             {editingId === null
-              ? ADD_HINT[singular] ?? `Define how ${singular} entries are grouped.`
-              : "Update this entry — the row updates as soon as you save."}
+              ? (ADD_HINT[singular] ? tx(ADD_HINT[singular]) : tx("Define how {label} entries are grouped.", { label: tx(singular) }))
+              : tx("Update this entry — the row updates as soon as you save.")}
           </p>
         </header>
 
@@ -507,18 +512,18 @@ function CategoryManager<
           ) : null}
           {entryLevel === "Subcategory" ? (
             <div className="flex flex-col gap-1.5">
-              <label htmlFor={`parent-${singular.replaceAll(" ", "-")}`} className="text-xs font-medium text-ws-muted">Parent category</label>
+              <label htmlFor={`parent-${singular.replaceAll(" ", "-")}`} className="text-xs font-medium text-ws-muted">{tx("Parent category")}</label>
               <Select
                 id={`parent-${singular.replaceAll(" ", "-")}`}
                 value={form.parentId ?? ""}
                 onChange={(value) => set("parentId", value)}
                 options={[
-                  { value: "", label: "Choose a parent category" },
+                  { value: "", label: tx("Choose a parent category") },
                   ...parents.map((parent) => ({ value: parent.id, label: parent.name })),
                 ]}
                 className="w-full"
               />
-              {parents.length === 0 ? <p className="text-xs text-ws-muted">Add a parent category first.</p> : null}
+              {parents.length === 0 ? <p className="text-xs text-ws-muted">{tx("Add a parent category first.")}</p> : null}
             </div>
           ) : null}
           {fields.map((field) => (
@@ -526,26 +531,26 @@ function CategoryManager<
               key={field.name}
               className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted"
             >
-              {field.label}
+              {tx(field.label)}
               {field.kind === "textarea" ? (
                 <Textarea
                   value={form[field.name] ?? ""}
                   onChange={(event) => set(field.name, event.target.value)}
-                  placeholder={field.placeholder}
+                  placeholder={field.placeholder ? tx(field.placeholder) : undefined}
                   className="min-h-24"
                 />
               ) : field.kind === "select" ? (
                 <Select
                   value={form[field.name] ?? ""}
                   onChange={(value) => set(field.name, value)}
-                  options={field.options ?? []}
+                  options={(field.options ?? []).map((option) => ({ ...option, label: tx(option.label) }))}
                   className="w-full"
                 />
               ) : (
                 <Input
                   value={form[field.name] ?? ""}
                   onChange={(event) => set(field.name, event.target.value)}
-                  placeholder={field.placeholder}
+                  placeholder={field.placeholder ? tx(field.placeholder) : undefined}
                 />
               )}
             </label>
@@ -554,14 +559,14 @@ function CategoryManager<
           <div className="mt-2 flex items-center gap-2">
             <Button type="submit" className="flex-1" disabled={isSaving}>
               {isSaving
-                ? "Saving…"
+                ? tx("Saving…")
                 : editingId === null
-                  ? `Add ${entryLabel}`
-                  : "Save changes"}
+                  ? tx("Add {label}", { label: tx(entryLabel) })
+                  : tx("Save changes")}
             </Button>
             {editingId !== null ? (
               <Button type="button" variant="ghost" onClick={resetToCreate}>
-                Cancel
+                {tx("Cancel")}
               </Button>
             ) : null}
           </div>
@@ -576,15 +581,15 @@ function CategoryManager<
             setDeleteError(null);
           }
         }}
-        title={`Delete ${deleteTarget?.parentId ? "subcategory" : "parent category"}?`}
-        description="This entry will be permanently removed from the list. This cannot be undone."
+        title={tx(deleteTarget?.parentId ? "Delete subcategory?" : "Delete parent category?")}
+        description={tx("This entry will be permanently removed from the list. This cannot be undone.")}
       >
         <div className="my-5 flex items-center gap-3 rounded-lg border border-ws-line bg-ws-card px-4 py-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
             <Trash2 aria-hidden="true" className="size-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-xs text-ws-muted">{humanizeEnum(singular)}</p>
+            <p className="text-xs text-ws-muted">{humanizeEnum(tx(singular))}</p>
             <p className="mt-0.5 text-sm font-semibold break-words text-ws-fg">
               {deleteTarget?.name}
             </p>
@@ -610,7 +615,7 @@ function CategoryManager<
               setDeleteError(null);
             }}
           >
-            Cancel
+            {tx("Cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -622,7 +627,7 @@ function CategoryManager<
             ) : (
               <Trash2 aria-hidden="true" className="size-4" />
             )}
-            {isDeleting ? "Deleting…" : "Delete"}
+            {isDeleting ? tx("Deleting…") : tx("Delete")}
           </Button>
         </div>
       </Dialog>

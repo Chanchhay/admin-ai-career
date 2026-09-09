@@ -52,12 +52,12 @@ const EMPTY: CandidateApplicationListItem[] = [];
 
 /** Shared by the header and the body so the columns cannot drift apart. */
 const COLUMNS = [
-  { key: "candidate", label: "Candidate", className: "w-[23%]" },
-  { key: "job", label: "Applied for", className: "w-[17%]" },
+  { key: "candidate", label: "Candidate", className: "w-[22%]" },
+  { key: "job", label: "Applied for", className: "w-[16%]" },
   { key: "ai", label: "AI interview", className: "w-[14%]" },
   { key: "resume", label: "Résumé", className: "w-[9%]" },
-  { key: "applied", label: "Applied", className: "w-[16%]" },
-  { key: "status", label: "Status", className: "w-[13%] text-right" },
+  { key: "applied", label: "Applied", className: "w-[15%]" },
+  { key: "status", label: "Status", className: "w-[16%] text-center" },
   { key: "actions", label: "", className: "w-[8%]" },
 ] as const;
 
@@ -294,7 +294,7 @@ function CandidateRow({ item }: { item: CandidateApplicationListItem }) {
       </td>
 
       <td className="px-4 py-3">
-        <div className="flex justify-end">
+        <div className="flex justify-center">
           {item.review ? (
             <ReviewStatusChip status={item.review.reviewStatus} />
           ) : null}

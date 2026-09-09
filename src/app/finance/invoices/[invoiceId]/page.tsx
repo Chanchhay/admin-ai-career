@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Panel, PanelHeader } from "@/components/workspace/primitives";
 import type { InvoiceResponse } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDate, formatDateTime, humanizeEnum, orDash } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
@@ -35,6 +36,7 @@ import {
  * admin tool.
  */
 export default function InvoiceDetailPage() {
+  const tx = useWorkspaceTranslation();
   const { invoiceId } = useParams<{ invoiceId: string }>();
 
   const { data: invoice, isLoading, isError, refetch } = useGetInvoiceQuery(
@@ -42,11 +44,11 @@ export default function InvoiceDetailPage() {
     { skip: !isUuid(invoiceId) },
   );
 
-  useSetPageHeading(invoice?.invoiceNo ?? "Invoice");
+  useSetPageHeading(invoice?.invoiceNo ?? tx("Invoice"));
 
   if (isLoading) return <LoadingState rows={6} />;
   if (isError || !invoice) {
-    return <ErrorState message="Unable to load this invoice." onRetry={refetch} />;
+    return <ErrorState message={tx("Unable to load this invoice.")} onRetry={refetch} />;
   }
 
   return (
@@ -54,7 +56,7 @@ export default function InvoiceDetailPage() {
       <div className="print-hide flex flex-wrap items-center gap-3">
         <Link
           href="/finance"
-          aria-label="Back to finance"
+          aria-label={tx("Back to finance")}
           className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
         >
           <ArrowLeft aria-hidden="true" className="size-4" />
@@ -72,7 +74,7 @@ export default function InvoiceDetailPage() {
         <InvoiceStatusChip status={invoice.status} />
 
         <Button variant="outline" onClick={() => window.print()}>
-          <Printer aria-hidden="true" /> Print
+          <Printer aria-hidden="true" /> {tx("Print")}
         </Button>
       </div>
 
@@ -91,6 +93,7 @@ export default function InvoiceDetailPage() {
 /* --------------------------------------------------------------- sheet --- */
 
 function InvoiceSheet({ invoice }: { invoice: InvoiceResponse }) {
+  const tx = useWorkspaceTranslation();
   const paid = invoice.paidAmount > 0;
 
   return (
@@ -107,7 +110,7 @@ function InvoiceSheet({ invoice }: { invoice: InvoiceResponse }) {
 
         <div className="text-right">
           <h1 className="text-2xl font-semibold tracking-tight text-ws-fg">
-            Invoice
+            {tx("Invoice")}
           </h1>
           <p className="mt-1 font-medium tabular-nums text-ws-fg">
             {invoice.invoiceNo}
@@ -120,24 +123,24 @@ function InvoiceSheet({ invoice }: { invoice: InvoiceResponse }) {
 
       <div className="mt-6 grid gap-4 border-t border-ws-line pt-5 sm:grid-cols-2">
         <div>
-          <p className="text-xs text-ws-faint">Billed to</p>
+          <p className="text-xs text-ws-faint">{tx("Billed to")}</p>
           <p className="mt-1 font-medium text-ws-fg">
             {orDash(invoice.companyName)}
           </p>
         </div>
 
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:justify-self-end">
-          <dt className="text-ws-faint">Issued</dt>
+          <dt className="text-ws-faint">{tx("Issued")}</dt>
           <dd className="text-right tabular-nums text-ws-fg">
-            {invoice.issuedAt ? formatDate(invoice.issuedAt) : "Not issued"}
+            {invoice.issuedAt ? formatDate(invoice.issuedAt) : tx("Not issued")}
           </dd>
-          <dt className="text-ws-faint">Due</dt>
+          <dt className="text-ws-faint">{tx("Due")}</dt>
           <dd className="text-right tabular-nums text-ws-fg">
             {invoice.dueAt ? formatDate(invoice.dueAt) : "—"}
           </dd>
           {invoice.paidAt ? (
             <>
-              <dt className="text-ws-faint">Paid</dt>
+              <dt className="text-ws-faint">{tx("Paid")}</dt>
               <dd className="text-right tabular-nums text-ws-fg">
                 {formatDate(invoice.paidAt)}
               </dd>
@@ -150,25 +153,25 @@ function InvoiceSheet({ invoice }: { invoice: InvoiceResponse }) {
         <thead>
           <tr className="border-b border-ws-line">
             <th scope="col" className="py-2 text-xs font-semibold text-ws-muted">
-              Description
+              {tx("Description")}
             </th>
             <th
               scope="col"
               className="w-20 py-2 text-right text-xs font-semibold text-ws-muted"
             >
-              Qty
+              {tx("Qty")}
             </th>
             <th
               scope="col"
               className="w-32 py-2 text-right text-xs font-semibold text-ws-muted"
             >
-              Unit
+              {tx("Unit")}
             </th>
             <th
               scope="col"
               className="w-32 py-2 text-right text-xs font-semibold text-ws-muted"
             >
-              Amount
+              {tx("Amount")}
             </th>
           </tr>
         </thead>
@@ -177,7 +180,7 @@ function InvoiceSheet({ invoice }: { invoice: InvoiceResponse }) {
           {invoice.items.length === 0 ? (
             <tr>
               <td colSpan={4} className="py-6 text-center text-sm text-ws-faint">
-                This invoice has no lines.
+                {tx("This invoice has no lines.")}
               </td>
             </tr>
           ) : (
@@ -201,18 +204,18 @@ function InvoiceSheet({ invoice }: { invoice: InvoiceResponse }) {
 
       <div className="mt-5 flex justify-end">
         <dl className="w-full max-w-xs text-sm">
-          <Total label="Subtotal" value={formatMoney(invoice.subtotalAmount, invoice.currency)} />
-          <Total label="Tax" value={formatMoney(invoice.taxAmount, invoice.currency)} />
+          <Total label={tx("Subtotal")} value={formatMoney(invoice.subtotalAmount, invoice.currency)} />
+          <Total label={tx("Tax")} value={formatMoney(invoice.taxAmount, invoice.currency)} />
           <Total
-            label="Total"
+            label={tx("Total")}
             value={formatMoney(invoice.totalAmount, invoice.currency)}
             strong
           />
           {paid ? (
-            <Total label="Paid" value={`− ${formatMoney(invoice.paidAmount, invoice.currency)}`} />
+            <Total label={tx("Paid")} value={`− ${formatMoney(invoice.paidAmount, invoice.currency)}`} />
           ) : null}
           <Total
-            label="Outstanding"
+            label={tx("Outstanding")}
             value={formatMoney(invoice.outstandingAmount, invoice.currency)}
             strong
           />
@@ -226,8 +229,7 @@ function InvoiceSheet({ invoice }: { invoice: InvoiceResponse }) {
       ) : null}
 
       <p className="mt-6 text-xs text-ws-faint">
-        Commission on placements made through the platform. Questions about this
-        invoice go to the moderator who issued it.
+        {tx("Commission on placements made through the platform. Questions about this invoice go to the moderator who issued it.")}
       </p>
     </article>
   );
@@ -263,6 +265,7 @@ function Total({
 /* ------------------------------------------------------------- actions --- */
 
 function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
+  const tx = useWorkspaceTranslation();
   const [issueInvoice, issueState] = useIssueInvoiceMutation();
   const [cancelInvoice, cancelState] = useCancelInvoiceMutation();
   const busy = issueState.isLoading || cancelState.isLoading;
@@ -274,35 +277,35 @@ function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
     try {
       if (action === "issue") {
         await issueInvoice(invoice.id).unwrap();
-        toast.success("Invoice issued.");
+        toast.success(tx("Invoice issued."));
       } else {
         await cancelInvoice(invoice.id).unwrap();
-        toast.success("Invoice cancelled.");
+        toast.success(tx("Invoice cancelled."));
       }
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to update this invoice."));
+      toast.error(getApiErrorMessage(error, tx("Unable to update this invoice.")));
     }
   }
 
   return (
     <Panel variant="outlined">
-      <PanelHeader title="Status" />
+      <PanelHeader title={tx("Status")} />
 
       <p className="text-sm leading-6 text-ws-muted">
-        {draft
+        {tx(draft
           ? "A draft is private. Issuing it is what the recruiter sees, and starts the payment clock."
           : invoice.status === "ISSUED"
             ? "Issued and awaiting payment."
             : invoice.status === "PAID"
               ? "Settled in full."
-              : "Cancelled. Its commissions returned to the unbilled pool."}
+              : "Cancelled. Its commissions returned to the unbilled pool.")}
       </p>
 
       {settled ? null : (
         <div className="mt-3 flex flex-wrap gap-2">
           {draft ? (
             <Button size="sm" disabled={busy} onClick={() => void run("issue")}>
-              <Send aria-hidden="true" /> Issue invoice
+              <Send aria-hidden="true" /> {tx("Issue invoice")}
             </Button>
           ) : null}
           <Button
@@ -311,7 +314,7 @@ function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
             disabled={busy}
             onClick={() => void run("cancel")}
           >
-            <X aria-hidden="true" /> Cancel
+            <X aria-hidden="true" /> {tx("Cancel")}
           </Button>
         </div>
       )}
@@ -322,6 +325,7 @@ function InvoiceActions({ invoice }: { invoice: InvoiceResponse }) {
 /* ------------------------------------------------------------ payments --- */
 
 function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
+  const tx = useWorkspaceTranslation();
   const [recordPayment, { isLoading }] = useRecordPaymentMutation();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("");
@@ -335,7 +339,7 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
     const value = Number(amount);
 
     if (!Number.isFinite(value) || value <= 0) {
-      toast.error("Enter the amount received.");
+      toast.error(tx("Enter the amount received."));
       return;
     }
 
@@ -349,22 +353,22 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
           note: note.trim() || undefined,
         },
       }).unwrap();
-      toast.success("Payment recorded.");
+      toast.success(tx("Payment recorded."));
       setAmount("");
       setMethod("");
       setReference("");
       setNote("");
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to record the payment."));
+      toast.error(getApiErrorMessage(error, tx("Unable to record the payment.")));
     }
   }
 
   return (
     <Panel variant="outlined">
-      <PanelHeader title={`Payments (${payments.length})`} />
+      <PanelHeader title={tx("Payments ({count})", { count: payments.length })} />
 
       {payments.length === 0 ? (
-        <p className="text-sm text-ws-faint">Nothing received yet.</p>
+        <p className="text-sm text-ws-faint">{tx("Nothing received yet.")}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {payments.map((payment) => (
@@ -393,7 +397,7 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
       {open ? (
         <div className="mt-3 flex flex-col gap-2 border-t border-ws-line pt-3">
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            Amount received ({invoice.currency})
+            {tx("Amount received ({currency})", { currency: invoice.currency })}
             <Input
               type="number"
               min="0"
@@ -406,15 +410,15 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
 
           <div className="grid gap-2 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-              Method
+              {tx("Method")}
               <Input
                 value={method}
                 onChange={(event) => setMethod(event.target.value)}
-                placeholder="Bank transfer"
+                placeholder={tx("Bank transfer")}
               />
             </label>
             <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-              Reference
+              {tx("Reference")}
               <Input
                 value={reference}
                 onChange={(event) => setReference(event.target.value)}
@@ -424,7 +428,7 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
           </div>
 
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            Note
+            {tx("Note")}
             <Textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
@@ -434,7 +438,7 @@ function PaymentsPanel({ invoice }: { invoice: InvoiceResponse }) {
 
           <div>
             <Button size="sm" disabled={isLoading} onClick={() => void submit()}>
-              {isLoading ? "Recording…" : "Record payment"}
+              {isLoading ? tx("Recording…") : tx("Record payment")}
             </Button>
           </div>
         </div>

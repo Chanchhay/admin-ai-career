@@ -1,14 +1,18 @@
-import { Inter, Noto_Sans_Khmer } from "next/font/google";
+import localFont from "next/font/local";
 
-export const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-export const notoSansKhmer = Noto_Sans_Khmer({
-  subsets: ["khmer"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-khmer",
+export const googleSans = localFont({
+  src: [
+    {
+      path: "./font/GoogleSans-VariableFont_GRAD,opsz,wght.ttf",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "./font/GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf",
+      weight: "100 900",
+      style: "italic",
+    },
+  ],
+  variable: "--font-google-sans",
   display: "swap",
 });

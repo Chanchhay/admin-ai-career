@@ -18,6 +18,7 @@ import {
   Panel,
   PanelHeader,
 } from "@/components/workspace/primitives";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDateTime, humanizeEnum, orDash } from "@/lib/format";
 import { isUuid } from "@/lib/uuid";
@@ -27,6 +28,7 @@ import {
 } from "@/services/moderationApi";
 
 export default function CompanyJobDetailPage() {
+  const tx = useWorkspaceTranslation();
   const { companyId, jobId } = useParams<{
     companyId: string;
     jobId: string;
@@ -36,11 +38,11 @@ export default function CompanyJobDetailPage() {
     skip: !isUuid(jobId),
   });
 
-  useSetPageHeading(job?.title ?? "Job");
+  useSetPageHeading(job?.title ?? tx("Job"));
 
   if (isLoading) return <LoadingState rows={6} />;
   if (isError || !job) {
-    return <ErrorState message="Unable to load this job." onRetry={refetch} />;
+    return <ErrorState message={tx("Unable to load this job.")} onRetry={refetch} />;
   }
 
   const sections = [...(job.sections ?? [])].sort(
@@ -52,7 +54,7 @@ export default function CompanyJobDetailPage() {
       <div className="flex flex-wrap items-center gap-3">
         <Link
           href={`/companies/${companyId}`}
-          aria-label="Back to the company"
+          aria-label={tx("Back to the company")}
           className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
         >
           <ArrowLeft aria-hidden="true" className="size-4" />
@@ -83,7 +85,7 @@ export default function CompanyJobDetailPage() {
           />
 
           <Panel variant="outlined">
-            <PanelHeader title="Description" />
+            <PanelHeader title={tx("Description")} />
             <p className="text-sm leading-6 whitespace-pre-wrap text-ws-muted">
               {orDash(job.description)}
             </p>
@@ -107,21 +109,21 @@ export default function CompanyJobDetailPage() {
 
         <aside className="flex flex-col gap-4">
           <Panel variant="outlined">
-            <PanelHeader title="Details" />
+            <PanelHeader title={tx("Details")} />
             <dl className="divide-y divide-ws-line">
-              <Row label="Location" value={job.location} />
-              <Row label="Work mode" value={humanizeEnum(job.workMode)} />
-              <Row label="Job type" value={humanizeEnum(job.jobType)} />
+              <Row label={tx("Location")} value={job.location} />
+              <Row label={tx("Work mode")} value={humanizeEnum(job.workMode)} />
+              <Row label={tx("Job type")} value={humanizeEnum(job.jobType)} />
               <Row
-                label="Experience"
+                label={tx("Experience")}
                 value={humanizeEnum(job.experienceLevel)}
               />
               <Row
-                label="Published"
+                label={tx("Published")}
                 value={job.publishedAt ? formatDateTime(job.publishedAt) : ""}
               />
               <Row
-                label="Expires"
+                label={tx("Expires")}
                 value={job.expiredAt ? formatDateTime(job.expiredAt) : ""}
               />
             </dl>
@@ -129,7 +131,7 @@ export default function CompanyJobDetailPage() {
 
           {job.skills.length > 0 ? (
             <Panel variant="outlined">
-              <PanelHeader title={`Skills (${job.skills.length})`} />
+              <PanelHeader title={tx("Skills ({count})", { count: job.skills.length })} />
               <div className="flex flex-wrap gap-1.5">
                 {job.skills.map((skill) => (
                   <GhostChip key={skill.id}>{skill.skillName}</GhostChip>
@@ -160,6 +162,7 @@ function JobStatusPanel({
   companyId: string;
   status: string;
 }) {
+  const tx = useWorkspaceTranslation();
   const [moderate, { isLoading: busy }] = useModerateJobMutation();
   const [panel, setPanel] = useState<"pause" | "close" | null>(null);
   const [note, setNote] = useState("");
@@ -176,7 +179,7 @@ function JobStatusPanel({
     // Taking something down owes the recruiter a reason; putting it back does
     // not, which is the rule the company decisions follow too.
     if (action !== "resume" && !note.trim()) {
-      toast.error("Explain the decision in the note first.");
+      toast.error(tx("Explain the decision in the note first."));
       return;
     }
 
@@ -197,16 +200,16 @@ function JobStatusPanel({
 
   return (
     <Panel variant="outlined">
-      <PanelHeader title="Visibility to candidates" />
+      <PanelHeader title={tx("Visibility to candidates")} />
 
       <p className="text-sm leading-6 text-ws-muted">
-        {live
+        {tx(live
           ? "Published — candidates can find and apply to this job."
           : paused
             ? "Paused — candidates cannot see this job. Resuming puts it back."
             : closed
               ? "Closed — this job is finished. Only the recruiter can post a replacement."
-              : "Not published. The recruiter publishes their own jobs; there is nothing to take down yet."}
+              : "Not published. The recruiter publishes their own jobs; there is nothing to take down yet.")}
       </p>
 
       {live || paused || !closed ? (
@@ -218,17 +221,17 @@ function JobStatusPanel({
               disabled={busy}
               onClick={() => setPanel(panel === "pause" ? null : "pause")}
             >
-              <Pause aria-hidden="true" /> Pause
+              <Pause aria-hidden="true" /> {tx("Pause")}
             </Button>
           ) : paused ? (
             <Button
               size="sm"
               disabled={busy}
               onClick={() =>
-                void run("resume", "Job is live again.", "Unable to resume this job.")
+                void run("resume", tx("Job is live again."), tx("Unable to resume this job."))
               }
             >
-              <Play aria-hidden="true" /> Resume
+              <Play aria-hidden="true" /> {tx("Resume")}
             </Button>
           ) : null}
 
@@ -239,7 +242,7 @@ function JobStatusPanel({
               disabled={busy}
               onClick={() => setPanel(panel === "close" ? null : "close")}
             >
-              <X aria-hidden="true" /> Close
+              <X aria-hidden="true" /> {tx("Close")}
             </Button>
           )}
         </div>
@@ -248,14 +251,14 @@ function JobStatusPanel({
       {panel ? (
         <div className="mt-3 border-t border-ws-line pt-3">
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            {panel === "pause"
+            {tx(panel === "pause"
               ? "Why is this job being taken down?"
-              : "Why is this job being closed?"}
+              : "Why is this job being closed?")}
             <Textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
               rows={2}
-              placeholder="The recruiter sees this."
+              placeholder={tx("The recruiter sees this.")}
             />
           </label>
 
@@ -267,21 +270,21 @@ function JobStatusPanel({
               onClick={() =>
                 void run(
                   panel,
-                  panel === "pause" ? "Job paused." : "Job closed.",
+                  panel === "pause" ? tx("Job paused.") : tx("Job closed."),
                   panel === "pause"
-                    ? "Unable to pause this job."
-                    : "Unable to close this job.",
+                    ? tx("Unable to pause this job.")
+                    : tx("Unable to close this job."),
                 )
               }
             >
-              {panel === "pause" ? "Pause job" : "Close job"}
+              {panel === "pause" ? tx("Pause job") : tx("Close job")}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => setPanel(null)}>
-              Cancel
+              {tx("Cancel")}
             </Button>
             {panel === "close" ? (
               <span className="text-xs text-ws-faint">
-                Closing cannot be undone from the console.
+                {tx("Closing cannot be undone from the console.")}
               </span>
             ) : null}
           </div>

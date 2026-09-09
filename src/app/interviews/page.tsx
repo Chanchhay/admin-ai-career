@@ -35,6 +35,8 @@ import type {
   HumanInterviewResponse,
   InterviewResult,
 } from "@/contracts";
+import { useLocale } from "@/i18n/LocaleProvider";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDateTime, humanizeEnum, orDash, toInstant } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -85,11 +87,11 @@ function parseDateKey(isoString: string): string {
   return toLocalDateKey(d);
 }
 
-function formatDisplayDate(dateKey: string): string {
+function formatDisplayDate(dateKey: string, locale: string): string {
   const [y, m, d] = dateKey.split("-").map(Number);
   if (!y || !m || !d) return dateKey;
   const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(locale === "km" ? "km-KH" : "en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -97,10 +99,10 @@ function formatDisplayDate(dateKey: string): string {
   });
 }
 
-function formatTimeOnly(isoString: string): string {
+function formatTimeOnly(isoString: string, locale: string): string {
   const d = new Date(isoString);
   if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleTimeString("en-US", {
+  return d.toLocaleTimeString(locale === "km" ? "km-KH" : "en-US", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
@@ -145,7 +147,9 @@ function ApplicationInterviewCollector({
 /* ---------------------------------------------------- main page --- */
 
 export default function InterviewSchedulePage() {
-  useSetPageHeading("Interview schedule");
+  const tx = useWorkspaceTranslation();
+  const { locale } = useLocale();
+  useSetPageHeading(tx("Interview schedule"));
 
   const today = useMemo(() => new Date(), []);
   const todayKey = useMemo(() => toLocalDateKey(today), [today]);
@@ -303,11 +307,11 @@ export default function InterviewSchedulePage() {
   // Schedule new interview
   const handleScheduleSubmit = async () => {
     if (!selectedApplicationId) {
-      toast.error("Please select a candidate application.");
+      toast.error(tx("Please select a candidate application."));
       return;
     }
     if (!scheduleDateTime || !scheduleMeetingUrl.trim()) {
-      toast.error("Both a date/time and a meeting link are required.");
+      toast.error(tx("Both a date/time and a meeting link are required."));
       return;
     }
 
@@ -320,11 +324,11 @@ export default function InterviewSchedulePage() {
         },
       }).unwrap();
 
-      toast.success("Interview scheduled successfully.");
+      toast.success(tx("Interview scheduled successfully."));
       setIsScheduleModalOpen(false);
       setScheduleMeetingUrl("");
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to schedule the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to schedule the interview.")));
     }
   };
 
@@ -344,7 +348,7 @@ export default function InterviewSchedulePage() {
   const handleRescheduleSubmit = async () => {
     if (!reschedulingInterview) return;
     if (!rescheduleDateTime || !rescheduleMeetingUrl.trim()) {
-      toast.error("Both date and meeting link are required.");
+      toast.error(tx("Both date and meeting link are required."));
       return;
     }
 
@@ -358,10 +362,10 @@ export default function InterviewSchedulePage() {
         },
       }).unwrap();
 
-      toast.success("Interview rescheduled.");
+      toast.success(tx("Interview rescheduled."));
       setReschedulingInterview(null);
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to reschedule the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to reschedule the interview.")));
     }
   };
 
@@ -372,9 +376,9 @@ export default function InterviewSchedulePage() {
         applicationId: interview.applicationId,
         body: { result },
       }).unwrap();
-      toast.success(`Interview marked ${humanizeEnum(result).toLowerCase()}.`);
+      toast.success(tx("Interview marked {result}.", { result: humanizeEnum(result).toLowerCase() }));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to complete the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to complete the interview.")));
     }
   };
 
@@ -384,9 +388,9 @@ export default function InterviewSchedulePage() {
         interviewId: interview.id,
         applicationId: interview.applicationId,
       }).unwrap();
-      toast.success("Interview cancelled.");
+      toast.success(tx("Interview cancelled."));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to cancel the interview."));
+      toast.error(getApiErrorMessage(error, tx("Unable to cancel the interview.")));
     }
   };
 
@@ -398,7 +402,7 @@ export default function InterviewSchedulePage() {
 
   if (isAppsLoading) return <LoadingState rows={6} />;
   if (isAppsError) {
-    return <ErrorState message="Unable to load interview schedule." onRetry={refetch} />;
+    return <ErrorState message={tx("Unable to load interview schedule.")} onRetry={refetch} />;
   }
 
   return (
@@ -418,37 +422,37 @@ export default function InterviewSchedulePage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-2xl border border-ws-line/70 bg-ws-panel p-4 shadow-xs">
           <p className="text-xs font-semibold uppercase tracking-wider text-ws-faint">
-            Upcoming interviews
+            {tx("Upcoming interviews")}
           </p>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold tracking-tight text-ws-fg">
               {activeCount}
             </span>
-            <span className="text-xs text-ws-muted">active</span>
+            <span className="text-xs text-ws-muted">{tx("active")}</span>
           </div>
         </div>
 
         <div className="rounded-2xl border border-ws-line/70 bg-ws-panel p-4 shadow-xs">
           <p className="text-xs font-semibold uppercase tracking-wider text-ws-faint">
-            Completed interviews
+            {tx("Completed interviews")}
           </p>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold tracking-tight text-ws-fg">
               {completedCount}
             </span>
-            <span className="text-xs text-emerald-600 dark:text-emerald-400">finished</span>
+            <span className="text-xs text-emerald-600 dark:text-emerald-400">{tx("finished")}</span>
           </div>
         </div>
 
         <div className="rounded-2xl border border-ws-line/70 bg-ws-panel p-4 shadow-xs">
           <p className="text-xs font-semibold uppercase tracking-wider text-ws-faint">
-            Total candidate queue
+            {tx("Total candidate queue")}
           </p>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold tracking-tight text-ws-fg">
               {applicationsList.length}
             </span>
-            <span className="text-xs text-ws-muted">applications</span>
+            <span className="text-xs text-ws-muted">{tx("applications")}</span>
           </div>
         </div>
 
@@ -464,7 +468,7 @@ export default function InterviewSchedulePage() {
             className="w-full h-11 text-sm font-semibold"
           >
             <CalendarPlus aria-hidden="true" className="size-4" />
-            Schedule interview
+            {tx("Schedule interview")}
           </Button>
         </div>
       </div>
@@ -484,7 +488,7 @@ export default function InterviewSchedulePage() {
                 type="search"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
-                placeholder="Search candidate or job…"
+                placeholder={tx("Search candidate or job…")}
                 className="pl-9 text-xs"
               />
             </div>
@@ -501,7 +505,7 @@ export default function InterviewSchedulePage() {
                     : "text-ws-muted hover:text-ws-fg",
                 )}
               >
-                All
+                {tx("All")}
               </button>
               <button
                 type="button"
@@ -513,7 +517,7 @@ export default function InterviewSchedulePage() {
                     : "text-ws-muted hover:text-ws-fg",
                 )}
               >
-                Scheduled
+                {tx("Scheduled")}
               </button>
               <button
                 type="button"
@@ -525,7 +529,7 @@ export default function InterviewSchedulePage() {
                     : "text-ws-muted hover:text-ws-fg",
                 )}
               >
-                Completed
+                {tx("Completed")}
               </button>
             </div>
           </div>
@@ -543,7 +547,7 @@ export default function InterviewSchedulePage() {
               )}
             >
               <CalendarDays aria-hidden="true" className="size-3.5" />
-              Calendar view
+              {tx("Calendar view")}
             </button>
             <button
               type="button"
@@ -556,7 +560,7 @@ export default function InterviewSchedulePage() {
               )}
             >
               <List aria-hidden="true" className="size-3.5" />
-              Agenda list ({filteredInterviews.length})
+              {tx("Agenda list ({count})", { count: filteredInterviews.length })}
             </button>
           </div>
         </div>
@@ -570,10 +574,10 @@ export default function InterviewSchedulePage() {
               <div className="mb-4 flex items-center justify-between max-lg:flex-wrap max-lg:gap-3">
                 <div>
                   <h3 className="text-lg font-bold tracking-tight text-ws-fg">
-                    {MONTH_NAMES[currentMonth]} {currentYear}
+                    {tx(MONTH_NAMES[currentMonth])} {currentYear}
                   </h3>
                   <p className="text-xs text-ws-faint">
-                    Click any day to view scheduled interviews and candidate details
+                    {tx("Click any day to view scheduled interviews and candidate details")}
                   </p>
                 </div>
 
@@ -584,11 +588,11 @@ export default function InterviewSchedulePage() {
                     onClick={goToToday}
                     className="h-8 px-2.5 text-xs font-medium"
                   >
-                    Today
+                    {tx("Today")}
                   </Button>
                   <button
                     type="button"
-                    aria-label="Previous month"
+                    aria-label={tx("Previous month")}
                     onClick={prevMonth}
                     className="flex size-8 items-center justify-center rounded-lg text-ws-muted transition-colors hover:bg-ws-card hover:text-ws-fg"
                   >
@@ -596,7 +600,7 @@ export default function InterviewSchedulePage() {
                   </button>
                   <button
                     type="button"
-                    aria-label="Next month"
+                    aria-label={tx("Next month")}
                     onClick={nextMonth}
                     className="flex size-8 items-center justify-center rounded-lg text-ws-muted transition-colors hover:bg-ws-card hover:text-ws-fg"
                   >
@@ -612,7 +616,7 @@ export default function InterviewSchedulePage() {
                     key={day}
                     className="py-1 text-xs font-bold uppercase tracking-wider text-ws-faint"
                   >
-                    {day}
+                    {tx(day)}
                   </div>
                 ))}
               </div>
@@ -678,7 +682,7 @@ export default function InterviewSchedulePage() {
                                   : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
                             )}
                           >
-                            {cell.interviews[0].candidateHeadline || "Candidate"}
+                            {cell.interviews[0].candidateHeadline || tx("Candidate")}
                           </span>
                           {cell.interviews.length > 1 ? (
                             <span
@@ -687,7 +691,7 @@ export default function InterviewSchedulePage() {
                                 cell.isSelected ? "text-white/80" : "text-ws-faint",
                               )}
                             >
-                              +{cell.interviews.length - 1} more
+                              {tx("+{count} more", { count: cell.interviews.length - 1 })}
                             </span>
                           ) : null}
                         </div>
@@ -708,11 +712,10 @@ export default function InterviewSchedulePage() {
                     <CalendarIcon aria-hidden="true" className="size-4 text-primary" />
                     <div>
                       <h4 className="text-sm font-bold text-ws-fg">
-                        {formatDisplayDate(selectedDateKey)}
+                        {formatDisplayDate(selectedDateKey, locale)}
                       </h4>
                       <p className="text-[11px] text-ws-faint">
-                        {selectedDayInterviews.length}{" "}
-                        {selectedDayInterviews.length === 1 ? "interview" : "interviews"} scheduled
+                        {tx(selectedDayInterviews.length === 1 ? "{count} interview scheduled" : "{count} interviews scheduled", { count: selectedDayInterviews.length })}
                       </p>
                     </div>
                   </div>
@@ -730,7 +733,7 @@ export default function InterviewSchedulePage() {
                     className="h-8 gap-1 text-xs"
                   >
                     <CalendarPlus aria-hidden="true" className="size-3.5" />
-                    Add
+                    {tx("Add")}
                   </Button>
                 </div>
 
@@ -758,7 +761,7 @@ export default function InterviewSchedulePage() {
                               </Link>
                               {interview.jobTitle ? (
                                 <p className="truncate text-[11px] text-ws-muted">
-                                  Role: {interview.jobTitle}
+                                  {tx("Role: {job}", { job: interview.jobTitle })}
                                 </p>
                               ) : null}
                             </div>
@@ -772,7 +775,7 @@ export default function InterviewSchedulePage() {
 
                         <div className="mt-3 flex items-center gap-2 text-xs font-medium text-ws-muted">
                           <span className="font-semibold text-primary">
-                            {formatTimeOnly(interview.scheduledAt)}
+                            {formatTimeOnly(interview.scheduledAt, locale)}
                           </span>
                           <span>·</span>
                           <span>{formatDateTime(interview.scheduledAt)}</span>
@@ -800,14 +803,14 @@ export default function InterviewSchedulePage() {
                               onClick={() => openRescheduleModal(interview)}
                               className="h-7 text-xs"
                             >
-                              Reschedule
+                              {tx("Reschedule")}
                             </Button>
                             <Button
                               size="sm"
                               onClick={() => void handleComplete(interview, "PASSED")}
                               className="h-7 text-xs"
                             >
-                              Passed
+                              {tx("Passed")}
                             </Button>
                             <Button
                               size="sm"
@@ -815,7 +818,7 @@ export default function InterviewSchedulePage() {
                               onClick={() => void handleComplete(interview, "NEEDS_REVIEW")}
                               className="h-7 text-xs"
                             >
-                              Needs review
+                              {tx("Needs review")}
                             </Button>
                             <Button
                               size="sm"
@@ -823,7 +826,7 @@ export default function InterviewSchedulePage() {
                               onClick={() => void handleComplete(interview, "FAILED")}
                               className="h-7 text-xs"
                             >
-                              Failed
+                              {tx("Failed")}
                             </Button>
                             <Button
                               size="sm"
@@ -831,7 +834,7 @@ export default function InterviewSchedulePage() {
                               onClick={() => void handleCancel(interview)}
                               className="h-7 text-xs text-destructive hover:bg-destructive/10"
                             >
-                              Cancel
+                              {tx("Cancel")}
                             </Button>
                           </div>
                         ) : null}
@@ -844,10 +847,10 @@ export default function InterviewSchedulePage() {
                       <CalendarDays aria-hidden="true" className="size-5" />
                     </div>
                     <p className="mt-3 text-xs font-semibold text-ws-fg">
-                      No interviews scheduled on this date
+                      {tx("No interviews scheduled on this date")}
                     </p>
                     <p className="mt-1 max-w-xs text-[11px] text-ws-faint">
-                      Pick another date from the calendar or schedule a new interview with any candidate.
+                      {tx("Pick another date from the calendar or schedule a new interview with any candidate.")}
                     </p>
                     <Button
                       size="sm"
@@ -861,7 +864,7 @@ export default function InterviewSchedulePage() {
                       className="mt-4 gap-1 text-xs"
                     >
                       <CalendarPlus aria-hidden="true" className="size-3.5" />
-                      Schedule on this date
+                      {tx("Schedule on this date")}
                     </Button>
                   </div>
                 )}
@@ -896,7 +899,7 @@ export default function InterviewSchedulePage() {
                           </div>
                           {interview.jobTitle ? (
                             <p className="text-xs text-ws-muted">
-                              Role: {interview.jobTitle}
+                              {tx("Role: {job}", { job: interview.jobTitle })}
                             </p>
                           ) : null}
                         </div>
@@ -928,34 +931,34 @@ export default function InterviewSchedulePage() {
                           variant="secondary"
                           onClick={() => openRescheduleModal(interview)}
                         >
-                          Reschedule
+                          {tx("Reschedule")}
                         </Button>
                         <Button
                           size="sm"
                           onClick={() => void handleComplete(interview, "PASSED")}
                         >
-                          Passed
+                          {tx("Passed")}
                         </Button>
                         <Button
                           size="sm"
                           variant="secondary"
                           onClick={() => void handleComplete(interview, "NEEDS_REVIEW")}
                         >
-                          Needs review
+                          {tx("Needs review")}
                         </Button>
                         <Button
                           size="sm"
                           variant="destructive"
                           onClick={() => void handleComplete(interview, "FAILED")}
                         >
-                          Failed
+                          {tx("Failed")}
                         </Button>
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => void handleCancel(interview)}
                         >
-                          Cancel
+                          {tx("Cancel")}
                         </Button>
                       </div>
                     ) : null}
@@ -966,10 +969,10 @@ export default function InterviewSchedulePage() {
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-ws-line py-12 text-center">
                 <CalendarDays aria-hidden="true" className="size-8 text-ws-faint" />
                 <p className="mt-2 text-sm font-semibold text-ws-fg">
-                  No matching interviews found
+                  {tx("No matching interviews found")}
                 </p>
                 <p className="mt-1 text-xs text-ws-muted">
-                  Try adjusting your search or status filter.
+                  {tx("Try adjusting your search or status filter.")}
                 </p>
               </div>
             )}
@@ -981,33 +984,33 @@ export default function InterviewSchedulePage() {
       <Dialog
         open={isScheduleModalOpen}
         onOpenChange={setIsScheduleModalOpen}
-        title="Schedule an interview"
-        description="Select a candidate and set the date, time, and meeting link."
+        title={tx("Schedule an interview")}
+        description={tx("Select a candidate and set the date, time, and meeting link.")}
       >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-ws-muted">
-              Select Candidate Application
+              {tx("Select Candidate Application")}
             </label>
             <Select
               value={selectedApplicationId}
               onChange={(value) => setSelectedApplicationId(value)}
               options={applicationsList.map((app) => ({
                 value: app.application.id,
-                label: `${app.candidate?.headline || "Candidate"} — ${app.application.jobTitle || "Job"}`,
+                label: `${app.candidate?.headline || tx("Candidate")} — ${app.application.jobTitle || tx("Job")}`,
               }))}
             />
           </div>
 
           <DateTimePicker
-            label="Date & Time (your local time)"
+            label={tx("Date & Time (your local time)")}
             value={scheduleDateTime}
             onChange={setScheduleDateTime}
             disabled={isScheduling}
           />
 
           <label className="flex flex-col gap-1.5 text-xs font-semibold text-ws-muted">
-            Meeting link
+            {tx("Meeting link")}
             <Input
               type="url"
               value={scheduleMeetingUrl}
@@ -1024,7 +1027,7 @@ export default function InterviewSchedulePage() {
               disabled={isScheduling}
               onClick={() => setIsScheduleModalOpen(false)}
             >
-              Cancel
+              {tx("Cancel")}
             </Button>
             <Button
               type="button"
@@ -1032,7 +1035,7 @@ export default function InterviewSchedulePage() {
               onClick={() => void handleScheduleSubmit()}
             >
               <CalendarPlus aria-hidden="true" className="size-3.5" />
-              {isScheduling ? "Scheduling…" : "Schedule interview"}
+              {isScheduling ? tx("Scheduling…") : tx("Schedule interview")}
             </Button>
           </div>
         </div>
@@ -1044,23 +1047,23 @@ export default function InterviewSchedulePage() {
         onOpenChange={(open) => {
           if (!open) setReschedulingInterview(null);
         }}
-        title="Reschedule interview"
+        title={tx("Reschedule interview")}
         description={
           reschedulingInterview
-            ? `Rescheduling interview for ${reschedulingInterview.candidateHeadline || "Candidate"}`
-            : "Select a new date and time."
+            ? tx("Rescheduling interview for {name}", { name: reschedulingInterview.candidateHeadline || tx("Candidate") })
+            : tx("Select a new date and time.")
         }
       >
         <div className="flex flex-col gap-4">
           <DateTimePicker
-            label="New date & time"
+            label={tx("New date & time")}
             value={rescheduleDateTime}
             onChange={setRescheduleDateTime}
             disabled={isRescheduling}
           />
 
           <label className="flex flex-col gap-1.5 text-xs font-semibold text-ws-muted">
-            Meeting link
+            {tx("Meeting link")}
             <Input
               type="url"
               value={rescheduleMeetingUrl}
@@ -1076,14 +1079,14 @@ export default function InterviewSchedulePage() {
               disabled={isRescheduling}
               onClick={() => setReschedulingInterview(null)}
             >
-              Cancel
+              {tx("Cancel")}
             </Button>
             <Button
               type="button"
               disabled={isRescheduling || !rescheduleDateTime || !rescheduleMeetingUrl.trim()}
               onClick={() => void handleRescheduleSubmit()}
             >
-              {isRescheduling ? "Saving…" : "Save new schedule"}
+              {isRescheduling ? tx("Saving…") : tx("Save new schedule")}
             </Button>
           </div>
         </div>
