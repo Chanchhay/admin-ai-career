@@ -63,7 +63,7 @@ export function Select<T extends string | number>({
         id={id}
         aria-label={ariaLabel}
         className={cn(
-          "flex h-9 items-center justify-between gap-2 rounded-md border border-ws-line bg-ws-panel px-2.5 text-sm font-medium text-ws-fg transition-colors outline-none select-none",
+          "flex h-9 items-center justify-between gap-2 rounded-md border border-ws-line bg-ws-panel px-2.5 text-base font-medium text-ws-fg transition-colors outline-none select-none",
           "hover:bg-ws-card focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
           "data-[popup-open]:bg-ws-card disabled:pointer-events-none disabled:opacity-50",
           className,
@@ -100,7 +100,7 @@ export function Select<T extends string | number>({
                 key={option.value}
                 value={option.value}
                 className={cn(
-                  "flex cursor-default items-center gap-2 rounded-md py-1.5 pr-2 pl-2 text-sm outline-none select-none",
+                  "flex cursor-default items-center gap-2 rounded-md py-1.5 pr-2 pl-2 text-base outline-none select-none",
                   // Highlight follows the keyboard as well as the pointer, and
                   // it is the app's own surface — never the OS accent.
                   "data-[highlighted]:bg-ws-card data-[selected]:font-medium",

@@ -24,7 +24,7 @@ export function Pager<T>({
 
   return (
     <div className="flex items-center gap-3">
-      <p className="hidden text-xs text-ws-faint sm:block">
+      <p className="hidden text-sm text-ws-faint sm:block">
         {page.totalElements.toLocaleString()}{" "}
         {page.totalElements === 1 ? "result" : "results"}
       </p>
@@ -38,7 +38,7 @@ export function Pager<T>({
           <ChevronLeft aria-hidden="true" className="size-4" />
         </Arrow>
 
-        <span className="px-2 text-sm tabular-nums sm:hidden">
+        <span className="px-2 text-base tabular-nums sm:hidden">
           {page.number + 1} / {totalPages}
         </span>
 
@@ -47,7 +47,7 @@ export function Pager<T>({
             <span
               key={`gap-${index}`}
               aria-hidden="true"
-              className="hidden px-1 text-xs text-ws-faint sm:inline"
+              className="hidden px-1 text-sm text-ws-faint sm:inline"
             >
               …
             </span>
@@ -59,7 +59,7 @@ export function Pager<T>({
               aria-current={entry === page.number ? "page" : undefined}
               aria-label={`Page ${entry + 1}`}
               className={cn(
-                "hidden h-9 min-w-9 rounded-md px-2 text-sm font-medium tabular-nums transition-colors sm:inline-block",
+                "hidden h-9 min-w-9 rounded-md px-2 text-base font-medium tabular-nums transition-colors sm:inline-block",
                 entry === page.number
                   ? "bg-chip-solid text-chip-solid-fg"
                   : "text-ws-muted hover:bg-ws-card hover:text-ws-fg",

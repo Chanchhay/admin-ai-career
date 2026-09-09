@@ -61,7 +61,7 @@ export function RoleToggle({
       onClick={onToggle}
       disabled={disabled}
       aria-pressed={selected}
-      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 ${
+      className={`rounded-full px-3 py-1.5 text-sm font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 ${
         selected
           ? "bg-chip-solid text-chip-solid-fg"
           : "bg-ws-card-hover text-ws-muted hover:text-ws-fg"

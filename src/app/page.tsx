@@ -179,7 +179,7 @@ function Hero({
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-ws-muted">
+          <span className="text-base font-medium text-ws-muted">
             {tx("Moderation queue")}
           </span>
           {waiting === 0 ? (
@@ -200,11 +200,11 @@ function Hero({
           {waiting === undefined ? (
             <Skeleton className="h-9 w-16" />
           ) : (
-            <span className="text-3xl font-semibold tracking-tight tabular-nums">
+            <span className="text-4xl font-semibold tracking-tight tabular-nums">
               {waiting.toLocaleString()}
             </span>
           )}
-          <span className="text-sm font-medium text-ws-muted">
+          <span className="text-base font-medium text-ws-muted">
             {waiting === 1 ? tx("item waits") : tx("items wait")}{" "}
             {tx("on a decision")}
           </span>
@@ -228,7 +228,7 @@ function Hero({
 
 /** Hero pills reuse the tone fills so they match the track below them. */
 function cnPill(tone: Tone) {
-  return `rounded-full px-6 py-3 text-sm font-semibold transition-transform hover:scale-[1.03] ${toneFill[tone]}`;
+  return `rounded-full px-6 py-3 text-base font-semibold transition-transform hover:scale-[1.03] ${toneFill[tone]}`;
 }
 
 /* --------------------------------------------------------------- notes --- */
@@ -275,7 +275,7 @@ function QueueNote({
         <NoteRow label="Interviews booked" value={interviews} />
       </dl>
 
-      <p className="mt-6 text-xs leading-7 opacity-75">
+      <p className="mt-6 text-sm leading-7 opacity-75">
         {tx(
           "Companies wait on verification before their recruiters can post jobs; candidates wait on review before a recruiter ever sees them. Both queues are worked oldest-first.",
         )}
@@ -350,7 +350,7 @@ function NoteRow({
   const body = (
     <>
       {icon ? <span className="shrink-0 opacity-60">{icon}</span> : null}
-      <dt className="min-w-0 flex-1 truncate text-sm font-medium opacity-80">
+      <dt className="min-w-0 flex-1 truncate text-base font-medium opacity-80">
         {tx(label)}
       </dt>
       <dd className="shrink-0 text-lg font-bold tabular-nums">
@@ -447,7 +447,7 @@ function QueueStream({
         {loading ? (
           <LoadingState rows={5} className="border-none bg-transparent p-0" />
         ) : !showing?.length ? (
-          <p className="py-10 text-center text-sm text-ws-faint">
+          <p className="py-10 text-center text-base text-ws-faint">
             {tx("Nothing waiting. This queue is clear.")}
           </p>
         ) : (
@@ -506,10 +506,10 @@ function StreamRow({
         className="flex items-center gap-3 rounded-xl bg-ws-card-hover px-3 py-2 transition-colors hover:bg-ws-panel"
       >
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-ws-fg">
+          <span className="block truncate text-base font-semibold text-ws-fg">
             {title}
           </span>
-          <span className="block truncate text-xs text-ws-faint">
+          <span className="block truncate text-sm text-ws-faint">
             {tx(meta)}
           </span>
         </span>
@@ -607,14 +607,14 @@ function DecisionCard({
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-semibold text-ws-fg">
+        <span className="block truncate text-base font-semibold text-ws-fg">
           {tx(label)}
         </span>
-        <span className="block truncate text-xs text-ws-faint">
+        <span className="block truncate text-sm text-ws-faint">
           {tx(caption)}
         </span>
       </span>
-      <div className="shrink-0 text-2xl font-bold tabular-nums text-ws-fg">
+      <div className="shrink-0 text-3xl font-bold tabular-nums text-ws-fg">
         {value === undefined ? (
           <Skeleton className="h-7 w-10" />
         ) : (

@@ -147,7 +147,7 @@ export default function AiInterviewConfigPage() {
   return (
     <div className="flex flex-col gap-3">
       <Panel tone="soft">
-        <p className="text-sm leading-6">
+        <p className="text-base leading-6">
           {tx(
             "What every AI interview generated from now on will look like. Existing interviews keep the shape they were generated with — a candidate part way through one is not affected by a change here.",
           )}
@@ -167,7 +167,7 @@ export default function AiInterviewConfigPage() {
           }
         />
 
-        <p className="mb-4 text-sm text-ws-muted">
+        <p className="mb-4 text-base text-ws-muted">
           {tx(
             "How many questions of each type to ask. A type set to zero is left out of the interview entirely, and the total is what the interview length becomes.",
           )}
@@ -181,7 +181,7 @@ export default function AiInterviewConfigPage() {
                 key={type}
                 className="flex items-center gap-3 max-sm:flex-wrap rounded-[18px] bg-ws-card-hover px-4 py-3"
               >
-                <p className="min-w-0 flex-1 max-sm:basis-full truncate text-sm font-semibold text-ws-fg">
+                <p className="min-w-0 flex-1 max-sm:basis-full truncate text-base font-semibold text-ws-fg">
                   {humanizeEnum(type)}
                 </p>
 
@@ -227,7 +227,7 @@ export default function AiInterviewConfigPage() {
         <PanelHeader title="Scoring and prompt" />
 
         <div className="flex flex-col gap-4">
-          <label className="flex max-w-xs flex-col gap-1.5 text-xs font-medium text-ws-muted">
+          <label className="flex max-w-xs flex-col gap-1.5 text-sm font-medium text-ws-muted">
             {tx("Max score per question")}
             <Input
               type="number"
@@ -246,7 +246,7 @@ export default function AiInterviewConfigPage() {
             </span>
           </label>
 
-          <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-ws-muted">
             {tx("Extra instructions for the interviewer (optional)")}
             <Textarea
               value={form.additionalInstructions}
@@ -282,7 +282,7 @@ export default function AiInterviewConfigPage() {
           <RotateCcw aria-hidden="true" className="size-4" />
           {tx("Reset")}
         </Button>
-        <p className="text-xs text-ws-faint">
+        <p className="text-sm text-ws-faint">
           {data.updatedAt
             ? data.updatedBy
               ? tx("Last changed {date} by {user}.", {

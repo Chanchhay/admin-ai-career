@@ -63,10 +63,10 @@ export default function CompanyJobDetailPage() {
         </span>
 
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-2xl font-semibold tracking-tight text-ws-fg">
+          <h2 className="truncate text-3xl font-semibold tracking-tight text-ws-fg">
             {orDash(job.title)}
           </h2>
-          <p className="truncate text-sm text-ws-faint">
+          <p className="truncate text-base text-ws-faint">
             {orDash(job.companyName)} · {orDash(job.categoryName)}
           </p>
         </div>
@@ -84,7 +84,7 @@ export default function CompanyJobDetailPage() {
 
           <Panel variant="outlined">
             <PanelHeader title="Description" />
-            <p className="text-sm leading-6 whitespace-pre-wrap text-ws-muted">
+            <p className="text-base leading-6 whitespace-pre-wrap text-ws-muted">
               {orDash(job.description)}
             </p>
           </Panel>
@@ -94,7 +94,7 @@ export default function CompanyJobDetailPage() {
               <PanelHeader
                 title={section.title || humanizeEnum(section.sectionType)}
               />
-              <p className="text-sm leading-6 whitespace-pre-wrap text-ws-muted">
+              <p className="text-base leading-6 whitespace-pre-wrap text-ws-muted">
                 {section.contentText || section.contentMarkdown}
               </p>
             </Panel>
@@ -199,7 +199,7 @@ function JobStatusPanel({
     <Panel variant="outlined">
       <PanelHeader title="Visibility to candidates" />
 
-      <p className="text-sm leading-6 text-ws-muted">
+      <p className="text-base leading-6 text-ws-muted">
         {live
           ? "Published — candidates can find and apply to this job."
           : paused
@@ -247,7 +247,7 @@ function JobStatusPanel({
 
       {panel ? (
         <div className="mt-3 border-t border-ws-line pt-3">
-          <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-ws-muted">
             {panel === "pause"
               ? "Why is this job being taken down?"
               : "Why is this job being closed?"}
@@ -280,7 +280,7 @@ function JobStatusPanel({
               Cancel
             </Button>
             {panel === "close" ? (
-              <span className="text-xs text-ws-faint">
+              <span className="text-sm text-ws-faint">
                 Closing cannot be undone from the console.
               </span>
             ) : null}
@@ -294,8 +294,8 @@ function JobStatusPanel({
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="py-2">
-      <dt className="text-xs text-ws-faint">{label}</dt>
-      <dd className="mt-0.5 truncate text-sm font-medium text-ws-fg">
+      <dt className="text-sm text-ws-faint">{label}</dt>
+      <dd className="mt-0.5 truncate text-base font-medium text-ws-fg">
         {orDash(value)}
       </dd>
     </div>

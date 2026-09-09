@@ -247,7 +247,7 @@ export function TaxonomyWorkspace({ initialTab }: { initialTab: TaxonomyTab }) {
   return (
     <div className="flex flex-col gap-3">
       <Panel tone="soft">
-        <p className="text-sm leading-6">{TAB_DESCRIPTION[tab]}</p>
+        <p className="text-base leading-6">{TAB_DESCRIPTION[tab]}</p>
       </Panel>
 
       <PillTabs
@@ -387,7 +387,7 @@ function CategoryManager<
           <FolderOpen aria-hidden="true" className="size-4" />
           <h2 className="text-base font-semibold tracking-tight">
             {parents.length} {parents.length === 1 ? "parent category" : "parent categories"}
-            <span className="ml-2 text-xs font-normal text-ws-faint">{childCount} subcategories</span>
+            <span className="ml-2 text-sm font-normal text-ws-faint">{childCount} subcategories</span>
           </h2>
         </header>
 
@@ -396,7 +396,7 @@ function CategoryManager<
         ) : isError ? (
           <ErrorState message={`Unable to load ${plural}.`} onRetry={refetch} />
         ) : (items?.length ?? 0) === 0 ? (
-          <p className="rounded-xl bg-ws-card-hover px-4 py-6 text-center text-sm text-ws-faint">
+          <p className="rounded-xl bg-ws-card-hover px-4 py-6 text-center text-base text-ws-faint">
             Nothing here yet. Add the first entry using the panel on the right.
           </p>
         ) : (
@@ -423,9 +423,9 @@ function CategoryManager<
                       {collapsed ? <ChevronRight aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
                     </Button>
                     <div className="min-w-0 flex-1 max-sm:basis-[calc(100%-3rem)]">
-                      <h3 className="truncate text-sm font-semibold max-sm:whitespace-normal max-sm:break-words">{parent.name}</h3>
-                      <div className="mt-0.5 truncate text-xs text-ws-muted max-sm:whitespace-normal max-sm:break-words">{renderMeta(parent)}</div>
-                      <p className="text-xs text-ws-faint">
+                      <h3 className="truncate text-base font-semibold max-sm:whitespace-normal max-sm:break-words">{parent.name}</h3>
+                      <div className="mt-0.5 truncate text-sm text-ws-muted max-sm:whitespace-normal max-sm:break-words">{renderMeta(parent)}</div>
+                      <p className="text-sm text-ws-faint">
                         {children.length} {children.length === 1 ? "subcategory" : "subcategories"}
                       </p>
                     </div>
@@ -446,7 +446,7 @@ function CategoryManager<
                   </div>
                   <div id={`list-group-${parent.id}`} hidden={collapsed}>
                     {children.length === 0 ? (
-                      <p className="px-5 py-5 text-sm text-ws-faint">
+                      <p className="px-5 py-5 text-base text-ws-faint">
                         No subcategories yet. Use the + button to add one.
                       </p>
                     ) : (
@@ -458,8 +458,8 @@ function CategoryManager<
                           )}>
                             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-ws-card text-ws-muted">{icon}</span>
                             <div className="min-w-0 flex-1 max-sm:basis-[calc(100%-3rem)]">
-                              <p className="truncate text-sm font-semibold max-sm:whitespace-normal max-sm:break-words">{item.name}</p>
-                              <div className="mt-0.5 truncate text-xs text-ws-faint max-sm:whitespace-normal max-sm:break-words">{renderMeta(item)}</div>
+                              <p className="truncate text-base font-semibold max-sm:whitespace-normal max-sm:break-words">{item.name}</p>
+                              <div className="mt-0.5 truncate text-sm text-ws-faint max-sm:whitespace-normal max-sm:break-words">{renderMeta(item)}</div>
                             </div>
                             {itemActions(item)}
                           </li>
@@ -480,7 +480,7 @@ function CategoryManager<
           <h2 className="text-base font-semibold tracking-tight">
             {editingId === null ? `Add ${entryLabel}` : `Edit ${entryLabel}`}
           </h2>
-          <p className="mt-1 text-xs text-ws-faint">
+          <p className="mt-1 text-sm text-ws-faint">
             {editingId === null
               ? ADD_HINT[singular] ?? `Define how ${singular} entries are grouped.`
               : "Update this entry — the row updates as soon as you save."}
@@ -507,7 +507,7 @@ function CategoryManager<
           ) : null}
           {entryLevel === "Subcategory" ? (
             <div className="flex flex-col gap-1.5">
-              <label htmlFor={`parent-${singular.replaceAll(" ", "-")}`} className="text-xs font-medium text-ws-muted">Parent category</label>
+              <label htmlFor={`parent-${singular.replaceAll(" ", "-")}`} className="text-sm font-medium text-ws-muted">Parent category</label>
               <Select
                 id={`parent-${singular.replaceAll(" ", "-")}`}
                 value={form.parentId ?? ""}
@@ -518,13 +518,13 @@ function CategoryManager<
                 ]}
                 className="w-full"
               />
-              {parents.length === 0 ? <p className="text-xs text-ws-muted">Add a parent category first.</p> : null}
+              {parents.length === 0 ? <p className="text-sm text-ws-muted">Add a parent category first.</p> : null}
             </div>
           ) : null}
           {fields.map((field) => (
             <label
               key={field.name}
-              className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted"
+              className="flex flex-col gap-1.5 text-sm font-medium text-ws-muted"
             >
               {field.label}
               {field.kind === "textarea" ? (
@@ -584,8 +584,8 @@ function CategoryManager<
             <Trash2 aria-hidden="true" className="size-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-xs text-ws-muted">{humanizeEnum(singular)}</p>
-            <p className="mt-0.5 text-sm font-semibold break-words text-ws-fg">
+            <p className="text-sm text-ws-muted">{humanizeEnum(singular)}</p>
+            <p className="mt-0.5 text-base font-semibold break-words text-ws-fg">
               {deleteTarget?.name}
             </p>
           </div>
@@ -594,7 +594,7 @@ function CategoryManager<
         {deleteError ? (
           <div
             role="alert"
-            className="mb-5 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm leading-6 text-destructive"
+            className="mb-5 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-base leading-6 text-destructive"
           >
             <CircleAlert aria-hidden="true" className="mt-1 size-4 shrink-0" />
             <p>{deleteError}</p>

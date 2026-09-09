@@ -67,7 +67,7 @@ export function CompanyJobsPanel({ companyId }: { companyId: string }) {
           />
         </div>
       ) : jobs.length === 0 ? (
-        <p className="px-5 pb-6 text-sm text-ws-faint">
+        <p className="px-5 pb-6 text-base text-ws-faint">
           This company has not posted a job yet.
         </p>
       ) : (
@@ -111,10 +111,10 @@ function JobRow({
         className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-ws-card"
       >
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium text-ws-fg">
+          <span className="block truncate text-base font-medium text-ws-fg">
             {orDash(job.title)}
           </span>
-          <span className="block truncate text-xs text-ws-faint">
+          <span className="block truncate text-sm text-ws-faint">
             {[orDash(job.location), job.workMode, job.jobType]
               .filter((part) => part && part !== "—")
               .join(" · ")}

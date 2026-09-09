@@ -161,7 +161,7 @@ export function DateTimePicker({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium text-ws-muted">{label}</span>
+      <span className="text-sm font-medium text-ws-muted">{label}</span>
 
       <div className="flex flex-wrap items-start gap-2">
         {/* The field itself: read-only text plus the trigger, so the calendar
@@ -187,7 +187,7 @@ export function DateTimePicker({
             aria-haspopup="dialog"
             aria-expanded={open}
             className={cn(
-              "flex h-10 w-48 items-center gap-2 rounded-md border px-3 text-left text-sm transition-colors outline-none",
+              "flex h-10 w-48 items-center gap-2 rounded-md border px-3 text-left text-base transition-colors outline-none",
               "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50",
               open ? "border-brand bg-ws-panel" : "border-ws-line bg-ws-panel hover:bg-ws-card",
             )}
@@ -209,7 +209,7 @@ export function DateTimePicker({
                   type="button"
                   onClick={() => setShowYears((current) => !current)}
                   aria-expanded={showYears}
-                  className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-ws-fg transition-colors hover:bg-ws-card"
+                  className="flex items-center gap-1 rounded-md px-2 py-1.5 text-base font-medium text-ws-fg transition-colors hover:bg-ws-card"
                 >
                   {MONTHS[view.month]} {view.year}
                   <ChevronDown
@@ -250,7 +250,7 @@ export function DateTimePicker({
                           setShowYears(false);
                         }}
                         className={cn(
-                          "rounded-full py-1.5 text-sm tabular-nums transition-colors",
+                          "rounded-full py-1.5 text-base tabular-nums transition-colors",
                           year === view.year
                             ? "bg-chip-solid font-semibold text-chip-solid-fg"
                             : "text-ws-muted hover:bg-ws-card hover:text-ws-fg",
@@ -268,7 +268,7 @@ export function DateTimePicker({
                       <span
                         key={`${day}-${index}`}
                         aria-hidden="true"
-                        className="flex h-8 items-center justify-center text-xs text-ws-faint"
+                        className="flex h-8 items-center justify-center text-sm text-ws-faint"
                       >
                         {day}
                       </span>
@@ -291,7 +291,7 @@ export function DateTimePicker({
                           aria-pressed={selected}
                           aria-disabled={past || undefined}
                           className={cn(
-                            "mx-auto flex size-9 items-center justify-center rounded-full text-sm tabular-nums transition-colors",
+                            "mx-auto flex size-9 items-center justify-center rounded-full text-base tabular-nums transition-colors",
                             past && "cursor-not-allowed text-ws-faint/40",
                             !past && outside && "text-ws-faint/60 hover:bg-ws-card",
                             !past && !outside && !selected && "text-ws-fg hover:bg-ws-card",
@@ -310,14 +310,14 @@ export function DateTimePicker({
                     <button
                       type="button"
                       onClick={() => pickDay(new Date())}
-                      className="rounded-md px-2.5 py-1.5 text-sm font-medium text-ws-muted transition-colors hover:bg-ws-card hover:text-ws-fg"
+                      className="rounded-md px-2.5 py-1.5 text-base font-medium text-ws-muted transition-colors hover:bg-ws-card hover:text-ws-fg"
                     >
                       Today
                     </button>
                     <button
                       type="button"
                       onClick={() => setOpen(false)}
-                      className="rounded-md px-2.5 py-1.5 text-sm font-medium text-brand transition-colors hover:bg-ws-card"
+                      className="rounded-md px-2.5 py-1.5 text-base font-medium text-brand transition-colors hover:bg-ws-card"
                     >
                       Done
                     </button>
@@ -342,7 +342,7 @@ export function DateTimePicker({
               disabled={disabled}
               onChange={(hour) => commit({ hour: to24Hour(hour, clock.meridiem) })}
             />
-            <span aria-hidden="true" className="text-sm text-ws-faint">
+            <span aria-hidden="true" className="text-base text-ws-faint">
               :
             </span>
             <TimeField
@@ -369,7 +369,7 @@ export function DateTimePicker({
                 aria-pressed={clock.meridiem === meridiem}
                 onClick={() => commit({ hour: to24Hour(clock.hour, meridiem) })}
                 className={cn(
-                  "w-10 text-sm font-medium transition-colors disabled:opacity-50",
+                  "w-10 text-base font-medium transition-colors disabled:opacity-50",
                   clock.meridiem === meridiem
                     ? "bg-chip-solid text-chip-solid-fg"
                     : "bg-ws-panel text-ws-muted hover:bg-ws-card hover:text-ws-fg",
@@ -446,7 +446,7 @@ function TimeField({
         const next = value + (event.key === "ArrowUp" ? step : -step);
         onChange(next > max ? min : next < min ? max : next);
       }}
-      className="w-7 bg-transparent text-center text-sm tabular-nums text-ws-fg outline-none disabled:opacity-50"
+      className="w-7 bg-transparent text-center text-base tabular-nums text-ws-fg outline-none disabled:opacity-50"
     />
   );
 }

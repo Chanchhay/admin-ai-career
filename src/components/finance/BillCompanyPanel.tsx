@@ -80,7 +80,7 @@ export function BillCompanyPanel({ companyId }: { companyId: string }) {
         icon={<Receipt aria-hidden="true" className="size-4" />}
       />
 
-      <p className="mb-4 text-sm text-ws-muted">
+      <p className="mb-4 text-base text-ws-muted">
         Creates a draft invoice. Nothing reaches the recruiter until you issue
         it.
       </p>
@@ -95,10 +95,10 @@ export function BillCompanyPanel({ companyId }: { companyId: string }) {
                 onChange={() => toggle(commission.id)}
               />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm text-ws-fg">
+                <span className="block truncate text-base text-ws-fg">
                   Placement commission at {commission.commissionRate}%
                 </span>
-                <span className="block text-xs text-ws-faint">
+                <span className="block text-sm text-ws-faint">
                   Due {formatDate(commission.dueAt)}
                 </span>
               </span>
@@ -112,7 +112,7 @@ export function BillCompanyPanel({ companyId }: { companyId: string }) {
 
       <div className="mt-4 flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-ws-muted">
+          <span className="text-sm font-semibold text-ws-muted">
             Tax ({currency})
           </span>
           <Input
@@ -125,7 +125,7 @@ export function BillCompanyPanel({ companyId }: { companyId: string }) {
           />
         </label>
 
-        <div className="text-sm">
+        <div className="text-base">
           <p className="text-ws-muted">
             Subtotal {formatMoney(subtotal, currency)}
           </p>

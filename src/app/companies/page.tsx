@@ -140,7 +140,7 @@ export default function CompaniesPage() {
                     /* The fill and the rule live on the cell, not the row: a
                        collapsed border does not travel with a sticky header,
                        so the divider is drawn as an inset shadow instead. */
-                    className={`${column.className} bg-ws-card px-4 py-2.5 text-xs font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
+                    className={`${column.className} bg-ws-card px-4 py-2.5 text-sm font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
                   >
                     {column.label || <span className="sr-only">Actions</span>}
                   </th>
@@ -230,14 +230,14 @@ function StatusSummary({
                 : "bg-ws-panel hover:bg-ws-card/60",
             )}
           >
-            <span className="flex items-center gap-2 text-xs font-medium text-ws-muted">
+            <span className="flex items-center gap-2 text-sm font-medium text-ws-muted">
               <span
                 aria-hidden="true"
                 className={`size-2 shrink-0 rounded-full ${tabDot[tab]}`}
               />
               {tab === "All" ? "All companies" : tab}
             </span>
-            <span className="text-2xl font-semibold tabular-nums text-ws-fg">
+            <span className="text-3xl font-semibold tabular-nums text-ws-fg">
               {counts[tab] === undefined ? "—" : counts[tab]?.toLocaleString()}
             </span>
           </button>
@@ -304,7 +304,7 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
     <tr className="company-row border-b border-ws-line/70 transition-colors hover:bg-ws-card/60">
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-ws-line bg-ws-card text-sm font-semibold text-ws-muted">
+          <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-ws-line bg-ws-card text-base font-semibold text-ws-muted">
             {logo ? (
               /* Backend object storage is not in next.config's remotePatterns. */
               /* eslint-disable-next-line @next/next/no-img-element */
@@ -326,7 +326,7 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
             >
               {company.name}
             </Link>
-            <span className="block truncate text-xs text-ws-faint max-lg:whitespace-normal max-lg:break-all">
+            <span className="block truncate text-sm text-ws-faint max-lg:whitespace-normal max-lg:break-all">
               {orDash(company.contactEmail)}
             </span>
           </span>
@@ -334,18 +334,18 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
       </td>
 
       <td className="px-4 py-3">
-        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Status</span>
+        <span className="mb-1 block text-sm text-ws-faint lg:hidden">Status</span>
         <CompanyStatusBadge status={company.verificationStatus} />
       </td>
 
       {/* Live first, because that is the number that matters when deciding
           what suspending this company would actually take down. */}
       <td className="px-4 py-3">
-        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Jobs</span>
+        <span className="mb-1 block text-sm text-ws-faint lg:hidden">Jobs</span>
         {company.jobCount === 0 ? (
-          <span className="text-xs text-ws-faint">None</span>
+          <span className="text-sm text-ws-faint">None</span>
         ) : (
-          <span className="text-sm text-ws-fg">
+          <span className="text-base text-ws-fg">
             <span className="font-medium tabular-nums">
               {company.publishedJobCount}
             </span>{" "}
@@ -358,14 +358,14 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
         )}
       </td>
 
-      <td className="truncate px-4 py-3 text-sm text-ws-muted">
-        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Industry</span>
+      <td className="truncate px-4 py-3 text-base text-ws-muted">
+        <span className="mb-1 block text-sm text-ws-faint lg:hidden">Industry</span>
         {orDash(company.industryName)}
       </td>
 
       <td className="px-4 py-3">
-        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Candidates see</span>
-        <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-ws-muted">
+        <span className="mb-1 block text-sm text-ws-faint lg:hidden">Candidates see</span>
+        <span className="inline-flex items-center gap-2 whitespace-nowrap text-base text-ws-muted">
           {masked ? (
             <EyeOff aria-hidden="true" className="size-4 shrink-0" />
           ) : (
@@ -416,7 +416,7 @@ function EmptyState({ filtered, tab }: { filtered: boolean; tab: Tab }) {
           ? "No companies match that search"
           : `No ${tab === "All" ? "" : tab.toLowerCase()} companies`}
       </p>
-      <p className="text-xs text-ws-faint">
+      <p className="text-sm text-ws-faint">
         {filtered
           ? "The search only covers the companies loaded on this page."
           : "Companies appear here once a recruiter submits one for verification."}

@@ -90,7 +90,7 @@ export function StartConversation({
       >
         <div className="flex flex-col gap-4">
           {recipientName ? (
-            <div className="flex items-center gap-2 rounded-xl bg-ws-card-hover/80 px-3 py-2 text-xs font-medium text-ws-muted">
+            <div className="flex items-center gap-2 rounded-xl bg-ws-card-hover/80 px-3 py-2 text-sm font-medium text-ws-muted">
               <User aria-hidden="true" className="size-3.5 text-primary" />
               <span>Recipient:</span>
               <span className="font-semibold text-ws-fg">{recipientName}</span>
@@ -100,7 +100,7 @@ export function StartConversation({
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="start-conversation-message"
-              className="text-xs font-medium text-ws-muted"
+              className="text-sm font-medium text-ws-muted"
             >
               First message
             </label>
@@ -113,7 +113,7 @@ export function StartConversation({
               maxLength={4000}
               autoFocus
             />
-            <div className="flex justify-end text-[11px] text-ws-faint">
+            <div className="flex justify-end text-xs text-ws-faint">
               {message.length} / 4000
             </div>
           </div>

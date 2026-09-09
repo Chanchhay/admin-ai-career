@@ -45,7 +45,7 @@ export function Chip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium",
+        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium",
         toneFill[tone],
         className,
       )}
@@ -66,7 +66,7 @@ export function GhostChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md bg-ws-card px-2.5 py-1 text-xs font-medium text-ws-muted",
+        "inline-flex items-center gap-1.5 rounded-md bg-ws-card px-2.5 py-1 text-sm font-medium text-ws-muted",
         className,
       )}
     >
@@ -159,7 +159,7 @@ export function PillTabs<T extends string>({
           onClick={() => onChange(tab)}
           aria-pressed={value === tab}
           className={cn(
-            "shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+            "shrink-0 rounded-lg px-3 py-1.5 text-base font-medium transition-colors",
             value === tab
               ? "bg-ws-panel text-ws-fg"
               : "text-ws-faint hover:text-ws-fg",
@@ -250,7 +250,7 @@ export function FolderTabs<T extends string>({
             onClick={() => onChange(tab)}
             aria-pressed={value === tab}
             className={cn(
-              "shrink-0 px-3.5 text-sm font-semibold transition-colors",
+              "shrink-0 px-3.5 text-base font-semibold transition-colors",
               value === tab
                 ? "ws-foldertab pb-3 pt-2.5 text-ws-fg"
                 : "rounded-full py-2 text-ws-faint hover:bg-ws-card hover:text-ws-fg",
@@ -262,7 +262,7 @@ export function FolderTabs<T extends string>({
       </div>
 
       {aside ? (
-        <span className="ml-auto hidden shrink-0 pb-3 pr-2 text-xs text-ws-faint sm:block">
+        <span className="ml-auto hidden shrink-0 pb-3 pr-2 text-sm text-ws-faint sm:block">
           {aside}
         </span>
       ) : null}
@@ -293,7 +293,7 @@ export function PipelineTrack({
             key={segment.label}
             style={{ flexGrow: segment.count / total }}
             className={cn(
-              "flex min-w-fit items-center justify-between gap-3 rounded-full px-4 py-2 text-sm font-semibold",
+              "flex min-w-fit items-center justify-between gap-3 rounded-full px-4 py-2 text-base font-semibold",
               toneFill[segment.tone],
             )}
           >
@@ -302,7 +302,7 @@ export function PipelineTrack({
           </div>
         ))}
 
-      <div className="ws-track-rest flex min-w-fit grow items-center justify-end rounded-full px-4 py-2 text-sm font-medium text-ws-faint">
+      <div className="ws-track-rest flex min-w-fit grow items-center justify-end rounded-full px-4 py-2 text-base font-medium text-ws-faint">
         {restLabel}
       </div>
     </div>

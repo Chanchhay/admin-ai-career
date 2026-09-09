@@ -77,7 +77,7 @@ export function CompanyStatusBadge({
   status: CompanyVerificationStatus;
 }) {
   return (
-    <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-ws-fg">
+    <span className="inline-flex items-center gap-2 whitespace-nowrap text-base text-ws-fg">
       <span
         aria-hidden="true"
         className={`size-2 shrink-0 rounded-full ${companyDot[status]}`}

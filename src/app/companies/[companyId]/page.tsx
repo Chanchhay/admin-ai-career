@@ -86,10 +86,10 @@ export default function CompanyDetailPage() {
         />
 
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-2xl font-semibold tracking-tight text-ws-fg">
+          <h2 className="truncate text-3xl font-semibold tracking-tight text-ws-fg">
             {company.name}
           </h2>
-          <p className="truncate text-sm text-ws-faint">
+          <p className="truncate text-base text-ws-faint">
             {orDash(company.industryName)} · {orDash(company.contactEmail)}
           </p>
         </div>
@@ -134,7 +134,7 @@ export default function CompanyDetailPage() {
             </dl>
 
             {company.description ? (
-              <p className="mt-3 border-t border-ws-line pt-3 text-xs text-ws-muted">
+              <p className="mt-3 border-t border-ws-line pt-3 text-sm text-ws-muted">
                 {company.description}
               </p>
             ) : null}
@@ -245,14 +245,14 @@ function DecisionPanel({
       />
 
       {pending ? (
-        <p className="mb-3 text-sm leading-6 text-ws-muted">
+        <p className="mb-3 text-base leading-6 text-ws-muted">
           This company is waiting on a decision. Approving lets its recruiters
           publish jobs; a rejection or a revision request needs a note, which is
           all the recruiter will see.
         </p>
       ) : (
         <div className="flex flex-col gap-1">
-          <p className="text-sm text-ws-fg">
+          <p className="text-base text-ws-fg">
             {approved
               ? "Approved — recruiters at this company can publish jobs."
               : suspended
@@ -260,7 +260,7 @@ function DecisionPanel({
                 : "Rejected — recruiters at this company cannot publish jobs."}
           </p>
           {latest ? (
-            <p className="text-xs text-ws-faint">
+            <p className="text-sm text-ws-faint">
               {formatDateTime(latest.verifiedAt)}
               {latest.note ? ` · ${latest.note}` : ""}
             </p>
@@ -270,7 +270,7 @@ function DecisionPanel({
 
       {editing ? (
         <div className={pending ? undefined : "mt-3 border-t border-ws-line pt-3"}>
-          <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-ws-muted">
             Note to the recruiter
             <Textarea
               value={note}
@@ -329,7 +329,7 @@ function DecisionPanel({
             )}
           </div>
 
-          <p className="mt-2 text-xs text-ws-faint">
+          <p className="mt-2 text-sm text-ws-faint">
             {suspended
               ? "Reinstating returns the company to approved; its jobs come back on the next read."
               : approved
@@ -359,7 +359,7 @@ function DocumentsPanel({
       </div>
 
       {documents.length === 0 ? (
-        <p className="px-5 pb-6 text-center text-sm text-ws-faint">
+        <p className="px-5 pb-6 text-center text-base text-ws-faint">
           No documents uploaded. There is nothing to verify against yet.
         </p>
       ) : (
@@ -382,10 +382,10 @@ function DocumentsPanel({
                 </span>
 
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-ws-fg">
+                  <span className="block truncate text-base font-medium text-ws-fg">
                     {humanizeEnum(document.documentType)}
                   </span>
-                  <span className="block text-xs text-ws-faint">
+                  <span className="block text-sm text-ws-faint">
                     Uploaded {formatDateTime(document.createdAt)}
                   </span>
                 </span>
@@ -442,14 +442,14 @@ function HistoryPanel({
             </div>
 
             <div className={index < history.length - 1 ? "pb-4" : undefined}>
-              <p className="text-sm font-medium text-ws-fg">
+              <p className="text-base font-medium text-ws-fg">
                 {humanizeEnum(entry.decision)}
-                <span className="ml-2 text-xs font-normal text-ws-faint">
+                <span className="ml-2 text-sm font-normal text-ws-faint">
                   {formatDateTime(entry.verifiedAt)}
                 </span>
               </p>
               {entry.note ? (
-                <p className="mt-0.5 text-sm leading-6 text-ws-muted">
+                <p className="mt-0.5 text-base leading-6 text-ws-muted">
                   {entry.note}
                 </p>
               ) : null}
@@ -476,8 +476,8 @@ function Row({
 
   return (
     <div className="py-2">
-      <dt className="text-xs text-ws-faint">{label}</dt>
-      <dd className="mt-0.5 truncate text-sm font-medium text-ws-fg">
+      <dt className="text-sm text-ws-faint">{label}</dt>
+      <dd className="mt-0.5 truncate text-base font-medium text-ws-fg">
         {href && text !== "—" ? (
           <a
             href={href.startsWith("http") ? href : `https://${href}`}

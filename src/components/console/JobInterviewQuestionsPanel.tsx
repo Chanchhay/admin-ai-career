@@ -153,7 +153,7 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
         }
       />
 
-      <p className="mb-4 text-sm text-ws-muted">
+      <p className="mb-4 text-base text-ws-muted">
         Candidates are asked these first, in this order. Questions already asked
         are sent to the AI so it does not repeat them.
       </p>
@@ -174,7 +174,7 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
       </div>
 
       {drafts.length === 0 ? (
-        <p className="rounded-xl bg-ws-card-hover px-4 py-6 text-center text-sm text-ws-faint">
+        <p className="rounded-xl bg-ws-card-hover px-4 py-6 text-center text-base text-ws-faint">
           Nothing written yet — every question is generated. Add one to ask it of
           every candidate for this job.
         </p>
@@ -186,12 +186,12 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
               className="flex flex-col gap-4 rounded-xl bg-ws-card-hover px-4 py-4"
             >
               <div className="flex flex-wrap items-end gap-3">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-ws-card text-sm font-bold text-ws-muted shadow-sm">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-ws-card text-base font-bold text-ws-muted shadow-sm">
                   {index + 1}
                 </span>
 
                 <label className="flex min-w-44 flex-col gap-1.5">
-                  <span className="text-xs font-semibold text-ws-muted">Type</span>
+                  <span className="text-sm font-semibold text-ws-muted">Type</span>
                   <Select
                     value={draft.questionType}
                     onChange={(questionType) =>
@@ -206,7 +206,7 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
                 </label>
 
                 <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold text-ws-muted">Points</span>
+                  <span className="text-sm font-semibold text-ws-muted">Points</span>
                   <Input
                     type="number"
                     min="1"
@@ -244,7 +244,7 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
               </div>
 
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold text-ws-muted">Question</span>
+                <span className="text-sm font-semibold text-ws-muted">Question</span>
                 <Textarea
                   value={draft.questionText}
                   onChange={(event) =>
@@ -259,7 +259,7 @@ function QuestionEditor({ set }: { set: JobInterviewQuestionSetResponse }) {
 
               <div>
                 <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold text-ws-muted">
+                  <span className="text-sm font-semibold text-ws-muted">
                     What a good answer covers (optional)
                   </span>
                   <Input
@@ -316,8 +316,8 @@ function ModeOption({
         onChange={onSelect}
       />
       <span className="min-w-0">
-        <span className="block text-sm font-semibold text-ws-fg">{title}</span>
-        <span className="block text-xs text-ws-faint">{detail}</span>
+        <span className="block text-base font-semibold text-ws-fg">{title}</span>
+        <span className="block text-sm text-ws-faint">{detail}</span>
       </span>
     </label>
   );

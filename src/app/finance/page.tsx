@@ -89,7 +89,7 @@ export default function FinancePage() {
         <Button variant="outline" onClick={() => setBilling(true)}>
           <HandCoins aria-hidden="true" /> Ready to bill
           {readyCount > 0 ? (
-            <span className="ml-1 rounded-md bg-chip-solid px-1.5 py-0.5 text-xs font-semibold text-chip-solid-fg tabular-nums">
+            <span className="ml-1 rounded-md bg-chip-solid px-1.5 py-0.5 text-sm font-semibold text-chip-solid-fg tabular-nums">
               {readyCount}
             </span>
           ) : null}
@@ -122,7 +122,7 @@ export default function FinancePage() {
           {view === "Hire review" ? <HiresTable /> : (
             <>
               {company ? (
-                <div className="flex items-center justify-between gap-2 rounded-lg border border-ws-line px-4 py-2 text-sm max-lg:flex-wrap max-lg:break-words">
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-ws-line px-4 py-2 text-base max-lg:flex-wrap max-lg:break-words">
                   <span>Invoices for <strong>{company.name}</strong></span>
                   <Button variant="ghost" size="sm" onClick={() => setCompany(null)}>All companies</Button>
                 </div>
@@ -231,14 +231,14 @@ function Summary({
               : "bg-ws-panel hover:bg-ws-card/60",
           )}
         >
-          <span className="flex items-center gap-2 text-xs font-medium text-ws-muted">
+          <span className="flex items-center gap-2 text-sm font-medium text-ws-muted">
             <span
               aria-hidden="true"
               className={`size-2 shrink-0 rounded-full ${cell.dot}`}
             />
             {cell.label}
           </span>
-          <span className="text-2xl font-semibold tabular-nums text-ws-fg">
+          <span className="text-3xl font-semibold tabular-nums text-ws-fg">
             {cell.value === undefined ? "—" : cell.value.toLocaleString()}
           </span>
         </button>
@@ -373,44 +373,44 @@ function HireRow({ hire }: { hire: HiringRecordResponse }) {
   return (
     <tr className="border-b border-ws-line/70 transition-colors hover:bg-ws-card/60">
       <td className="px-4 py-3">
-        <span className="block truncate text-sm font-medium text-ws-fg">
+        <span className="block truncate text-base font-medium text-ws-fg">
           {orDash(hire.jobTitle)}
         </span>
-        <span className="block truncate text-xs text-ws-faint">
+        <span className="block truncate text-sm text-ws-faint">
           {orDash(hire.candidateLabel)}
         </span>
       </td>
 
-      <td className="truncate px-4 py-3 text-sm text-ws-muted">
+      <td className="truncate px-4 py-3 text-base text-ws-muted">
         {orDash(hire.companyName)}
       </td>
 
-      <td className="px-4 py-3 text-sm tabular-nums text-ws-fg">
+      <td className="px-4 py-3 text-base tabular-nums text-ws-fg">
         {formatMoney(hire.offeredSalary, hire.salaryCurrency)}
       </td>
 
       <td className="px-4 py-3">
         {hire.commission ? (
-          <span className="block text-sm tabular-nums text-ws-fg">
+          <span className="block text-base tabular-nums text-ws-fg">
             {formatMoney(
               hire.commission.commissionAmount,
               hire.commission.currency,
             )}
-            <span className="ml-1 text-xs text-ws-faint">
+            <span className="ml-1 text-sm text-ws-faint">
               at {hire.commission.commissionRate}%
             </span>
-            <span className="block text-xs text-ws-faint">
+            <span className="block text-sm text-ws-faint">
               {hire.commission.invoiceNo
                 ? `Invoiced ${hire.commission.invoiceNo}`
                 : "Not yet invoiced"}
             </span>
           </span>
         ) : (
-          <span className="text-xs text-ws-faint">None yet</span>
+          <span className="text-sm text-ws-faint">None yet</span>
         )}
       </td>
 
-      <td className="px-4 py-3 text-sm text-ws-muted">
+      <td className="px-4 py-3 text-base text-ws-muted">
         {formatDate(hire.hiredAt)}
       </td>
 
@@ -552,28 +552,28 @@ function InvoiceRow({ invoice }: { invoice: InvoiceResponse }) {
         >
           {invoice.invoiceNo}
         </Link>
-        <span className="block truncate text-xs text-ws-faint">
+        <span className="block truncate text-sm text-ws-faint">
           {invoice.items.length} {invoice.items.length === 1 ? "line" : "lines"}
         </span>
       </td>
 
-      <td className="truncate px-4 py-3 text-sm text-ws-muted">
+      <td className="truncate px-4 py-3 text-base text-ws-muted">
         {orDash(invoice.companyName)}
       </td>
 
-      <td className="px-4 py-3 text-sm text-ws-muted">
+      <td className="px-4 py-3 text-base text-ws-muted">
         {invoice.issuedAt ? formatDate(invoice.issuedAt) : "—"}
       </td>
 
-      <td className="px-4 py-3 text-sm text-ws-muted">
+      <td className="px-4 py-3 text-base text-ws-muted">
         {invoice.dueAt ? formatDate(invoice.dueAt) : "—"}
       </td>
 
-      <td className="px-4 py-3 text-sm font-medium tabular-nums text-ws-fg">
+      <td className="px-4 py-3 text-base font-medium tabular-nums text-ws-fg">
         {formatMoney(invoice.totalAmount, invoice.currency)}
       </td>
 
-      <td className="px-4 py-3 text-sm tabular-nums text-ws-fg">
+      <td className="px-4 py-3 text-base tabular-nums text-ws-fg">
         {invoice.status !== "CANCELLED" && invoice.outstandingAmount > 0 ? (
           formatMoney(invoice.outstandingAmount, invoice.currency)
         ) : (
@@ -638,7 +638,7 @@ function TableCard<T>({
       <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
         <h2 className="font-semibold text-ws-fg">{title}</h2>
         {page ? (
-          <span className="rounded-md bg-ws-card px-2 py-0.5 text-xs font-medium text-ws-muted">
+          <span className="rounded-md bg-ws-card px-2 py-0.5 text-sm font-medium text-ws-muted">
             {page.totalElements}
           </span>
         ) : null}
@@ -668,7 +668,7 @@ function TableCard<T>({
                 <th
                   key={column.key}
                   scope="col"
-                  className={`${column.className} bg-ws-card px-4 py-2.5 text-xs font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
+                  className={`${column.className} bg-ws-card px-4 py-2.5 text-sm font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
                 >
                   {column.label}
                 </th>
@@ -696,7 +696,7 @@ function TableCard<T>({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="px-4 py-14 text-center text-sm text-ws-faint"
+                  className="px-4 py-14 text-center text-base text-ws-faint"
                 >
                   {emptyLabel}
                 </td>
@@ -710,7 +710,7 @@ function TableCard<T>({
 
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-t border-ws-line px-4 py-2.5">
         <PageSizeSelect value={size} onChange={onSize} id={sizeId} />
-        <p className="hidden text-xs text-ws-faint lg:block">{note}</p>
+        <p className="hidden text-sm text-ws-faint lg:block">{note}</p>
         {page ? (
           <div className="ml-auto max-sm:w-full max-sm:[&>div]:justify-end">
             <Pager page={page} onPageChange={onPageChange} />
@@ -774,7 +774,7 @@ function SettingsForm() {
   return (
     <div className="flex flex-wrap items-end gap-3">
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-ws-muted">
+        <span className="text-sm font-medium text-ws-muted">
           Commission rate (%)
         </span>
         <Input
@@ -789,7 +789,7 @@ function SettingsForm() {
       </label>
 
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-ws-muted">
+        <span className="text-sm font-medium text-ws-muted">
           Payment terms (days)
         </span>
         <Input

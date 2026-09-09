@@ -97,7 +97,7 @@ function Editor({ settings }: { settings: GuestInterviewSettingsResponse }) {
         action={<GhostChip>{enabled ? "Open" : "Closed"}</GhostChip>}
       />
 
-      <p className="mb-4 text-sm text-ws-muted">
+      <p className="mb-4 text-base text-ws-muted">
         Lets someone try an AI interview against a published job without signing
         in. Every attempt costs generation and scoring, and a guest has no
         account behind them — so the limits below are the only thing capping it.
@@ -111,10 +111,10 @@ function Editor({ settings }: { settings: GuestInterviewSettingsResponse }) {
           onChange={(event) => setEnabled(event.target.checked)}
         />
         <span>
-          <span className="block text-sm font-semibold text-ws-fg">
+          <span className="block text-base font-semibold text-ws-fg">
             Let guests take an interview
           </span>
-          <span className="block text-xs text-ws-faint">
+          <span className="block text-sm text-ws-faint">
             Turning this off stops new guest interviews immediately.
           </span>
         </span>
@@ -122,7 +122,7 @@ function Editor({ settings }: { settings: GuestInterviewSettingsResponse }) {
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-ws-muted">
+          <span className="text-sm font-semibold text-ws-muted">
             Attempts per guest
           </span>
           <Input
@@ -136,7 +136,7 @@ function Editor({ settings }: { settings: GuestInterviewSettingsResponse }) {
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-ws-muted">
+          <span className="text-sm font-semibold text-ws-muted">
             Attempts per network per day
           </span>
           <Input
@@ -150,7 +150,7 @@ function Editor({ settings }: { settings: GuestInterviewSettingsResponse }) {
         </label>
       </div>
 
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ws-faint">
+      <p className="mb-2 type-eyebrow">
         Where guest questions come from
       </p>
       <div className="flex flex-col gap-2">
@@ -167,10 +167,10 @@ function Editor({ settings }: { settings: GuestInterviewSettingsResponse }) {
               onChange={() => setSource(option.value)}
             />
             <span className="min-w-0">
-              <span className="block text-sm font-semibold text-ws-fg">
+              <span className="block text-base font-semibold text-ws-fg">
                 {option.label}
               </span>
-              <span className="block text-xs text-ws-faint">{option.detail}</span>
+              <span className="block text-sm text-ws-faint">{option.detail}</span>
             </span>
           </label>
         ))}

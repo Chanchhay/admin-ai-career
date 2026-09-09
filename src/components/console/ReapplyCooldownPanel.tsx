@@ -59,7 +59,7 @@ export function ReapplyCooldownPanel() {
         icon={<Timer aria-hidden="true" className="size-4" />}
       />
 
-      <p className="mb-4 text-sm text-ws-muted">
+      <p className="mb-4 text-base text-ws-muted">
         How long a rejected candidate waits before applying to the same job
         again. Set 0 to allow it immediately. Withdrawing is not affected — that
         is the candidate&apos;s own decision, so it never starts the clock.
@@ -67,7 +67,7 @@ export function ReapplyCooldownPanel() {
 
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-ws-muted">Days</span>
+          <span className="text-sm font-semibold text-ws-muted">Days</span>
           <Input
             type="number"
             min="0"
@@ -83,7 +83,7 @@ export function ReapplyCooldownPanel() {
         </Button>
 
         {data.reapplyCooldownDays === 0 ? (
-          <span className="text-xs text-ws-faint">
+          <span className="text-sm text-ws-faint">
             Currently off — rejected candidates can re-apply straight away.
           </span>
         ) : null}

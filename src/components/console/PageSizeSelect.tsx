@@ -18,7 +18,7 @@ export function PageSizeSelect({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor={id} className="text-xs whitespace-nowrap text-ws-faint">
+      <label htmlFor={id} className="text-sm whitespace-nowrap text-ws-faint">
         Rows per page
       </label>
       <Select id={id} value={value} onChange={onChange} options={OPTIONS} />

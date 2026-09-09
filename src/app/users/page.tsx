@@ -104,7 +104,7 @@ export default function UsersPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 max-lg:min-w-0 max-lg:flex-none">
       <Panel tone="soft" className="shrink-0">
-        <p className="text-sm leading-6">
+        <p className="text-base leading-6">
           {tx(
             "Accounts live in Keycloak; this console changes their roles and whether they may sign in. Suspending an account disables the Keycloak user and blocks its existing tokens on the next request.",
           )}
@@ -119,7 +119,7 @@ export default function UsersPage() {
         <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
           <h2 className="font-semibold text-ws-fg">{tx("Accounts")}</h2>
           {data ? (
-            <span className="rounded-md bg-ws-card px-2 py-0.5 text-xs font-medium text-ws-muted">
+            <span className="rounded-md bg-ws-card px-2 py-0.5 text-sm font-medium text-ws-muted">
               {data.totalElements}
             </span>
           ) : null}
@@ -199,7 +199,7 @@ export default function UsersPage() {
                   <th
                     key={column.key}
                     scope="col"
-                    className={`${column.className} bg-ws-card px-4 py-2.5 text-xs font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
+                    className={`${column.className} bg-ws-card px-4 py-2.5 text-sm font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
                   >
                     {column.label ? tx(column.label) : <span className="sr-only">{tx("Actions")}</span>}
                   </th>
@@ -226,7 +226,7 @@ export default function UsersPage() {
                 <tr>
                   <td
                     colSpan={COLUMNS.length}
-                    className="px-4 py-14 text-center text-sm text-ws-faint"
+                    className="px-4 py-14 text-center text-base text-ws-faint"
                   >
                     {tx("No accounts match these filters.")}
                   </td>
@@ -240,7 +240,7 @@ export default function UsersPage() {
                     <td className="px-4 py-3">
                       <Link
                         href={`/users/${user.keycloakUserId}`}
-                        className="block truncate text-sm font-semibold text-ws-fg hover:underline"
+                        className="block truncate text-base font-semibold text-ws-fg hover:underline"
                         title={orDash(user.username)}
                       >
                         {orDash(user.username)}
@@ -248,7 +248,7 @@ export default function UsersPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className="block truncate text-sm text-ws-muted"
+                        className="block truncate text-base text-ws-muted"
                         title={orDash(user.email)}
                       >
                         {orDash(user.email)}
@@ -287,13 +287,13 @@ export default function UsersPage() {
           ) : isError ? (
             <ErrorState message={tx("Unable to load users.")} onRetry={refetch} />
           ) : users.length === 0 ? (
-            <p className="px-3 py-8 text-center text-sm text-ws-faint">{tx("No accounts match these filters.")}</p>
+            <p className="px-3 py-8 text-center text-base text-ws-faint">{tx("No accounts match these filters.")}</p>
           ) : users.map((user) => (
             <article key={user.keycloakUserId} className="min-w-0 rounded-xl border border-ws-line bg-ws-panel p-4 shadow-xs">
-              <Link href={`/users/${user.keycloakUserId}`} className="block break-words text-sm font-semibold text-ws-fg hover:underline">
+              <Link href={`/users/${user.keycloakUserId}`} className="block break-words text-base font-semibold text-ws-fg hover:underline">
                 {orDash(user.username)}
               </Link>
-              <dl className="mt-3 divide-y divide-ws-line text-sm [&>div]:grid [&>div]:grid-cols-[4rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
+              <dl className="mt-3 divide-y divide-ws-line text-base [&>div]:grid [&>div]:grid-cols-[4rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
                 <div><dt>{tx("Email")}</dt><dd className="[overflow-wrap:anywhere]">{orDash(user.email)}</dd></div>
                 <div><dt>{tx("Roles")}</dt><dd><span className="flex flex-wrap justify-end gap-1.5"><RoleChips roles={user.roles} /></span></dd></div>
                 <div><dt>{tx("Status")}</dt><dd><AccountStatusChip status={user.status} /></dd></div>
@@ -384,7 +384,7 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
         }
       />
 
-      <p className="mb-4 text-sm text-ws-muted">
+      <p className="mb-4 text-base text-ws-muted">
         {tx(
           "Self-registration only issues seeker and recruiter accounts. Everything else is created here.",
         )}
@@ -430,7 +430,7 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
           </Field>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-ws-muted">
+        <label className="flex items-center gap-2 text-base text-ws-muted">
           <input
             type="checkbox"
             checked={form.temporaryPassword ?? false}
@@ -440,7 +440,7 @@ function CreateUserPanel({ onClose }: { onClose: () => void }) {
         </label>
 
         <fieldset>
-          <legend className="mb-2 text-xs font-semibold text-ws-muted">
+          <legend className="mb-2 text-sm font-semibold text-ws-muted">
             {tx("Roles")}
           </legend>
           <div className="flex flex-wrap gap-1.5">
@@ -476,7 +476,7 @@ function Field({
 
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-semibold text-ws-muted">{tx(label)}</span>
+      <span className="text-sm font-semibold text-ws-muted">{tx(label)}</span>
       {children}
     </label>
   );
