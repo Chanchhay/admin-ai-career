@@ -26,6 +26,7 @@ import type {
   InvoiceResponse,
   InvoiceStatus,
 } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDate, orDash } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
@@ -73,7 +74,8 @@ const invoiceStatus: Record<InvoiceTab, InvoiceStatus | undefined> = {
 };
 
 export default function FinancePage() {
-  useSetPageHeading("Finance");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Finance"));
 
   const [view, setView] = useState<"Summary" | "Invoices" | "Hire review">("Summary");
   const [company, setCompany] = useState<{ id: string; name: string } | null>(null);
@@ -87,7 +89,7 @@ export default function FinancePage() {
     <div className="flex min-h-0 flex-1 flex-col gap-3 max-lg:min-w-0 max-lg:flex-none">
       <div className="flex flex-wrap items-center gap-2 max-sm:[&>button]:flex-1 max-sm:[&>button]:min-h-10">
         <Button variant="outline" onClick={() => setBilling(true)}>
-          <HandCoins aria-hidden="true" /> Ready to bill
+          <HandCoins aria-hidden="true" /> {tx("Ready to bill")}
           {readyCount > 0 ? (
             <span className="ml-1 rounded-md bg-chip-solid px-1.5 py-0.5 text-xs font-semibold text-chip-solid-fg tabular-nums">
               {readyCount}
@@ -96,7 +98,7 @@ export default function FinancePage() {
         </Button>
 
         <Button variant="outline" onClick={() => setSettings(true)}>
-          <Percent aria-hidden="true" /> Billing settings
+          <Percent aria-hidden="true" /> {tx("Billing settings")}
         </Button>
       </div>
 
@@ -123,8 +125,8 @@ export default function FinancePage() {
             <>
               {company ? (
                 <div className="flex items-center justify-between gap-2 rounded-lg border border-ws-line px-4 py-2 text-sm max-lg:flex-wrap max-lg:break-words">
-                  <span>Invoices for <strong>{company.name}</strong></span>
-                  <Button variant="ghost" size="sm" onClick={() => setCompany(null)}>All companies</Button>
+                  <span>{tx("Invoices for")} <strong>{company.name}</strong></span>
+                  <Button variant="ghost" size="sm" onClick={() => setCompany(null)}>{tx("All companies")}</Button>
                 </div>
               ) : null}
               <InvoicesTable key={company?.id ?? "all"} companyId={company?.id} />
@@ -138,8 +140,8 @@ export default function FinancePage() {
       <Dialog
         open={billing}
         onOpenChange={setBilling}
-        title="Ready to bill"
-        description="Companies holding commissions no invoice has picked up yet."
+        title={tx("Ready to bill")}
+        description={tx("Companies holding commissions no invoice has picked up yet.")}
         className="w-[min(46rem,calc(100vw-2rem))]"
       >
         <ReadyToBillPanel bare />
@@ -148,8 +150,8 @@ export default function FinancePage() {
       <Dialog
         open={settings}
         onOpenChange={setSettings}
-        title="Billing settings"
-        description="Applied to hires confirmed from now on. Commissions already calculated keep the rate they were created with."
+        title={tx("Billing settings")}
+        description={tx("Applied to hires confirmed from now on. Commissions already calculated keep the rate they were created with.")}
       >
         <SettingsForm />
       </Dialog>
@@ -172,6 +174,7 @@ function Summary({
   view: "hires" | "invoices";
   onSelect: (view: "hires" | "invoices") => void;
 }) {
+  const tx = useWorkspaceTranslation();
   const awaiting = useGetHiringRecordsQuery({
     status: "REPORTED",
     page: 0,
@@ -236,7 +239,7 @@ function Summary({
               aria-hidden="true"
               className={`size-2 shrink-0 rounded-full ${cell.dot}`}
             />
-            {cell.label}
+            {tx(cell.label)}
           </span>
           <span className="text-2xl font-semibold tabular-nums text-ws-fg">
             {cell.value === undefined ? "—" : cell.value.toLocaleString()}
@@ -265,6 +268,7 @@ const HIRE_COLUMNS = [
 ] as const;
 
 function HiresTable() {
+  const tx = useWorkspaceTranslation();
   const [tab, setTab] = useState<HireTab>("Awaiting review");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(20);
@@ -288,8 +292,8 @@ function HiresTable() {
 
   return (
     <TableCard
-      title="Reported hires"
-      note="Recruiters report their own hires and are the party the commission is charged to. Confirming is what creates that commission."
+      title={tx("Reported hires")}
+      note={tx("Recruiters report their own hires and are the party the commission is charged to. Confirming is what creates that commission.")}
       tabs={
         <PillTabs
           tabs={HIRE_TABS}
@@ -308,7 +312,7 @@ function HiresTable() {
       isError={isError}
       onRetry={refetch}
       empty={rows.length === 0}
-      emptyLabel="No hires in this queue."
+      emptyLabel={tx("No hires in this queue.")}
       page={data}
       onPageChange={setPage}
       size={size}
@@ -326,6 +330,7 @@ function HiresTable() {
 }
 
 function HireRow({ hire }: { hire: HiringRecordResponse }) {
+  const tx = useWorkspaceTranslation();
   const [confirmHire, confirmState] = useConfirmHireMutation();
   const [rejectHire, rejectState] = useRejectHireMutation();
   const [rejecting, setRejecting] = useState(false);
@@ -341,19 +346,21 @@ function HireRow({ hire }: { hire: HiringRecordResponse }) {
         body: {},
       }).unwrap();
       toast.success(
-        `Confirmed. Commission ${formatMoney(
-          result.commission?.commissionAmount ?? null,
-          result.commission?.currency ?? null,
-        )}.`,
+        tx("Confirmed. Commission {amount}.", {
+          amount: formatMoney(
+            result.commission?.commissionAmount ?? null,
+            result.commission?.currency ?? null,
+          ),
+        }),
       );
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to confirm this hire."));
+      toast.error(getApiErrorMessage(error, tx("Unable to confirm this hire.")));
     }
   }
 
   async function reject() {
     if (!note.trim()) {
-      toast.error("Say why the report is being rejected.");
+      toast.error(tx("Say why the report is being rejected."));
       return;
     }
 
@@ -362,11 +369,11 @@ function HireRow({ hire }: { hire: HiringRecordResponse }) {
         hiringRecordId: hire.id,
         body: { note: note.trim() },
       }).unwrap();
-      toast.success("Report rejected.");
+      toast.success(tx("Report rejected."));
       setNote("");
       setRejecting(false);
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to reject this report."));
+      toast.error(getApiErrorMessage(error, tx("Unable to reject this report.")));
     }
   }
 
@@ -397,16 +404,16 @@ function HireRow({ hire }: { hire: HiringRecordResponse }) {
               hire.commission.currency,
             )}
             <span className="ml-1 text-xs text-ws-faint">
-              at {hire.commission.commissionRate}%
+              {tx("at {rate}%", { rate: hire.commission.commissionRate })}
             </span>
             <span className="block text-xs text-ws-faint">
               {hire.commission.invoiceNo
-                ? `Invoiced ${hire.commission.invoiceNo}`
-                : "Not yet invoiced"}
+                ? tx("Invoiced {no}", { no: hire.commission.invoiceNo })
+                : tx("Not yet invoiced")}
             </span>
           </span>
         ) : (
-          <span className="text-xs text-ws-faint">None yet</span>
+          <span className="text-xs text-ws-faint">{tx("None yet")}</span>
         )}
       </td>
 
@@ -421,7 +428,7 @@ function HireRow({ hire }: { hire: HiringRecordResponse }) {
           {reviewable ? (
             <span className="flex items-center gap-1.5">
               <Button size="sm" disabled={busy} onClick={() => void confirm()}>
-                Confirm
+                {tx("Confirm")}
               </Button>
               <Button
                 size="sm"
@@ -429,7 +436,7 @@ function HireRow({ hire }: { hire: HiringRecordResponse }) {
                 disabled={busy}
                 onClick={() => setRejecting(true)}
               >
-                Reject
+                {tx("Reject")}
               </Button>
             </span>
           ) : null}
@@ -440,15 +447,18 @@ function HireRow({ hire }: { hire: HiringRecordResponse }) {
         <Dialog
           open={rejecting}
           onOpenChange={setRejecting}
-          title="Reject this hire report"
-          description={`${hire.jobTitle} at ${hire.companyName}. The recruiter sees the reason.`}
+          title={tx("Reject this hire report")}
+          description={tx("{job} at {company}. The recruiter sees the reason.", {
+            job: hire.jobTitle,
+            company: hire.companyName,
+          })}
         >
           <Textarea
             value={note}
             onChange={(event) => setNote(event.target.value)}
             rows={3}
             maxLength={2000}
-            placeholder="Why is this report being rejected?"
+            placeholder={tx("Why is this report being rejected?")}
           />
           <div className="mt-3 flex gap-2">
             <Button
@@ -456,10 +466,10 @@ function HireRow({ hire }: { hire: HiringRecordResponse }) {
               disabled={busy}
               onClick={() => void reject()}
             >
-              Reject report
+              {tx("Reject report")}
             </Button>
             <Button variant="ghost" onClick={() => setRejecting(false)}>
-              Cancel
+              {tx("Cancel")}
             </Button>
           </div>
         </Dialog>
@@ -481,6 +491,7 @@ const INVOICE_COLUMNS = [
 ] as const;
 
 function InvoicesTable({ companyId }: { companyId?: string }) {
+  const tx = useWorkspaceTranslation();
   const [tab, setTab] = useState<InvoiceTab>("All");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(20);
@@ -505,8 +516,8 @@ function InvoicesTable({ companyId }: { companyId?: string }) {
 
   return (
     <TableCard
-      title="Invoices"
-      note="A draft is private until it is issued. Issuing is what the recruiter sees."
+      title={tx("Invoices")}
+      note={tx("A draft is private until it is issued. Issuing is what the recruiter sees.")}
       tabs={
         <PillTabs
           tabs={INVOICE_TABS}
@@ -525,7 +536,7 @@ function InvoicesTable({ companyId }: { companyId?: string }) {
       isError={isError}
       onRetry={refetch}
       empty={rows.length === 0}
-      emptyLabel="No invoices here yet."
+      emptyLabel={tx("No invoices here yet.")}
       page={data}
       onPageChange={setPage}
       size={size}
@@ -543,6 +554,7 @@ function InvoicesTable({ companyId }: { companyId?: string }) {
 }
 
 function InvoiceRow({ invoice }: { invoice: InvoiceResponse }) {
+  const tx = useWorkspaceTranslation();
   return (
     <tr className="border-b border-ws-line/70 transition-colors hover:bg-ws-card/60">
       <td className="px-4 py-3">
@@ -553,7 +565,7 @@ function InvoiceRow({ invoice }: { invoice: InvoiceResponse }) {
           {invoice.invoiceNo}
         </Link>
         <span className="block truncate text-xs text-ws-faint">
-          {invoice.items.length} {invoice.items.length === 1 ? "line" : "lines"}
+          {tx(invoice.items.length === 1 ? "{count} line" : "{count} lines", { count: invoice.items.length })}
         </span>
       </td>
 
@@ -633,6 +645,7 @@ function TableCard<T>({
   sizeId: string;
   children: React.ReactNode;
 }) {
+  const tx = useWorkspaceTranslation();
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel max-lg:min-w-0 max-lg:flex-none">
       <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
@@ -651,7 +664,7 @@ function TableCard<T>({
           <Input
             value={filter}
             onChange={(event) => onFilter(event.target.value)}
-            placeholder="Search this page"
+            placeholder={tx("Search this page")}
             className="pl-9"
           />
         </div>
@@ -670,7 +683,7 @@ function TableCard<T>({
                   scope="col"
                   className={`${column.className} bg-ws-card px-4 py-2.5 text-xs font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
                 >
-                  {column.label}
+                  {tx(column.label)}
                 </th>
               ))}
             </tr>
@@ -687,7 +700,7 @@ function TableCard<T>({
               <tr>
                 <td colSpan={columns.length} className="p-4">
                   <ErrorState
-                    message="Unable to load this list."
+                    message={tx("Unable to load this list.")}
                     onRetry={onRetry}
                   />
                 </td>
@@ -724,6 +737,7 @@ function TableCard<T>({
 /* ------------------------------------------------------------ settings --- */
 
 function SettingsForm() {
+  const tx = useWorkspaceTranslation();
   const { data, isLoading } = useGetFinanceSettingsQuery();
   const [updateSettings, { isLoading: isSaving }] =
     useUpdateFinanceSettingsMutation();
@@ -748,12 +762,12 @@ function SettingsForm() {
       commissionRate < 0 ||
       commissionRate > 100
     ) {
-      toast.error("The commission rate must be between 0 and 100.");
+      toast.error(tx("The commission rate must be between 0 and 100."));
       return;
     }
 
     if (!Number.isInteger(paymentTermsDays) || paymentTermsDays < 0) {
-      toast.error("Payment terms must be a whole number of days.");
+      toast.error(tx("Payment terms must be a whole number of days."));
       return;
     }
 
@@ -763,11 +777,11 @@ function SettingsForm() {
         paymentTermsDays,
         currency: data!.currency,
       }).unwrap();
-      toast.success("Finance settings saved.");
+      toast.success(tx("Finance settings saved."));
       setRate(null);
       setTerms(null);
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to save the settings."));
+      toast.error(getApiErrorMessage(error, tx("Unable to save the settings.")));
     }
   }
 
@@ -775,7 +789,7 @@ function SettingsForm() {
     <div className="flex flex-wrap items-end gap-3">
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-ws-muted">
-          Commission rate (%)
+          {tx("Commission rate (%)")}
         </span>
         <Input
           type="number"
@@ -790,7 +804,7 @@ function SettingsForm() {
 
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-ws-muted">
-          Payment terms (days)
+          {tx("Payment terms (days)")}
         </span>
         <Input
           type="number"
@@ -807,7 +821,7 @@ function SettingsForm() {
       </GhostChip>
 
       <Button disabled={!changed || isSaving} onClick={() => void save()}>
-        {isSaving ? "Saving…" : "Save"}
+        {isSaving ? tx("Saving…") : tx("Save")}
       </Button>
     </div>
   );

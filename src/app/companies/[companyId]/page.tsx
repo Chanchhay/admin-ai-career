@@ -31,6 +31,7 @@ import type {
   CompanyVerificationStatus,
   ModeratorCompanyDetailResponse,
 } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { resolveFileUrl } from "@/lib/file-url";
 import { formatDateTime, humanizeEnum, orDash } from "@/lib/format";
@@ -46,6 +47,7 @@ type Decision =
   | "reinstate";
 
 export default function CompanyDetailPage() {
+  const tx = useWorkspaceTranslation();
   const { companyId } = useParams<{ companyId: string }>();
   const id = companyId;
 
@@ -53,12 +55,12 @@ export default function CompanyDetailPage() {
     skip: !isUuid(id),
   });
 
-  useSetPageHeading(data?.company.name ?? "Company");
+  useSetPageHeading(data?.company.name ?? tx("Company"));
 
   if (isLoading) return <LoadingState rows={6} />;
   if (isError || !data) {
     return (
-      <ErrorState message="Unable to load this company." onRetry={refetch} />
+      <ErrorState message={tx("Unable to load this company.")} onRetry={refetch} />
     );
   }
 
@@ -74,7 +76,7 @@ export default function CompanyDetailPage() {
         <Link
           href="/companies"
           className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
-          aria-label="Back to companies"
+          aria-label={tx("Back to companies")}
         >
           <ArrowLeft aria-hidden="true" className="size-4" />
         </Link>
@@ -123,14 +125,14 @@ export default function CompanyDetailPage() {
 
         <aside className="flex flex-col gap-4">
           <Panel variant="outlined">
-            <PanelHeader title="Details" />
+            <PanelHeader title={tx("Details")} />
             <dl className="divide-y divide-ws-line">
-              <Row label="Registration no." value={company.businessRegistrationNo} />
-              <Row label="Email" value={company.contactEmail} />
-              <Row label="Phone" value={company.contactPhone} />
-              <Row label="Website" value={company.websiteUrl} href={company.websiteUrl} />
-              <Row label="Industry" value={company.industryName} />
-              <Row label="Address" value={company.address} />
+              <Row label={tx("Registration no.")} value={company.businessRegistrationNo} />
+              <Row label={tx("Email")} value={company.contactEmail} />
+              <Row label={tx("Phone")} value={company.contactPhone} />
+              <Row label={tx("Website")} value={company.websiteUrl} href={company.websiteUrl} />
+              <Row label={tx("Industry")} value={company.industryName} />
+              <Row label={tx("Address")} value={company.address} />
             </dl>
 
             {company.description ? (
@@ -149,7 +151,7 @@ export default function CompanyDetailPage() {
 
           <StartConversation
             companyId={id}
-            label="Message recruiter"
+            label={tx("Message recruiter")}
             recipientName={company.name}
           />
         </aside>
@@ -178,6 +180,7 @@ function DecisionPanel({
   status: CompanyVerificationStatus;
   latest: CompanyVerificationResponse | null;
 }) {
+  const tx = useWorkspaceTranslation();
   const [decide, { isLoading: isDeciding }] = useDecideCompanyMutation();
   const [note, setNote] = useState("");
   const [open, setOpen] = useState(false);
@@ -196,7 +199,7 @@ function DecisionPanel({
     // recruiter something leaves them something to act on. The backend
     // rejects a blank note on those as well.
     if (!NOTE_OPTIONAL.includes(decision) && !note.trim()) {
-      toast.error("Explain the decision in the note first.");
+      toast.error(tx("Explain the decision in the note first."));
       return;
     }
 
@@ -208,9 +211,9 @@ function DecisionPanel({
       }).unwrap();
       setNote("");
       setOpen(false);
-      toast.success(`Decision recorded: ${humanizeEnum(decision)}.`);
+      toast.success(tx("Decision recorded: {decision}.", { decision: humanizeEnum(decision) }));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to record the decision."));
+      toast.error(getApiErrorMessage(error, tx("Unable to record the decision.")));
     }
   };
 
@@ -222,7 +225,7 @@ function DecisionPanel({
       className={cn(pending && "border-brand/40 bg-brand-tint/40")}
     >
       <PanelHeader
-        title="Verification"
+        title={tx("Verification")}
         icon={<ShieldCheck aria-hidden="true" className="size-4" />}
         action={
           pending ? null : editing ? (
@@ -234,11 +237,11 @@ function DecisionPanel({
                 setNote("");
               }}
             >
-              <X aria-hidden="true" /> Cancel
+              <X aria-hidden="true" /> {tx("Cancel")}
             </Button>
           ) : (
             <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-              Change decision
+              {tx("Change decision")}
             </Button>
           )
         }
@@ -246,18 +249,16 @@ function DecisionPanel({
 
       {pending ? (
         <p className="mb-3 text-sm leading-6 text-ws-muted">
-          This company is waiting on a decision. Approving lets its recruiters
-          publish jobs; a rejection or a revision request needs a note, which is
-          all the recruiter will see.
+          {tx("This company is waiting on a decision. Approving lets its recruiters publish jobs; a rejection or a revision request needs a note, which is all the recruiter will see.")}
         </p>
       ) : (
         <div className="flex flex-col gap-1">
           <p className="text-sm text-ws-fg">
-            {approved
+            {tx(approved
               ? "Approved — recruiters at this company can publish jobs."
               : suspended
                 ? "Suspended — its jobs are hidden from candidates and no new ones can be published."
-                : "Rejected — recruiters at this company cannot publish jobs."}
+                : "Rejected — recruiters at this company cannot publish jobs.")}
           </p>
           {latest ? (
             <p className="text-xs text-ws-faint">
@@ -271,18 +272,18 @@ function DecisionPanel({
       {editing ? (
         <div className={pending ? undefined : "mt-3 border-t border-ws-line pt-3"}>
           <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
-            Note to the recruiter
+            {tx("Note to the recruiter")}
             <Textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
               rows={3}
-              placeholder={
+              placeholder={tx(
                 approved
                   ? "Why this company is losing its standing."
                   : suspended
                     ? "Optional — why the suspension is being lifted."
                     : "What was checked, and what is missing if anything."
-              }
+              )}
             />
           </label>
 
@@ -293,7 +294,7 @@ function DecisionPanel({
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {suspended ? (
               <Button disabled={isDeciding} onClick={() => void submit("reinstate")}>
-                <Undo2 aria-hidden="true" /> Reinstate
+                <Undo2 aria-hidden="true" /> {tx("Reinstate")}
               </Button>
             ) : approved ? (
               <Button
@@ -301,11 +302,11 @@ function DecisionPanel({
                 disabled={isDeciding}
                 onClick={() => void submit("suspend")}
               >
-                <Ban aria-hidden="true" /> Suspend
+                <Ban aria-hidden="true" /> {tx("Suspend")}
               </Button>
             ) : (
               <Button disabled={isDeciding} onClick={() => void submit("approve")}>
-                <Check aria-hidden="true" /> Approve
+                <Check aria-hidden="true" /> {tx("Approve")}
               </Button>
             )}
 
@@ -314,7 +315,7 @@ function DecisionPanel({
               disabled={isDeciding}
               onClick={() => void submit("request-revision")}
             >
-              <RotateCcw aria-hidden="true" /> Request revision
+              <RotateCcw aria-hidden="true" /> {tx("Request revision")}
             </Button>
 
             {suspended ? null : (
@@ -324,17 +325,17 @@ function DecisionPanel({
                 onClick={() => void submit("reject")}
               >
                 <X aria-hidden="true" />
-                {approved ? "Revoke approval" : "Reject"}
+                {approved ? tx("Revoke approval") : tx("Reject")}
               </Button>
             )}
           </div>
 
           <p className="mt-2 text-xs text-ws-faint">
-            {suspended
+            {tx(suspended
               ? "Reinstating returns the company to approved; its jobs come back on the next read."
               : approved
                 ? "Suspending hides this company's jobs from candidates without deleting anything. A revision request sends it back to the pending queue."
-                : "A revision request sends the company back to the pending queue."}
+                : "A revision request sends the company back to the pending queue.")}
           </p>
         </div>
       ) : null}
@@ -349,18 +350,19 @@ function DocumentsPanel({
 }: {
   documents: ModeratorCompanyDetailResponse["documents"];
 }) {
+  const tx = useWorkspaceTranslation();
   return (
     <Panel variant="outlined" className="p-0">
       <div className="px-5 pt-5">
         <PanelHeader
-          title={`Documents (${documents.length})`}
+          title={tx("Documents ({count})", { count: documents.length })}
           icon={<FileText aria-hidden="true" className="size-4" />}
         />
       </div>
 
       {documents.length === 0 ? (
         <p className="px-5 pb-6 text-center text-sm text-ws-faint">
-          No documents uploaded. There is nothing to verify against yet.
+          {tx("No documents uploaded. There is nothing to verify against yet.")}
         </p>
       ) : (
         <ul className="border-t border-ws-line">
@@ -386,7 +388,7 @@ function DocumentsPanel({
                     {humanizeEnum(document.documentType)}
                   </span>
                   <span className="block text-xs text-ws-faint">
-                    Uploaded {formatDateTime(document.createdAt)}
+                    {tx("Uploaded {date}", { date: formatDateTime(document.createdAt) })}
                   </span>
                 </span>
 
@@ -412,11 +414,12 @@ function HistoryPanel({
 }: {
   history: ModeratorCompanyDetailResponse["verificationHistory"];
 }) {
+  const tx = useWorkspaceTranslation();
   if (history.length === 0) return null;
 
   return (
     <Panel variant="outlined">
-      <PanelHeader title={`Decision history (${history.length})`} />
+      <PanelHeader title={tx("Decision history ({count})", { count: history.length })} />
 
       <ol className="flex flex-col">
         {history.map((entry, index) => (

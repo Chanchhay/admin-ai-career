@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { StoreProvider } from "@/store/StoreProvider";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
-import { inter, notoSansKhmer } from "./fonts";
+import { googleSans } from "./fonts";
 import "./globals.css";
 
 /*
@@ -37,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${notoSansKhmer.variable}`}
+      className={googleSans.variable}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-canvas" suppressHydrationWarning>

@@ -16,6 +16,7 @@ import type {
   CompanyVerificationStatus,
   ModeratorCompanyListItem,
 } from "@/contracts";
+import { useWorkspaceTranslation } from "@/i18n/useWorkspaceTranslation";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { resolveFileUrl } from "@/lib/file-url";
 import { orDash } from "@/lib/format";
@@ -60,7 +61,8 @@ const COLUMNS = [
 ] as const;
 
 export default function CompaniesPage() {
-  useSetPageHeading("Companies");
+  const tx = useWorkspaceTranslation();
+  useSetPageHeading(tx("Companies"));
 
   const [tab, setTab] = useState<Tab>("All");
   const [page, setPage] = useState(0);
@@ -109,7 +111,7 @@ export default function CompaniesPage() {
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ws-line bg-ws-panel max-lg:flex-none">
         <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
           <h2 className="font-semibold text-ws-fg">
-            {tab === "All" ? "All companies" : `${tab} companies`}
+            {tab === "All" ? tx("All companies") : tx("{tab} companies", { tab: tx(tab) })}
           </h2>
 
           <div className="relative ml-auto w-full sm:w-72">
@@ -120,8 +122,8 @@ export default function CompaniesPage() {
             <Input
               value={filter}
               onChange={(event) => setFilter(event.target.value)}
-              placeholder="Search this page"
-              aria-label="Search companies on this page"
+              placeholder={tx("Search this page")}
+              aria-label={tx("Search companies on this page")}
               className="pl-9"
             />
           </div>
@@ -142,7 +144,7 @@ export default function CompaniesPage() {
                        so the divider is drawn as an inset shadow instead. */
                     className={`${column.className} bg-ws-card px-4 py-2.5 text-xs font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
                   >
-                    {column.label || <span className="sr-only">Actions</span>}
+                    {column.label ? tx(column.label) : <span className="sr-only">{tx("Actions")}</span>}
                   </th>
                 ))}
               </tr>
@@ -156,7 +158,7 @@ export default function CompaniesPage() {
               ) : isError ? (
                 <FullRow>
                   <ErrorState
-                    message="Unable to load companies."
+                    message={tx("Unable to load companies.")}
                     onRetry={refetch}
                   />
                 </FullRow>
@@ -205,6 +207,7 @@ function StatusSummary({
   active: Tab;
   onSelect: (tab: Tab) => void;
 }) {
+  const tx = useWorkspaceTranslation();
   const counts: Record<Tab, number | undefined> = {
     All: useCount(undefined),
     Pending: useCount("PENDING_VERIFICATION"),
@@ -235,7 +238,7 @@ function StatusSummary({
                 aria-hidden="true"
                 className={`size-2 shrink-0 rounded-full ${tabDot[tab]}`}
               />
-              {tab === "All" ? "All companies" : tab}
+              {tab === "All" ? tx("All companies") : tx(tab)}
             </span>
             <span className="text-2xl font-semibold tabular-nums text-ws-fg">
               {counts[tab] === undefined ? "—" : counts[tab]?.toLocaleString()}
@@ -267,6 +270,7 @@ function FullRow({ children }: { children: React.ReactNode }) {
 }
 
 function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
+  const tx = useWorkspaceTranslation();
   const [decide, { isLoading: isDeciding }] = useDecideCompanyMutation();
   const [setVisibility, { isLoading: isMasking }] =
     useSetCompanyIdentityVisibilityMutation();
@@ -278,9 +282,9 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
   async function approve() {
     try {
       await decide({ companyId: company.id, decision: "approve" }).unwrap();
-      toast.success(`${company.name} approved.`);
+      toast.success(tx("{name} approved.", { name: company.name }));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to approve this company."));
+      toast.error(getApiErrorMessage(error, tx("Unable to approve this company.")));
     }
   }
 
@@ -291,12 +295,12 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
         visibility: masked ? "VISIBLE" : "MASKED",
       }).unwrap();
       toast.success(
-        masked
+        tx(masked
           ? "Candidates can see this company again."
-          : "This company is now masked to candidates.",
+          : "This company is now masked to candidates."),
       );
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Unable to change this setting."));
+      toast.error(getApiErrorMessage(error, tx("Unable to change this setting.")));
     }
   }
 
@@ -334,44 +338,44 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
       </td>
 
       <td className="px-4 py-3">
-        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Status</span>
+        <span className="mb-1 block text-xs text-ws-faint lg:hidden">{tx("Status")}</span>
         <CompanyStatusBadge status={company.verificationStatus} />
       </td>
 
       {/* Live first, because that is the number that matters when deciding
           what suspending this company would actually take down. */}
       <td className="px-4 py-3">
-        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Jobs</span>
+        <span className="mb-1 block text-xs text-ws-faint lg:hidden">{tx("Jobs")}</span>
         {company.jobCount === 0 ? (
-          <span className="text-xs text-ws-faint">None</span>
+          <span className="text-xs text-ws-faint">{tx("None")}</span>
         ) : (
           <span className="text-sm text-ws-fg">
             <span className="font-medium tabular-nums">
               {company.publishedJobCount}
             </span>{" "}
-            live
+            {tx("live")}
             <span className="text-ws-faint">
               {" "}
-              of {company.jobCount}
+              {tx("of {total}", { total: company.jobCount })}
             </span>
           </span>
         )}
       </td>
 
       <td className="truncate px-4 py-3 text-sm text-ws-muted">
-        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Industry</span>
+        <span className="mb-1 block text-xs text-ws-faint lg:hidden">{tx("Industry")}</span>
         {orDash(company.industryName)}
       </td>
 
       <td className="px-4 py-3">
-        <span className="mb-1 block text-xs text-ws-faint lg:hidden">Candidates see</span>
+        <span className="mb-1 block text-xs text-ws-faint lg:hidden">{tx("Candidates see")}</span>
         <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-ws-muted">
           {masked ? (
             <EyeOff aria-hidden="true" className="size-4 shrink-0" />
           ) : (
             <Eye aria-hidden="true" className="size-4 shrink-0" />
           )}
-          {masked ? "Confidential" : "Real name"}
+          {masked ? tx("Confidential") : tx("Real name")}
         </span>
       </td>
 
@@ -379,7 +383,7 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
         <div className="flex items-center justify-end gap-2 max-lg:flex-wrap max-lg:justify-start max-lg:[&>button]:min-h-10 max-lg:[&>a]:min-h-10">
           {approved ? null : (
             <Button size="sm" disabled={isDeciding} onClick={() => void approve()}>
-              <Check aria-hidden="true" /> Approve
+              <Check aria-hidden="true" /> {tx("Approve")}
             </Button>
           )}
 
@@ -389,7 +393,7 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
             disabled={isMasking}
             onClick={() => void toggleMask()}
           >
-            {masked ? "Unmask" : "Mask"}
+            {masked ? tx("Unmask") : tx("Mask")}
           </Button>
 
           <Button
@@ -397,7 +401,7 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
             variant="ghost"
             render={<Link href={`/companies/${company.id}`} />}
           >
-            Open
+            {tx("Open")}
           </Button>
         </div>
       </td>
@@ -406,6 +410,7 @@ function CompanyRow({ company }: { company: ModeratorCompanyListItem }) {
 }
 
 function EmptyState({ filtered, tab }: { filtered: boolean; tab: Tab }) {
+  const tx = useWorkspaceTranslation();
   return (
     <div className="flex flex-col items-center gap-1 px-6 py-16 text-center">
       <span className="mb-2 flex size-12 items-center justify-center rounded-full bg-ws-card text-ws-faint">
@@ -413,13 +418,15 @@ function EmptyState({ filtered, tab }: { filtered: boolean; tab: Tab }) {
       </span>
       <p className="font-semibold text-ws-fg">
         {filtered
-          ? "No companies match that search"
-          : `No ${tab === "All" ? "" : tab.toLowerCase()} companies`}
+          ? tx("No companies match that search")
+          : tab === "All"
+            ? tx("No companies")
+            : tx("No {tab} companies", { tab: tx(tab).toLowerCase() })}
       </p>
       <p className="text-xs text-ws-faint">
         {filtered
-          ? "The search only covers the companies loaded on this page."
-          : "Companies appear here once a recruiter submits one for verification."}
+          ? tx("The search only covers the companies loaded on this page.")
+          : tx("Companies appear here once a recruiter submits one for verification.")}
       </p>
     </div>
   );
