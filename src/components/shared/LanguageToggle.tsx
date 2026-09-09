@@ -49,7 +49,7 @@ export function LanguageToggle({ className }: { className?: string }) {
         aria-label={t("language.switch")}
         aria-expanded={open}
         className={cn(
-          "flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-ws-line bg-ws-panel px-3 text-[16px] leading-none font-normal text-ws-fg transition-colors hover:bg-ws-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+          "flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-ws-line bg-ws-panel px-3 text-base leading-none font-normal text-ws-fg transition-colors hover:bg-ws-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
           className,
         )}
       >
@@ -77,7 +77,7 @@ export function LanguageToggle({ className }: { className?: string }) {
                 setLocale(code);
                 setOpen(false);
               }}
-              className="flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm text-ws-fg transition-colors hover:bg-ws-card"
+              className="flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-base text-ws-fg transition-colors hover:bg-ws-card"
             >
               <span className="flex items-center gap-2">
                 <Image

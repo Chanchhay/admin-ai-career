@@ -45,6 +45,7 @@ function Frame({ children }: { children: ReactNode }) {
   const heading = usePageHeading();
   const active = adminNavigation.find((link) => isActive(pathname, link.href));
   const title = heading?.title ?? (active ? tx(active.label) : tx("Admin"));
+  const description = heading?.description;
 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   // A route change means a link was just followed — close the drawer behind
@@ -95,6 +96,7 @@ function Frame({ children }: { children: ReactNode }) {
       <div className="ws-panel relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none lg:rounded-3xl">
         <TopBar
           title={title}
+          description={description}
           mobileNavOpen={mobileNavOpen}
           onOpenMobileNav={() => setMobileNavOpen(true)}
         />
@@ -223,7 +225,7 @@ function Rail({
         >
           <LogOut aria-hidden="true" className="size-5 shrink-0" />
           {expanded ? (
-            <span className="truncate text-sm font-medium">Sign out</span>
+            <span className="truncate text-base font-medium">Sign out</span>
           ) : (
             <Tooltip>Sign out</Tooltip>
           )}
@@ -259,7 +261,7 @@ function RailLink({
     >
       <link.icon aria-hidden="true" className="size-5 shrink-0" />
       {expanded ? (
-        <span className="truncate text-sm font-medium">{tx(link.label)}</span>
+        <span className="truncate text-base font-medium">{tx(link.label)}</span>
       ) : (
         /* The label is the tooltip only while there is no room for it inline. */
         <Tooltip>{tx(link.label)}</Tooltip>
@@ -271,7 +273,7 @@ function RailLink({
 /** Label shown on hover, so the rail stays an icon strip rather than a menu. */
 function Tooltip({ children }: { children: ReactNode }) {
   return (
-    <span className="pointer-events-none absolute left-full z-30 ml-3 hidden whitespace-nowrap rounded-lg bg-ws-card px-2.5 py-1.5 text-xs font-medium text-ws-fg shadow-(--shadow-dropdown) group-hover:block">
+    <span className="pointer-events-none absolute left-full z-30 ml-3 hidden whitespace-nowrap rounded-lg bg-ws-card px-2.5 py-1.5 text-sm font-medium text-ws-fg shadow-(--shadow-dropdown) group-hover:block">
       {children}
     </span>
   );
@@ -281,10 +283,12 @@ function Tooltip({ children }: { children: ReactNode }) {
 
 function TopBar({
   title,
+  description,
   mobileNavOpen,
   onOpenMobileNav,
 }: {
   title: string;
+  description?: string;
   mobileNavOpen: boolean;
   onOpenMobileNav: () => void;
 }) {
@@ -300,9 +304,22 @@ function TopBar({
         <Menu aria-hidden="true" className="size-5" />
       </button>
 
-      <h1 className="min-w-0 truncate text-xl font-semibold tracking-tight max-sm:text-lg">
-        {title}
-      </h1>
+      {/*
+        * Title and description are one block: the description is the sentence
+        * that explains the title, so it sits under it rather than beside the
+        * controls. It is hidden on small screens, where the header is already
+        * competing with the nav trigger and the account menu for one line.
+        */}
+      <div className="flex min-w-0 flex-col justify-center">
+        <h1 className="type-page-title min-w-0 truncate max-sm:text-lg">
+          {title}
+        </h1>
+        {description ? (
+          <p className="type-description mt-0.5 line-clamp-1 max-lg:hidden">
+            {description}
+          </p>
+        ) : null}
+      </div>
 
       <div className="ml-auto flex items-center gap-2 max-lg:shrink-0 max-sm:gap-1">
         {/*
@@ -341,7 +358,7 @@ function Account() {
   return (
     <span
       title={name}
-      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-chip-solid bg-cover bg-center text-xs font-bold text-chip-solid-fg ring-2 ring-ws-line"
+      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-chip-solid bg-cover bg-center text-sm font-bold text-chip-solid-fg ring-2 ring-ws-line"
       style={avatar ? { backgroundImage: `url("${avatar}")` } : undefined}
     >
       {avatar ? <span className="sr-only">{name}</span> : initials(name)}
@@ -375,7 +392,7 @@ function StaffRoleNotice() {
   return (
     <div
       role="status"
-      className="mb-4 flex items-start gap-2.5 rounded-xl bg-chip-alert px-4 py-3 text-sm leading-6 text-chip-alert-fg"
+      className="mb-4 flex items-start gap-2.5 rounded-xl bg-chip-alert px-4 py-3 text-base leading-6 text-chip-alert-fg"
     >
       <ShieldAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
       <p>
@@ -446,7 +463,7 @@ function MobileNavDrawer({
                   )}
                 >
                   <link.icon aria-hidden="true" className="size-5 shrink-0" />
-                  <span className="truncate text-sm font-medium">{link.label}</span>
+                  <span className="truncate text-base font-medium">{link.label}</span>
                 </Link>
               );
             })}
@@ -458,7 +475,7 @@ function MobileNavDrawer({
               className="flex h-10 w-full items-center gap-3 rounded-xl px-3 text-ws-faint transition-colors hover:bg-ws-card hover:text-ws-fg"
             >
               <LogOut aria-hidden="true" className="size-5 shrink-0" />
-              <span className="truncate text-sm font-medium">Sign out</span>
+              <span className="truncate text-base font-medium">Sign out</span>
             </button>
           </form>
         </DialogPrimitive.Popup>

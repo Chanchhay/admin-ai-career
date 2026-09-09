@@ -66,7 +66,7 @@ export function ReadyToBillPanel({ bare = false }: { bare?: boolean } = {}) {
   const body = (
     <>
       {companies.length === 0 ? (
-        <p className="rounded-xl bg-ws-card px-4 py-6 text-center text-sm text-ws-faint">
+        <p className="rounded-xl bg-ws-card px-4 py-6 text-center text-base text-ws-faint">
           {/* The hires table is on this page now, so there is nowhere to
                 send the reader — the queue is a few centimetres up. */}
           Nothing to bill. A commission appears here once a reported hire is
@@ -74,7 +74,7 @@ export function ReadyToBillPanel({ bare = false }: { bare?: boolean } = {}) {
         </p>
       ) : (
         <>
-          <p className="mb-4 text-sm text-ws-muted">
+          <p className="mb-4 text-base text-ws-muted">
             Commissions from confirmed hires that no invoice has picked up yet.
             Pick a company to draft its bill.
           </p>
@@ -92,11 +92,11 @@ export function ReadyToBillPanel({ bare = false }: { bare?: boolean } = {}) {
                   <span className="min-w-0 flex-1">
                     <Link
                       href={`/companies/${company.companyId}`}
-                      className="block truncate text-sm font-semibold text-ws-fg hover:underline"
+                      className="block truncate text-base font-semibold text-ws-fg hover:underline"
                     >
                       {company.companyName}
                     </Link>
-                    <span className="block truncate text-xs text-ws-faint">
+                    <span className="block truncate text-sm text-ws-faint">
                       {company.commissionCount}{" "}
                       {company.commissionCount === 1
                         ? "commission"

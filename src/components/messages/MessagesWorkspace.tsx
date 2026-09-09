@@ -69,7 +69,7 @@ export function MessagesWorkspace({
         <div className="space-y-4 p-5">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-ws-fg">Inbox</h2>
-            <span className="rounded-full bg-ws-panel px-2 py-0.5 text-xs text-ws-muted">
+            <span className="rounded-full bg-ws-panel px-2 py-0.5 text-sm text-ws-muted">
               {conversations.data?.totalElements ?? 0}
             </span>
           </div>
@@ -80,7 +80,7 @@ export function MessagesWorkspace({
               placeholder="Search people or jobs"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="min-w-0 flex-1 bg-transparent text-sm text-ws-fg outline-none"
+              className="min-w-0 flex-1 bg-transparent text-base text-ws-fg outline-none"
             />
           </label>
         </div>
@@ -108,7 +108,7 @@ export function MessagesWorkspace({
           {!conversations.isFetching &&
             !conversations.isError &&
             !filtered.length && (
-              <p className="px-4 py-10 text-center text-sm text-ws-muted">
+              <p className="px-4 py-10 text-center text-base text-ws-muted">
                 {search
                   ? "No matches on this page."
                   : "No conversations yet. Start one from a company or application."}
@@ -116,7 +116,7 @@ export function MessagesWorkspace({
             )}
         </div>
         {(conversations.data?.totalPages ?? 0) > 1 && (
-          <div className="flex items-center justify-between border-t border-ws-faint/15 p-3 text-xs text-ws-muted">
+          <div className="flex items-center justify-between border-t border-ws-faint/15 p-3 text-sm text-ws-muted">
             <button
               disabled={page === 0}
               onClick={() => setPage((p) => p - 1)}
@@ -161,7 +161,7 @@ export function MessagesWorkspace({
             <h2 className="font-semibold text-ws-fg">
               Your conversations, in one place
             </h2>
-            <p className="mt-2 text-sm text-ws-muted">
+            <p className="mt-2 text-base text-ws-muted">
               Select a conversation to discuss a job or application.
             </p>
           </div>
@@ -182,7 +182,7 @@ function Avatar({
   const label = participant?.displayLabel || "Participant";
   return (
     <span
-      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 font-semibold text-primary ${small ? "size-7 text-[10px]" : "size-11 text-sm"}`}
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 font-semibold text-primary ${small ? "size-7 text-xs" : "size-11 text-base"}`}
     >
       {participant?.avatarUrl && !failed ? (
         // Profile images are supplied by the API and may use any configured media host.
@@ -228,25 +228,25 @@ function ThreadRow({
       <Avatar key={other?.avatarUrl} participant={other} />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
-          <span className="flex-1 truncate text-sm font-semibold text-ws-fg">
+          <span className="flex-1 truncate text-base font-semibold text-ws-fg">
             {other?.displayLabel || "Conversation"}
           </span>
-          <span className="shrink-0 text-[10px] text-ws-muted">
+          <span className="shrink-0 text-xs text-ws-muted">
             {thread.lastMessage && formatDate(thread.lastMessage.sentAt, false)}
           </span>
         </span>
-        <span className="mt-1 flex items-center gap-1 text-xs text-ws-muted">
+        <span className="mt-1 flex items-center gap-1 text-sm text-ws-muted">
           <BriefcaseBusiness className="size-3 shrink-0" />
           <span className="truncate">{topic(thread)}</span>
         </span>
         <span className="mt-1.5 flex items-center gap-2">
-          <span className="flex-1 truncate text-xs text-ws-muted">
+          <span className="flex-1 truncate text-sm text-ws-muted">
             {thread.lastMessage
               ? `${thread.lastMessage.mine ? "You: " : ""}${thread.lastMessage.content ?? "Message deleted"}`
               : "Start the conversation"}
           </span>
           {thread.unreadCount > 0 && (
-            <span className="rounded-full bg-primary px-1.5 text-[10px] font-bold leading-5 text-primary-foreground">
+            <span className="rounded-full bg-primary px-1.5 text-xs font-bold leading-5 text-primary-foreground">
               {thread.unreadCount}
             </span>
           )}
@@ -361,17 +361,17 @@ function Thread({
         </Link>
         <Avatar key={others[0]?.avatarUrl} participant={others[0]} />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-sm font-semibold text-ws-fg">
+          <h2 className="truncate text-base font-semibold text-ws-fg">
             {others.map((p) => p.displayLabel).join(", ") || "Conversation"}
           </h2>
-          <p className="mt-0.5 text-xs text-ws-muted">
+          <p className="mt-0.5 text-sm text-ws-muted">
             {others.map((p) => roleLabel(p.role)).join(" · ")}
           </p>
         </div>
         {conversation.status === "OPEN" ? (
           <CloseThread id={conversation.id} />
         ) : (
-          <span className="rounded-full bg-ws-panel px-3 py-1 text-xs capitalize text-ws-muted">
+          <span className="rounded-full bg-ws-panel px-3 py-1 text-sm capitalize text-ws-muted">
             {conversation.status.toLowerCase()}
           </span>
         )}
@@ -381,17 +381,17 @@ function Thread({
           <BriefcaseBusiness className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-medium uppercase tracking-wider text-ws-muted">
+          <p className="type-eyebrow">
             {conversation.applicationId ? "Job topic" : "Topic"}
           </p>
-          <p className="truncate text-sm font-medium text-ws-fg">
+          <p className="truncate text-base font-medium text-ws-fg">
             {topic(conversation)}
           </p>
         </div>
         {conversation.applicationId && (
           <Link
             href={`/applications/${conversation.applicationId}`}
-            className="flex shrink-0 items-center gap-1 text-xs font-medium text-primary"
+            className="flex shrink-0 items-center gap-1 text-sm font-medium text-primary"
           >
             Application
             <ArrowUpRight className="size-3.5" />
@@ -399,7 +399,7 @@ function Thread({
         )}
       </div>
       <div
-        className="flex items-center gap-1.5 px-4 py-2 text-[10px] text-ws-muted lg:px-6"
+        className="flex items-center gap-1.5 px-4 py-2 text-xs text-ws-muted lg:px-6"
         role="status"
       >
         <span
@@ -437,7 +437,7 @@ function Thread({
                   nearBottom.current = false;
                   setPages((p) => p + 1);
                 }}
-                className="mx-auto block rounded-full bg-ws-card px-4 py-2 text-xs text-primary"
+                className="mx-auto block rounded-full bg-ws-card px-4 py-2 text-sm text-primary"
               >
                 Load older messages
               </button>
@@ -454,7 +454,7 @@ function Thread({
             {!ordered.length && (
               <div className="py-16 text-center">
                 <MessageSquare className="mx-auto size-8 text-ws-faint" />
-                <p className="mt-3 text-sm text-ws-muted">
+                <p className="mt-3 text-base text-ws-muted">
                   No messages yet. Say hello to start the conversation.
                 </p>
               </div>
@@ -464,7 +464,7 @@ function Thread({
         )}
       </div>
       {closed ? (
-        <div className="flex items-center justify-center gap-2 border-t border-ws-faint/15 px-5 py-5 text-xs text-ws-muted">
+        <div className="flex items-center justify-center gap-2 border-t border-ws-faint/15 px-5 py-5 text-sm text-ws-muted">
           <LockKeyhole className="size-4 shrink-0" />
           <p>
             This conversation is {conversation.status.toLowerCase()}. You can
@@ -495,7 +495,7 @@ function Thread({
               rows={2}
               maxLength={4000}
               placeholder="Write a message…"
-              className="min-w-0 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm text-ws-fg outline-none placeholder:text-ws-faint"
+              className="min-w-0 flex-1 resize-none bg-transparent px-2 py-1.5 text-base text-ws-fg outline-none placeholder:text-ws-faint"
             />
             <button
               type="submit"
@@ -506,7 +506,7 @@ function Thread({
               <SendHorizontal className="size-4" />
             </button>
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-ws-faint">
+          <div className="mt-2 flex justify-between text-xs text-ws-faint">
             <span>
               {sendState.isLoading
                 ? "Sending…"
@@ -561,7 +561,7 @@ function MessageGroup({
           {(index === 0 ||
             dayKey(messages[index - 1].sentAt) !== dayKey(message.sentAt)) && (
             <div className="flex justify-center">
-              <time className="rounded-full bg-ws-panel px-3 py-1 text-[10px] text-ws-muted">
+              <time className="rounded-full bg-ws-panel px-3 py-1 text-xs text-ws-muted">
                 {formatDate(message.sentAt, false)}
               </time>
             </div>
@@ -584,7 +584,7 @@ function CloseThread({ id }: { id: string }) {
           .catch(() => toast.error("Could not close the conversation."))
       }
       disabled={state.isLoading}
-      className="shrink-0 rounded-lg bg-ws-panel px-3 py-2 text-xs text-ws-muted hover:text-ws-fg disabled:opacity-50"
+      className="shrink-0 rounded-lg bg-ws-panel px-3 py-2 text-sm text-ws-muted hover:text-ws-fg disabled:opacity-50"
     >
       {state.isLoading ? "Closing…" : "Close thread"}
     </button>
@@ -640,17 +640,17 @@ function Bubble({
         className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 lg:max-w-[70%] ${message.mine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border border-ws-faint/10 bg-ws-card text-ws-fg"}`}
       >
         {!message.mine && conversation.participants.length > 2 && (
-          <p className="mb-1 text-[10px] font-semibold">
+          <p className="mb-1 text-xs font-semibold">
             {sender?.displayLabel || "Participant"}
           </p>
         )}
         <p
-          className={`whitespace-pre-wrap break-words text-sm leading-6 [overflow-wrap:anywhere] ${deleted ? "italic opacity-60" : ""}`}
+          className={`whitespace-pre-wrap break-words text-base leading-6 [overflow-wrap:anywhere] ${deleted ? "italic opacity-60" : ""}`}
         >
           {deleted ? "This message was deleted" : message.content}
         </p>
         <div
-          className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${message.mine ? "text-primary-foreground/75" : "text-ws-muted"}`}
+          className={`mt-1 flex items-center justify-end gap-1 text-xs ${message.mine ? "text-primary-foreground/75" : "text-ws-muted"}`}
         >
           <time dateTime={message.sentAt}>
             {formatDate(message.sentAt, true)}

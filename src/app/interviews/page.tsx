@@ -417,38 +417,38 @@ export default function InterviewSchedulePage() {
       {/* Top statistics and schedule action */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-2xl border border-ws-line/70 bg-ws-panel p-4 shadow-xs">
-          <p className="text-xs font-semibold uppercase tracking-wider text-ws-faint">
+          <p className="type-eyebrow">
             Upcoming interviews
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-ws-fg">
+            <span className="text-3xl font-bold tracking-tight text-ws-fg">
               {activeCount}
             </span>
-            <span className="text-xs text-ws-muted">active</span>
+            <span className="text-sm text-ws-muted">active</span>
           </div>
         </div>
 
         <div className="rounded-2xl border border-ws-line/70 bg-ws-panel p-4 shadow-xs">
-          <p className="text-xs font-semibold uppercase tracking-wider text-ws-faint">
+          <p className="type-eyebrow">
             Completed interviews
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-ws-fg">
+            <span className="text-3xl font-bold tracking-tight text-ws-fg">
               {completedCount}
             </span>
-            <span className="text-xs text-emerald-600 dark:text-emerald-400">finished</span>
+            <span className="text-sm text-emerald-600 dark:text-emerald-400">finished</span>
           </div>
         </div>
 
         <div className="rounded-2xl border border-ws-line/70 bg-ws-panel p-4 shadow-xs">
-          <p className="text-xs font-semibold uppercase tracking-wider text-ws-faint">
+          <p className="type-eyebrow">
             Total candidate queue
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-ws-fg">
+            <span className="text-3xl font-bold tracking-tight text-ws-fg">
               {applicationsList.length}
             </span>
-            <span className="text-xs text-ws-muted">applications</span>
+            <span className="text-sm text-ws-muted">applications</span>
           </div>
         </div>
 
@@ -461,7 +461,7 @@ export default function InterviewSchedulePage() {
               setScheduleDateTime(`${selectedDateKey}T09:00`);
               setIsScheduleModalOpen(true);
             }}
-            className="w-full h-11 text-sm font-semibold"
+            className="w-full h-11 text-base font-semibold"
           >
             <CalendarPlus aria-hidden="true" className="size-4" />
             Schedule interview
@@ -485,12 +485,12 @@ export default function InterviewSchedulePage() {
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder="Search candidate or job…"
-                className="pl-9 text-xs"
+                className="pl-9 text-sm"
               />
             </div>
 
             {/* Status filters */}
-            <div className="flex items-center rounded-lg bg-ws-card-hover p-1 text-xs max-sm:max-w-full max-sm:flex-wrap">
+            <div className="flex items-center rounded-lg bg-ws-card-hover p-1 text-sm max-sm:max-w-full max-sm:flex-wrap">
               <button
                 type="button"
                 onClick={() => setStatusFilter("ALL")}
@@ -531,7 +531,7 @@ export default function InterviewSchedulePage() {
           </div>
 
           {/* View switcher */}
-          <div className="flex items-center rounded-lg bg-ws-card-hover p-1 text-xs max-sm:w-full max-sm:flex-wrap">
+          <div className="flex items-center rounded-lg bg-ws-card-hover p-1 text-sm max-sm:w-full max-sm:flex-wrap">
             <button
               type="button"
               onClick={() => setViewMode("calendar")}
@@ -572,7 +572,7 @@ export default function InterviewSchedulePage() {
                   <h3 className="text-lg font-bold tracking-tight text-ws-fg">
                     {MONTH_NAMES[currentMonth]} {currentYear}
                   </h3>
-                  <p className="text-xs text-ws-faint">
+                  <p className="text-sm text-ws-faint">
                     Click any day to view scheduled interviews and candidate details
                   </p>
                 </div>
@@ -582,7 +582,7 @@ export default function InterviewSchedulePage() {
                     size="sm"
                     variant="ghost"
                     onClick={goToToday}
-                    className="h-8 px-2.5 text-xs font-medium"
+                    className="h-8 px-2.5 text-sm font-medium"
                   >
                     Today
                   </Button>
@@ -610,7 +610,7 @@ export default function InterviewSchedulePage() {
                 {WEEKDAYS.map((day) => (
                   <div
                     key={day}
-                    className="py-1 text-xs font-bold uppercase tracking-wider text-ws-faint"
+                    className="py-1 type-eyebrow"
                   >
                     {day}
                   </div>
@@ -643,7 +643,7 @@ export default function InterviewSchedulePage() {
                       <div className="relative flex w-full items-center justify-center">
                         <span
                           className={cn(
-                            "flex size-6 items-center justify-center rounded-full text-xs",
+                            "flex size-6 items-center justify-center rounded-full text-sm",
                             cell.isToday &&
                               !cell.isSelected &&
                               "bg-primary/15 text-primary font-bold",
@@ -670,7 +670,7 @@ export default function InterviewSchedulePage() {
                         <div className="mt-1 flex flex-col gap-0.5">
                           <span
                             className={cn(
-                              "truncate rounded px-1 py-0.5 text-[10px] font-bold leading-tight",
+                              "truncate rounded px-1 py-0.5 text-xs font-bold leading-tight",
                               cell.isSelected
                                 ? "bg-white/20 text-white"
                                 : activeInterviews.length > 0
@@ -683,7 +683,7 @@ export default function InterviewSchedulePage() {
                           {cell.interviews.length > 1 ? (
                             <span
                               className={cn(
-                                "text-[9px] font-medium",
+                                "text-xs font-medium",
                                 cell.isSelected ? "text-white/80" : "text-ws-faint",
                               )}
                             >
@@ -707,10 +707,10 @@ export default function InterviewSchedulePage() {
                   <div className="flex items-center gap-2">
                     <CalendarIcon aria-hidden="true" className="size-4 text-primary" />
                     <div>
-                      <h4 className="text-sm font-bold text-ws-fg">
+                      <h4 className="text-base font-bold text-ws-fg">
                         {formatDisplayDate(selectedDateKey)}
                       </h4>
-                      <p className="text-[11px] text-ws-faint">
+                      <p className="text-xs text-ws-faint">
                         {selectedDayInterviews.length}{" "}
                         {selectedDayInterviews.length === 1 ? "interview" : "interviews"} scheduled
                       </p>
@@ -727,7 +727,7 @@ export default function InterviewSchedulePage() {
                       setScheduleDateTime(`${selectedDateKey}T09:00`);
                       setIsScheduleModalOpen(true);
                     }}
-                    className="h-8 gap-1 text-xs"
+                    className="h-8 gap-1 text-sm"
                   >
                     <CalendarPlus aria-hidden="true" className="size-3.5" />
                     Add
@@ -749,7 +749,7 @@ export default function InterviewSchedulePage() {
                             <div className="min-w-0 flex-1">
                               <Link
                                 href={`/applications/${interview.applicationId}`}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-ws-fg hover:text-primary transition-colors"
+                                className="inline-flex items-center gap-1 text-sm font-bold text-ws-fg hover:text-primary transition-colors"
                               >
                                 <span className="truncate">
                                   {orDash(interview.candidateHeadline)}
@@ -757,7 +757,7 @@ export default function InterviewSchedulePage() {
                                 <ArrowUpRight aria-hidden="true" className="size-3 shrink-0" />
                               </Link>
                               {interview.jobTitle ? (
-                                <p className="truncate text-[11px] text-ws-muted">
+                                <p className="truncate text-xs text-ws-muted">
                                   Role: {interview.jobTitle}
                                 </p>
                               ) : null}
@@ -770,7 +770,7 @@ export default function InterviewSchedulePage() {
                           </div>
                         </div>
 
-                        <div className="mt-3 flex items-center gap-2 text-xs font-medium text-ws-muted">
+                        <div className="mt-3 flex items-center gap-2 text-sm font-medium text-ws-muted">
                           <span className="font-semibold text-primary">
                             {formatTimeOnly(interview.scheduledAt)}
                           </span>
@@ -783,7 +783,7 @@ export default function InterviewSchedulePage() {
                             href={interview.meetingUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="mt-2.5 flex items-center gap-2 truncate rounded-lg bg-ws-card-hover px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-ws-card hover:underline"
+                            className="mt-2.5 flex items-center gap-2 truncate rounded-lg bg-ws-card-hover px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-ws-card hover:underline"
                           >
                             <Video aria-hidden="true" className="size-3.5 shrink-0" />
                             <span className="truncate">{interview.meetingUrl}</span>
@@ -798,14 +798,14 @@ export default function InterviewSchedulePage() {
                               size="sm"
                               variant="secondary"
                               onClick={() => openRescheduleModal(interview)}
-                              className="h-7 text-xs"
+                              className="h-7 text-sm"
                             >
                               Reschedule
                             </Button>
                             <Button
                               size="sm"
                               onClick={() => void handleComplete(interview, "PASSED")}
-                              className="h-7 text-xs"
+                              className="h-7 text-sm"
                             >
                               Passed
                             </Button>
@@ -813,7 +813,7 @@ export default function InterviewSchedulePage() {
                               size="sm"
                               variant="secondary"
                               onClick={() => void handleComplete(interview, "NEEDS_REVIEW")}
-                              className="h-7 text-xs"
+                              className="h-7 text-sm"
                             >
                               Needs review
                             </Button>
@@ -821,7 +821,7 @@ export default function InterviewSchedulePage() {
                               size="sm"
                               variant="destructive"
                               onClick={() => void handleComplete(interview, "FAILED")}
-                              className="h-7 text-xs"
+                              className="h-7 text-sm"
                             >
                               Failed
                             </Button>
@@ -829,7 +829,7 @@ export default function InterviewSchedulePage() {
                               size="sm"
                               variant="ghost"
                               onClick={() => void handleCancel(interview)}
-                              className="h-7 text-xs text-destructive hover:bg-destructive/10"
+                              className="h-7 text-sm text-destructive hover:bg-destructive/10"
                             >
                               Cancel
                             </Button>
@@ -843,10 +843,10 @@ export default function InterviewSchedulePage() {
                     <div className="flex size-10 items-center justify-center rounded-full bg-ws-card text-ws-faint">
                       <CalendarDays aria-hidden="true" className="size-5" />
                     </div>
-                    <p className="mt-3 text-xs font-semibold text-ws-fg">
+                    <p className="mt-3 text-sm font-semibold text-ws-fg">
                       No interviews scheduled on this date
                     </p>
-                    <p className="mt-1 max-w-xs text-[11px] text-ws-faint">
+                    <p className="mt-1 max-w-xs text-xs text-ws-faint">
                       Pick another date from the calendar or schedule a new interview with any candidate.
                     </p>
                     <Button
@@ -858,7 +858,7 @@ export default function InterviewSchedulePage() {
                         setScheduleDateTime(`${selectedDateKey}T09:00`);
                         setIsScheduleModalOpen(true);
                       }}
-                      className="mt-4 gap-1 text-xs"
+                      className="mt-4 gap-1 text-sm"
                     >
                       <CalendarPlus aria-hidden="true" className="size-3.5" />
                       Schedule on this date
@@ -887,7 +887,7 @@ export default function InterviewSchedulePage() {
                           <div className="flex items-center gap-2 max-lg:flex-wrap">
                             <Link
                               href={`/applications/${interview.applicationId}`}
-                              className="text-sm font-bold text-ws-fg hover:text-primary transition-colors flex items-center gap-1"
+                              className="text-base font-bold text-ws-fg hover:text-primary transition-colors flex items-center gap-1"
                             >
                               {orDash(interview.candidateHeadline)}
                               <ArrowUpRight aria-hidden="true" className="size-3.5" />
@@ -895,7 +895,7 @@ export default function InterviewSchedulePage() {
                             <GhostChip>{formatDateTime(interview.scheduledAt)}</GhostChip>
                           </div>
                           {interview.jobTitle ? (
-                            <p className="text-xs text-ws-muted">
+                            <p className="text-sm text-ws-muted">
                               Role: {interview.jobTitle}
                             </p>
                           ) : null}
@@ -913,7 +913,7 @@ export default function InterviewSchedulePage() {
                         href={interview.meetingUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-2.5 inline-flex items-center gap-1.5 truncate text-xs text-primary hover:underline"
+                        className="mt-2.5 inline-flex items-center gap-1.5 truncate text-sm text-primary hover:underline"
                       >
                         <Video aria-hidden="true" className="size-3.5" />
                         {interview.meetingUrl}
@@ -965,10 +965,10 @@ export default function InterviewSchedulePage() {
             ) : (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-ws-line py-12 text-center">
                 <CalendarDays aria-hidden="true" className="size-8 text-ws-faint" />
-                <p className="mt-2 text-sm font-semibold text-ws-fg">
+                <p className="mt-2 text-base font-semibold text-ws-fg">
                   No matching interviews found
                 </p>
-                <p className="mt-1 text-xs text-ws-muted">
+                <p className="mt-1 text-sm text-ws-muted">
                   Try adjusting your search or status filter.
                 </p>
               </div>
@@ -986,7 +986,7 @@ export default function InterviewSchedulePage() {
       >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-ws-muted">
+            <label className="text-sm font-semibold text-ws-muted">
               Select Candidate Application
             </label>
             <Select
@@ -1006,7 +1006,7 @@ export default function InterviewSchedulePage() {
             disabled={isScheduling}
           />
 
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ws-muted">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-ws-muted">
             Meeting link
             <Input
               type="url"
@@ -1059,7 +1059,7 @@ export default function InterviewSchedulePage() {
             disabled={isRescheduling}
           />
 
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ws-muted">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-ws-muted">
             Meeting link
             <Input
               type="url"

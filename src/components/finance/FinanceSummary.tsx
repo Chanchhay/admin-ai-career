@@ -78,7 +78,7 @@ export function FinanceSummary({ onOpenCompany }: {
         <div className="flex flex-wrap items-center gap-3">
           <div className="mr-auto">
             <h2 className="text-lg font-semibold">Payment summary</h2>
-            <p className="mt-1 text-xs text-ws-muted">Successful payments, including partial payments. Reports use Phnom Penh time.</p>
+            <p className="mt-1 text-sm text-ws-muted">Successful payments, including partial payments. Reports use Phnom Penh time.</p>
           </div>
           <PillTabs tabs={Object.keys(PERIODS) as PeriodLabel[]} value={periodLabel}
             onChange={(next) => { setPeriodLabel(next); setPage(0); }} className="rounded-lg bg-ws-card p-1" />
@@ -94,14 +94,14 @@ export function FinanceSummary({ onOpenCompany }: {
               <ChevronRight aria-hidden="true" />
             </Button>
           </div>
-          <label className="flex flex-col gap-1 text-xs text-ws-muted">
+          <label className="flex flex-col gap-1 text-sm text-ws-muted">
             Date within the period
             <Input type="date" min="1900-01-01" max="9998-12-31" value={date}
               onChange={(event) => changeDate(event.target.value)} className="h-9 w-40" />
           </label>
           <Button variant="ghost" size="sm" onClick={() => changeDate(today())}>Current period</Button>
           <div className="flex flex-col gap-1">
-            <label htmlFor="finance-summary-currency" className="text-xs text-ws-muted">Currency</label>
+            <label htmlFor="finance-summary-currency" className="text-sm text-ws-muted">Currency</label>
             <Select id="finance-summary-currency" value={currency || data?.currency || ""}
               options={(data?.availableCurrencies ?? (currency ? [currency] : [])).map((code) => ({ value: code, label: code }))}
               placeholder="Loading…" onChange={(next) => { setCurrency(next); setPage(0); }} disabled={!data && !currency} />
@@ -118,7 +118,7 @@ export function FinanceSummary({ onOpenCompany }: {
         <>
           <div className="flex flex-wrap items-center justify-between gap-2 px-1">
             <h3 className="font-semibold">{rangeLabel(data)}</h3>
-            <span className="text-xs text-ws-faint">{busy ? "Updating…" : `Updated ${displayDate(data.generatedAt, { hour: "2-digit", minute: "2-digit" })}`}</span>
+            <span className="text-sm text-ws-faint">{busy ? "Updating…" : `Updated ${displayDate(data.generatedAt, { hour: "2-digit", minute: "2-digit" })}`}</span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <Metric label="Payments received" value={formatMoney(data.receivedAmount, data.currency)}
@@ -137,7 +137,7 @@ export function FinanceSummary({ onOpenCompany }: {
             <Metric label="Overdue now" value={formatMoney(data.overdueAmount, data.currency)}
               detail={`${data.overdueInvoiceCount} invoices past their due date · included in outstanding`} />
           </section>
-          <p className="px-1 text-xs text-ws-faint">Current periods may still be in progress. Previous-period figures cover the full previous period. Currencies are reported separately.</p>
+          <p className="px-1 text-sm text-ws-faint">Current periods may still be in progress. Previous-period figures cover the full previous period. Currencies are reported separately.</p>
         </>
       )}
 
@@ -145,7 +145,7 @@ export function FinanceSummary({ onOpenCompany }: {
         <div className="flex flex-wrap items-center gap-3 px-4 py-3">
           <div className="mr-auto">
             <h3 className="font-semibold">Companies that paid</h3>
-            <p className="mt-1 text-xs text-ws-muted">Ranked by payments received in the selected period. Open a company’s invoices to review its bills.</p>
+            <p className="mt-1 text-sm text-ws-muted">Ranked by payments received in the selected period. Open a company’s invoices to review its bills.</p>
           </div>
           <form className="flex w-full gap-2 sm:w-auto" onSubmit={(event) => {
             event.preventDefault(); setSearch(searchInput.trim()); setPage(0);
@@ -161,7 +161,7 @@ export function FinanceSummary({ onOpenCompany }: {
         </div>
         <div className="ws-scroll overflow-auto border-t border-ws-line max-sm:hidden">
           <table className="w-full min-w-[780px] border-collapse text-left">
-            <thead className="bg-ws-card text-xs text-ws-muted">
+            <thead className="bg-ws-card text-sm text-ws-muted">
               <tr>{["Company", "Received", "Payments", "Invoices", "Last payment", "Actions"].map((heading) => (
                 <th key={heading} scope="col" className="px-4 py-2.5 font-semibold">{heading}</th>
               ))}</tr>
@@ -169,10 +169,10 @@ export function FinanceSummary({ onOpenCompany }: {
             <tbody>
               {companies.isError ? <tr><td colSpan={6} className="p-4"><ErrorState message="Unable to load paying companies." onRetry={companies.refetch} /></td></tr>
                 : !companyPage ? <tr><td colSpan={6} className="p-4"><LoadingState rows={4} /></td></tr>
-                : companyPage.content.length === 0 ? <tr><td colSpan={6} className="px-4 py-12 text-center text-sm text-ws-faint">
+                : companyPage.content.length === 0 ? <tr><td colSpan={6} className="px-4 py-12 text-center text-base text-ws-faint">
                   {search ? "No paying companies match your search." : "No successful payments recorded for this period and currency."}
                 </td></tr> : companyPage.content.map((company) => (
-                  <tr key={company.companyId} className="border-b border-ws-line/70 text-sm hover:bg-ws-card/60">
+                  <tr key={company.companyId} className="border-b border-ws-line/70 text-base hover:bg-ws-card/60">
                     <td className="max-w-64 truncate px-4 py-3 font-medium" title={company.companyName}>{company.companyName}</td>
                     <td className="px-4 py-3 font-semibold tabular-nums">{formatMoney(company.receivedAmount, company.currency)}</td>
                     <td className="px-4 py-3 tabular-nums text-ws-muted">{company.paymentCount}</td>
@@ -190,13 +190,13 @@ export function FinanceSummary({ onOpenCompany }: {
           ) : !companyPage ? (
             <LoadingState rows={4} />
           ) : companyPage.content.length === 0 ? (
-            <p className="px-3 py-8 text-center text-sm text-ws-faint">
+            <p className="px-3 py-8 text-center text-base text-ws-faint">
               {search ? "No paying companies match your search." : "No successful payments recorded for this period and currency."}
             </p>
           ) : companyPage.content.map((company) => (
             <article key={company.companyId} className="min-w-0 rounded-xl border border-ws-line bg-ws-panel p-4 shadow-xs">
-              <h4 className="break-words text-sm font-semibold">{company.companyName}</h4>
-              <dl className="mt-3 divide-y divide-ws-line text-sm [&>div]:grid [&>div]:grid-cols-[6rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
+              <h4 className="break-words text-base font-semibold">{company.companyName}</h4>
+              <dl className="mt-3 divide-y divide-ws-line text-base [&>div]:grid [&>div]:grid-cols-[6rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
                 <div><dt>Received</dt><dd className="font-semibold tabular-nums">{formatMoney(company.receivedAmount, company.currency)}</dd></div>
                 <div><dt>Payments</dt><dd className="tabular-nums">{company.paymentCount}</dd></div>
                 <div><dt>Invoices</dt><dd className="tabular-nums">{company.invoiceCount}</dd></div>
@@ -221,9 +221,9 @@ function Metric({ label, value, detail, highlight = false }: {
   label: string; value: string; detail: string; highlight?: boolean;
 }) {
   return <div className="rounded-xl border border-ws-line bg-ws-panel p-4 max-lg:min-w-0 max-sm:p-3">
-    <p className="text-sm text-ws-muted">{label}</p>
-    <p className={cn("mt-2 text-2xl font-semibold tabular-nums max-lg:break-words max-sm:text-xl", highlight && "text-primary")}>{value}</p>
-    <p className="mt-2 text-xs leading-5 text-ws-faint">{detail}</p>
+    <p className="text-base text-ws-muted">{label}</p>
+    <p className={cn("mt-2 text-3xl font-semibold tabular-nums max-lg:break-words max-sm:text-xl", highlight && "text-primary")}>{value}</p>
+    <p className="mt-2 text-sm leading-5 text-ws-faint">{detail}</p>
   </div>;
 }
 
@@ -234,7 +234,7 @@ function ReceiptTrend({ data }: { data: FinanceSummaryResponse }) {
   return <section className="rounded-xl border border-ws-line bg-ws-panel p-4">
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h3 className="font-semibold">Payments over time</h3>
-      <p className="text-xs text-ws-muted" aria-live="polite">
+      <p className="text-sm text-ws-muted" aria-live="polite">
         {selected ? `${displayDate(selected.date, data.period === "YEAR" ? { day: undefined, month: "long" } : undefined)} · ${formatMoney(selected.amount, data.currency)} · ${selected.paymentCount} payments` : "Select a bar to see its payments"}
       </p>
     </div>
@@ -248,7 +248,7 @@ function ReceiptTrend({ data }: { data: FinanceSummaryResponse }) {
             style={{ height: point.amount > 0 ? `${Math.max(point.amount / max * 100, 2)}%` : "0%" }} />
         </button>)}
       </div>
-      <div className="mt-2 flex min-w-[460px] gap-1.5 text-center text-[10px] text-ws-faint" aria-hidden="true">
+      <div className="mt-2 flex min-w-[460px] gap-1.5 text-center text-xs text-ws-faint" aria-hidden="true">
         {data.trend.map((point, index) => <span key={point.date} className="min-w-0 flex-1">
           {data.period === "YEAR" ? displayDate(point.date, { day: undefined, year: undefined })
             : data.period === "WEEK" ? displayDate(point.date, { year: undefined, month: undefined, weekday: "short", day: undefined })

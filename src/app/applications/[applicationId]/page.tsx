@@ -125,7 +125,7 @@ export default function ApplicationDetailPage() {
       <div>
         <Link
           href="/applications"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-ws-muted transition-colors hover:text-ws-fg"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-ws-muted transition-colors hover:text-ws-fg"
         >
           <ArrowLeft aria-hidden="true" className="size-3.5" />
           Back to queue
@@ -145,7 +145,7 @@ export default function ApplicationDetailPage() {
                 <h2 className="text-xl font-bold tracking-tight text-ws-fg">
                   {orDash(candidate?.headline)}
                 </h2>
-                <p className="mt-1 text-xs text-ws-muted">
+                <p className="mt-1 text-sm text-ws-muted">
                   Applied for{" "}
                   <span className="font-semibold text-ws-fg">
                     {orDash(application.jobTitle)}
@@ -177,10 +177,10 @@ export default function ApplicationDetailPage() {
                 <Briefcase aria-hidden="true" className="size-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-ws-faint">
+                <p className="type-eyebrow">
                   Current position
                 </p>
-                <p className="mt-0.5 truncate text-sm font-semibold text-ws-fg">
+                <p className="mt-0.5 truncate text-base font-semibold text-ws-fg">
                   {orDash(candidate?.currentPosition)}
                 </p>
               </div>
@@ -191,10 +191,10 @@ export default function ApplicationDetailPage() {
                 <MapPin aria-hidden="true" className="size-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-ws-faint">
+                <p className="type-eyebrow">
                   Preferred location
                 </p>
-                <p className="mt-0.5 truncate text-sm font-semibold text-ws-fg">
+                <p className="mt-0.5 truncate text-base font-semibold text-ws-fg">
                   {orDash(candidate?.preferredLocation)}
                 </p>
               </div>
@@ -205,10 +205,10 @@ export default function ApplicationDetailPage() {
                 <Clock aria-hidden="true" className="size-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-ws-faint">
+                <p className="type-eyebrow">
                   Availability
                 </p>
-                <p className="mt-0.5 truncate text-sm font-semibold text-ws-fg">
+                <p className="mt-0.5 truncate text-base font-semibold text-ws-fg">
                   {orDash(candidate?.availabilityStatus)}
                 </p>
               </div>
@@ -218,11 +218,11 @@ export default function ApplicationDetailPage() {
           {/* Cover Letter if present */}
           {application.coverLetter ? (
             <div className="rounded-xl border border-ws-line/60 bg-ws-card-hover/40 p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-ws-faint">
+              <div className="flex items-center gap-2 type-eyebrow">
                 <FileText aria-hidden="true" className="size-3.5" />
                 Cover letter
               </div>
-              <p className="mt-2.5 whitespace-pre-line text-sm leading-relaxed text-ws-muted">
+              <p className="mt-2.5 whitespace-pre-line text-base leading-relaxed text-ws-muted">
                 {application.coverLetter}
               </p>
             </div>
@@ -243,10 +243,10 @@ export default function ApplicationDetailPage() {
                 <FileText aria-hidden="true" className="size-4" />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-ws-fg">
+                <p className="truncate text-base font-semibold text-ws-fg">
                   {orDash(submittedResume.title)}
                 </p>
-                <p className="text-xs text-ws-faint">PDF document</p>
+                <p className="text-sm text-ws-faint">PDF document</p>
               </div>
             </div>
 
@@ -256,7 +256,7 @@ export default function ApplicationDetailPage() {
                 href={resumeUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-ws-panel px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-ws-card shadow-xs"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-ws-panel px-3 py-1.5 text-sm font-semibold text-primary transition-colors hover:bg-ws-card shadow-xs"
               >
                 <span>View resume</span>
                 <ExternalLink aria-hidden="true" className="size-3" />
@@ -346,7 +346,7 @@ export default function ApplicationDetailPage() {
                 )}
               </span>
               <div className="min-w-0 flex-1">
-                <span className="block text-[11px] font-semibold uppercase tracking-wider text-ws-faint">
+                <span className="block type-eyebrow">
                   Application review decision
                 </span>
                 <div className="mt-1 flex items-center gap-2">
@@ -357,10 +357,10 @@ export default function ApplicationDetailPage() {
 
             {review?.decisionNote ? (
               <div className="rounded-xl border border-ws-line/60 bg-ws-panel p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-ws-faint">
+                <p className="type-eyebrow">
                   Decision note
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-ws-fg">
+                <p className="mt-2 text-base leading-relaxed text-ws-fg">
                   {review.decisionNote}
                 </p>
               </div>
@@ -368,10 +368,10 @@ export default function ApplicationDetailPage() {
 
             {isApproved ? (
               <div className="rounded-xl border border-brand/20 bg-brand/5 p-4">
-                <p className="text-sm font-semibold text-ws-fg">
+                <p className="text-base font-semibold text-ws-fg">
                   Ready to forward
                 </p>
-                <p className="mt-1 text-xs text-ws-muted">
+                <p className="mt-1 text-sm text-ws-muted">
                   The review is approved. Forwarding sends the candidate’s resume
                   and AI interview result to the company recruiter.
                 </p>
@@ -392,7 +392,7 @@ export default function ApplicationDetailPage() {
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="decision-note-textarea"
-                className="text-xs font-semibold text-ws-muted"
+                className="text-sm font-semibold text-ws-muted"
               >
                 Decision note
               </label>
@@ -537,7 +537,7 @@ function HumanInterviews({
         action={
           <Link
             href="/interviews"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-ws-line/60 bg-ws-card px-2.5 py-1 text-xs font-semibold text-ws-muted transition-colors hover:bg-ws-card-hover hover:text-ws-fg"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-ws-line/60 bg-ws-card px-2.5 py-1 text-sm font-semibold text-ws-muted transition-colors hover:bg-ws-card-hover hover:text-ws-fg"
           >
             <CalendarDays aria-hidden="true" className="size-3.5 text-primary" />
             View schedule on calendar
@@ -559,7 +559,7 @@ function HumanInterviews({
                     <Video aria-hidden="true" className="size-4" />
                   </div>
                   <div>
-                    <span className="text-sm font-bold text-ws-fg">
+                    <span className="text-base font-bold text-ws-fg">
                       {formatDateTime(interview.scheduledAt)}
                     </span>
                   </div>
@@ -577,7 +577,7 @@ function HumanInterviews({
                     href={interview.meetingUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-md bg-ws-panel px-2.5 py-1 text-xs font-medium text-primary hover:underline border border-ws-line/50"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-ws-panel px-2.5 py-1 text-sm font-medium text-primary hover:underline border border-ws-line/50"
                   >
                     <Video aria-hidden="true" className="size-3.5" />
                     <span className="truncate">{interview.meetingUrl}</span>
@@ -587,7 +587,7 @@ function HumanInterviews({
               ) : null}
 
               {interview.note ? (
-                <p className="mt-2.5 text-xs leading-relaxed text-ws-muted">
+                <p className="mt-2.5 text-sm leading-relaxed text-ws-muted">
                   {interview.note}
                 </p>
               ) : null}
@@ -600,7 +600,7 @@ function HumanInterviews({
                     onChange={setRescheduledAt}
                     disabled={busy}
                   />
-                  <label className="flex flex-col gap-1.5 text-xs font-semibold text-ws-muted">
+                  <label className="flex flex-col gap-1.5 text-sm font-semibold text-ws-muted">
                     Meeting link
                     <Input
                       type="url"
@@ -639,7 +639,7 @@ function HumanInterviews({
                     variant="secondary"
                     disabled={busy}
                     onClick={() => startRescheduling(interview)}
-                    className="h-7 text-xs"
+                    className="h-7 text-sm"
                   >
                     Reschedule
                   </Button>
@@ -647,7 +647,7 @@ function HumanInterviews({
                     size="sm"
                     disabled={busy}
                     onClick={() => void finish(interview.id, "PASSED")}
-                    className="h-7 text-xs"
+                    className="h-7 text-sm"
                   >
                     Passed
                   </Button>
@@ -656,7 +656,7 @@ function HumanInterviews({
                     variant="secondary"
                     disabled={busy}
                     onClick={() => void finish(interview.id, "NEEDS_REVIEW")}
-                    className="h-7 text-xs"
+                    className="h-7 text-sm"
                   >
                     Needs review
                   </Button>
@@ -665,7 +665,7 @@ function HumanInterviews({
                     variant="destructive"
                     disabled={busy}
                     onClick={() => void finish(interview.id, "FAILED")}
-                    className="h-7 text-xs"
+                    className="h-7 text-sm"
                   >
                     Failed
                   </Button>
@@ -674,7 +674,7 @@ function HumanInterviews({
                     variant="ghost"
                     disabled={busy}
                     onClick={() => void drop(interview.id)}
-                    className="h-7 text-xs text-destructive hover:bg-destructive/10"
+                    className="h-7 text-sm text-destructive hover:bg-destructive/10"
                   >
                     Cancel
                   </Button>
@@ -688,8 +688,8 @@ function HumanInterviews({
       {/* Scheduling form */}
       <div className="rounded-xl border border-ws-line/70 bg-ws-card-hover/40 p-4">
         <div>
-          <p className="text-xs font-bold text-ws-fg">Schedule an interview</p>
-          <p className="text-[11px] text-ws-faint">
+          <p className="text-sm font-bold text-ws-fg">Schedule an interview</p>
+          <p className="text-xs text-ws-faint">
             Set the date, local time, and video meeting link for this candidate.
           </p>
         </div>
@@ -701,7 +701,7 @@ function HumanInterviews({
             onChange={setScheduledAt}
             disabled={isScheduling}
           />
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ws-muted">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-ws-muted">
             Meeting link
             <Input
               type="url"
@@ -731,15 +731,15 @@ function HumanInterviews({
 function ScoreCard({ label, value }: { label: string; value: number | null }) {
   return (
     <div className="rounded-xl border border-ws-line/60 bg-ws-card-hover/50 p-4 transition-colors">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-ws-faint">
+      <p className="type-eyebrow">
         {label}
       </p>
       <div className="mt-2 flex items-baseline gap-1.5">
-        <span className="text-2xl font-bold tabular-nums text-ws-fg">
+        <span className="text-3xl font-bold tabular-nums text-ws-fg">
           {value ?? "—"}
         </span>
         {value !== null ? (
-          <span className="text-xs text-ws-faint">/ 10</span>
+          <span className="text-sm text-ws-faint">/ 10</span>
         ) : null}
       </div>
     </div>
@@ -764,10 +764,10 @@ function EvaluationCard({
         tone === "primary" && "border-brand/30 bg-brand/5",
       )}
     >
-      <p className="text-xs font-bold uppercase tracking-wider text-ws-fg">
+      <p className="type-eyebrow text-ws-fg">
         {label}
       </p>
-      <p className="mt-2 text-xs leading-relaxed text-ws-muted">
+      <p className="mt-2 text-sm leading-relaxed text-ws-muted">
         {orDash(value)}
       </p>
     </div>

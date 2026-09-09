@@ -103,7 +103,7 @@ export default function ApplicationsPage() {
         <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
           <h2 className="font-semibold text-ws-fg">Review queue</h2>
           {data ? (
-            <span className="rounded-md bg-ws-card px-2 py-0.5 text-xs font-medium text-ws-muted">
+            <span className="rounded-md bg-ws-card px-2 py-0.5 text-sm font-medium text-ws-muted">
               {data.totalElements}
             </span>
           ) : null}
@@ -144,7 +144,7 @@ export default function ApplicationsPage() {
                     /* The fill and the rule live on the cell, not the row: a
                        collapsed border does not travel with a sticky header,
                        so the divider is drawn as an inset shadow instead. */
-                    className={`${column.className} bg-ws-card px-4 py-2.5 text-xs font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
+                    className={`${column.className} bg-ws-card px-4 py-2.5 text-sm font-semibold text-ws-muted shadow-[inset_0_-1px_0_var(--ws-line)]`}
                   >
                     {column.label || <span className="sr-only">Actions</span>}
                   </th>
@@ -230,7 +230,7 @@ function CandidateRow({ item }: { item: CandidateApplicationListItem }) {
     <tr className="border-b border-ws-line/70 transition-colors hover:bg-ws-card/60">
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-chip-solid text-sm font-semibold text-chip-solid-fg">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-chip-solid text-base font-semibold text-chip-solid-fg">
             {item.candidate?.headline?.trim().charAt(0).toUpperCase() || "?"}
           </span>
           <span className="min-w-0">
@@ -240,7 +240,7 @@ function CandidateRow({ item }: { item: CandidateApplicationListItem }) {
             >
               {orDash(item.candidate?.headline)}
             </Link>
-            <span className="block truncate text-xs text-ws-faint">
+            <span className="block truncate text-sm text-ws-faint">
               {orDash(item.candidate?.currentPosition)}
             </span>
           </span>
@@ -248,10 +248,10 @@ function CandidateRow({ item }: { item: CandidateApplicationListItem }) {
       </td>
 
       <td className="px-4 py-3">
-        <span className="block truncate text-sm text-ws-fg">
+        <span className="block truncate text-base text-ws-fg">
           {orDash(item.application.jobTitle)}
         </span>
-        <span className="block truncate text-xs text-ws-faint">
+        <span className="block truncate text-sm text-ws-faint">
           {orDash(item.candidate?.preferredLocation)}
         </span>
       </td>
@@ -261,13 +261,13 @@ function CandidateRow({ item }: { item: CandidateApplicationListItem }) {
       <td className="px-4 py-3">
         {item.aiResult || item.aiScore != null ? (
           <span className="flex items-center gap-2">
-            <span className="text-sm font-semibold tabular-nums text-ws-fg">
+            <span className="text-base font-semibold tabular-nums text-ws-fg">
               {item.aiScore == null ? "—" : item.aiScore}
             </span>
             <ResultChip result={item.aiResult} />
           </span>
         ) : (
-          <span className="text-xs text-ws-faint">Not finished</span>
+          <span className="text-sm text-ws-faint">Not finished</span>
         )}
       </td>
 
@@ -279,17 +279,17 @@ function CandidateRow({ item }: { item: CandidateApplicationListItem }) {
             href={resolveFileUrl(item.submittedResume.resumeFileUrl)}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm text-ws-muted transition-colors hover:text-ws-fg hover:underline"
+            className="inline-flex items-center gap-1.5 text-base text-ws-muted transition-colors hover:text-ws-fg hover:underline"
           >
             <FileText aria-hidden="true" className="size-4 shrink-0" />
             Open
           </a>
         ) : (
-          <span className="text-xs text-ws-faint">None</span>
+          <span className="text-sm text-ws-faint">None</span>
         )}
       </td>
 
-      <td className="px-4 py-3 text-sm text-ws-muted">
+      <td className="px-4 py-3 text-base text-ws-muted">
         {formatDateTime(item.application.appliedAt)}
       </td>
 
@@ -319,11 +319,11 @@ function CandidateCard({ item }: { item: CandidateApplicationListItem }) {
           {item.candidate?.headline?.trim().charAt(0).toUpperCase() || "?"}
         </span>
         <span className="min-w-0 break-words">
-          <span className="block text-sm font-semibold text-ws-fg">{orDash(item.candidate?.headline)}</span>
-          <span className="block text-xs text-ws-faint">{orDash(item.candidate?.currentPosition)}</span>
+          <span className="block text-base font-semibold text-ws-fg">{orDash(item.candidate?.headline)}</span>
+          <span className="block text-sm text-ws-faint">{orDash(item.candidate?.currentPosition)}</span>
         </span>
       </Link>
-      <dl className="mt-3 divide-y divide-ws-line text-sm [&>div]:grid [&>div]:grid-cols-[5.5rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
+      <dl className="mt-3 divide-y divide-ws-line text-base [&>div]:grid [&>div]:grid-cols-[5.5rem_minmax(0,1fr)] [&>div]:gap-3 [&>div]:py-3 [&_dt]:text-ws-muted [&_dd]:min-w-0 [&_dd]:break-words [&_dd]:text-right">
         <div><dt>Applied for</dt><dd>{orDash(item.application.jobTitle)}</dd></div>
         <div><dt>Location</dt><dd>{orDash(item.candidate?.preferredLocation)}</dd></div>
         <div><dt>AI interview</dt><dd>
@@ -360,7 +360,7 @@ function EmptyState({ filtered }: { filtered: boolean }) {
       <p className="font-semibold text-ws-fg">
         {filtered ? "No candidates match that search" : "Nothing in this queue"}
       </p>
-      <p className="text-xs text-ws-faint">
+      <p className="text-sm text-ws-faint">
         {filtered
           ? "The search only covers the candidates loaded on this page."
           : "Candidates arrive here once their AI interview is finished."}

@@ -114,10 +114,10 @@ export default function AiEnginePage() {
           <ShieldAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
           <div>
             <h2 className="text-base font-semibold">Needs the SUPER_ADMIN role</h2>
-            <p className="mt-1 text-sm leading-6">
+            <p className="mt-1 text-base leading-6">
               The API key stored here can spend real money, so it is held to the
               platform&apos;s narrowest role. Ask whoever administers Keycloak to add{" "}
-              <code className="rounded bg-ws-card px-1 py-0.5 text-xs">SUPER_ADMIN</code>{" "}
+              <code className="rounded bg-ws-card px-1 py-0.5 text-sm">SUPER_ADMIN</code>{" "}
               to your account, then sign out and back in.
             </p>
           </div>
@@ -219,7 +219,7 @@ export default function AiEnginePage() {
   return (
     <div className="flex flex-col gap-3 max-lg:min-w-0 max-lg:shrink-0 max-sm:[&>section]:min-w-0 max-sm:[&>section]:p-3 max-sm:[&_code]:break-all">
       <Panel tone="soft">
-        <p className="text-sm leading-6">
+        <p className="text-base leading-6">
           Every AI feature on the platform — interview questions, scoring, voice
           transcripts and recruiter job imports — runs on these settings. Changes
           apply to the next call; nothing needs restarting, and an interview
@@ -236,7 +236,7 @@ export default function AiEnginePage() {
 
         {data.apiKeyEditable ? (
           <div className="flex flex-col gap-3">
-            <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+            <label className="flex flex-col gap-1.5 text-sm font-medium text-ws-muted">
               {data.apiKeyStored ? "Replace the saved key" : "API key"}
               <Input
                 type="password"
@@ -258,7 +258,7 @@ export default function AiEnginePage() {
             </label>
 
             {data.apiKeyStored ? (
-              <label className="flex items-center gap-2 text-xs font-medium text-ws-muted">
+              <label className="flex items-center gap-2 text-sm font-medium text-ws-muted">
                 <input
                   type="checkbox"
                   className="size-4 accent-primary max-sm:shrink-0"
@@ -273,15 +273,15 @@ export default function AiEnginePage() {
             ) : null}
           </div>
         ) : (
-          <p className="rounded-xl bg-ws-card-hover px-4 py-3 text-sm leading-6 text-ws-muted">
+          <p className="rounded-xl bg-ws-card-hover px-4 py-3 text-base leading-6 text-ws-muted">
             This server has no secret encryption key, so a provider key cannot be
             stored here — it would have to be written to the database in the
             clear. Set{" "}
-            <code className="rounded bg-ws-card px-1 py-0.5 text-xs">
+            <code className="rounded bg-ws-card px-1 py-0.5 text-sm">
               AI_SETTINGS_ENCRYPTION_KEY
             </code>{" "}
             to a base64-encoded 32-byte value (
-            <code className="rounded bg-ws-card px-1 py-0.5 text-xs">
+            <code className="rounded bg-ws-card px-1 py-0.5 text-sm">
               openssl rand -base64 32
             </code>
             ) and restart it. Everything else on this page still works.
@@ -293,7 +293,7 @@ export default function AiEnginePage() {
             <PlugZap aria-hidden="true" className="size-4" />
             {testState.isLoading ? "Testing…" : "Test connection"}
           </Button>
-          <p className="mt-2 text-xs text-ws-faint">
+          <p className="mt-2 text-sm text-ws-faint">
             Sends one tiny prompt using the model and key entered above, so a typo
             is caught here rather than by the next candidate.
           </p>
@@ -303,7 +303,7 @@ export default function AiEnginePage() {
       <Panel>
         <PanelHeader title="Models" />
 
-        <label className="flex max-w-md flex-col gap-1.5 text-xs font-medium text-ws-muted">
+        <label className="flex max-w-md flex-col gap-1.5 text-sm font-medium text-ws-muted">
           Default model
           <ModelSelect
             value={form.model}
@@ -324,8 +324,8 @@ export default function AiEnginePage() {
               className="flex flex-wrap items-center gap-3 rounded-xl bg-ws-card-hover px-4 py-3 max-sm:min-w-0 max-sm:flex-col max-sm:items-stretch max-sm:px-3"
             >
               <div className="min-w-40 flex-1 max-sm:min-w-0">
-                <p className="text-sm font-semibold text-ws-fg">{humanizeEnum(task)}</p>
-                <p className="mt-0.5 text-xs text-ws-faint">{TASK_HINTS[task]}</p>
+                <p className="text-base font-semibold text-ws-fg">{humanizeEnum(task)}</p>
+                <p className="mt-0.5 text-sm text-ws-faint">{TASK_HINTS[task]}</p>
               </div>
               <ModelSelect
                 className="w-60 max-sm:min-w-0 max-sm:w-full"
@@ -346,7 +346,7 @@ export default function AiEnginePage() {
       <Panel>
         <PanelHeader title="Tuning" />
 
-        <label className="mb-4 flex max-w-md flex-col gap-1.5 text-xs font-medium text-ws-muted">
+        <label className="mb-4 flex max-w-md flex-col gap-1.5 text-sm font-medium text-ws-muted">
           Thinking
           <Select
             value={form.thinking}
@@ -415,7 +415,7 @@ export default function AiEnginePage() {
           <RotateCcw aria-hidden="true" className="size-4" />
           Reset
         </Button>
-        <p className="text-xs text-ws-faint">
+        <p className="text-sm text-ws-faint">
           {data.updatedAt
             ? `Last changed ${formatDateTime(data.updatedAt)}${
                 data.updatedBy ? ` by ${data.updatedBy}` : ""
@@ -445,7 +445,7 @@ function NumberField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1.5 text-xs font-medium text-ws-muted">
+    <label className="flex flex-col gap-1.5 text-sm font-medium text-ws-muted">
       {label}
       <Input
         type="number"

@@ -24,7 +24,7 @@ export default function Error({
 
       <h1 className="mt-5 text-lg font-bold text-ws-fg">Something went wrong</h1>
 
-      <p className="mt-2 max-w-sm text-sm leading-relaxed text-ws-faint">
+      <p className="mt-2 max-w-sm text-base leading-relaxed text-ws-faint">
         This screen failed to load. Retrying is safe — nothing is recorded until
         you press one of the decision buttons.
       </p>

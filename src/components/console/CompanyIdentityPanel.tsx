@@ -129,7 +129,7 @@ export function CompanyIdentityPanel({
         </Segment>
       </div>
 
-      <p className="mt-2.5 text-sm text-ws-muted">
+      <p className="mt-2.5 text-base text-ws-muted">
         {masked ? (
           <>
             Jobs show{" "}
@@ -167,8 +167,8 @@ export function CompanyIdentityPanel({
           </span>
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-ws-fg">Stand-in logo</p>
-            <p className="text-xs text-ws-faint">
+            <p className="text-base font-medium text-ws-fg">Stand-in logo</p>
+            <p className="text-sm text-ws-faint">
               {standIn ? "Shown while masked" : "None set"}
             </p>
           </div>
@@ -229,7 +229,7 @@ function Segment({
       disabled={disabled}
       aria-pressed={selected}
       className={cn(
-        "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-sm font-medium transition-colors disabled:opacity-60",
+        "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-base font-medium transition-colors disabled:opacity-60",
         selected
           ? "bg-ws-panel text-ws-fg shadow-(--shadow-card)"
           : "text-ws-muted hover:text-ws-fg",

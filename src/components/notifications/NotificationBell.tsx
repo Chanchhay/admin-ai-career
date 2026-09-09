@@ -82,7 +82,7 @@ export function NotificationBell({
       >
         <Bell aria-hidden="true" className="size-4.5" />
         {count > 0 ? (
-          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs leading-none font-bold text-primary-foreground">
+          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-sm leading-none font-bold text-primary-foreground">
             {count > 99 ? "99+" : count}
           </span>
         ) : null}
@@ -91,7 +91,7 @@ export function NotificationBell({
       {open ? (
         <div className="absolute right-0 z-50 mt-2 w-88 max-w-[calc(100vw-2rem)] max-lg:fixed max-lg:inset-x-4 max-lg:top-18 max-lg:mx-auto max-lg:w-auto max-lg:max-w-none max-lg:max-h-[calc(100dvh-10rem)] max-lg:overflow-y-auto overflow-hidden rounded-2xl bg-ws-panel shadow-[var(--shadow-dropdown)]">
           <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-sm font-semibold text-ws-fg">
+            <span className="text-base font-semibold text-ws-fg">
               {tx("Notifications")}
             </span>
             {count > 0 ? (
@@ -99,7 +99,7 @@ export function NotificationBell({
                 type="button"
                 onClick={() => void markAllRead()}
                 disabled={markAllState.isLoading}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-ws-muted transition-colors hover:text-ws-fg disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-ws-muted transition-colors hover:text-ws-fg disabled:opacity-50"
               >
                 <CheckCheck aria-hidden="true" className="size-3.5" />{" "}
                 {tx("Mark all read")}
@@ -109,15 +109,15 @@ export function NotificationBell({
 
           <div className="max-h-96 overflow-y-auto">
             {list.isLoading ? (
-              <p className="px-4 py-8 text-center text-sm text-ws-faint">
+              <p className="px-4 py-8 text-center text-base text-ws-faint">
                 {tx("Loading…")}
               </p>
             ) : list.isError ? (
-              <p className="px-4 py-8 text-center text-sm text-ws-faint">
+              <p className="px-4 py-8 text-center text-base text-ws-faint">
                 {tx("Unable to load notifications.")}
               </p>
             ) : notifications.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-ws-faint">
+              <p className="px-4 py-8 text-center text-base text-ws-faint">
                 {tx("Nothing yet.")}
               </p>
             ) : (
@@ -169,7 +169,7 @@ function NotificationRow({
         ) : null}
         <span
           className={cn(
-            "truncate text-sm",
+            "truncate text-base",
             notification.read
               ? "text-ws-muted"
               : "font-semibold text-ws-fg",
@@ -179,11 +179,11 @@ function NotificationRow({
         </span>
       </span>
       {notification.body ? (
-        <span className="mt-1 block text-xs leading-5 text-ws-muted">
+        <span className="mt-1 block text-sm leading-5 text-ws-muted">
           {notification.body}
         </span>
       ) : null}
-      <span className="mt-1 block text-xs text-ws-faint">
+      <span className="mt-1 block text-sm text-ws-faint">
         {formatRelative(notification.createdAt, tx)}
       </span>
     </>

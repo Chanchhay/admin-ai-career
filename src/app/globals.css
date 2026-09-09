@@ -7,59 +7,24 @@
 @theme inline {
   --font-sans: var(--font-ui);
 
-  /* General/admin copy is 18px; larger utilities provide explicit emphasis. */
-  --text-xs: 1.125rem;
-  --text-xs--line-height: 1.5;
-  --text-sm: 1.125rem;
-  --text-sm--line-height: 1.5;
-  --text-base: 1.125rem;
-  --text-base--line-height: 1.5;
-  --text-lg: 1.25rem;
-  --text-lg--line-height: 1.4;
-  --text-xl: 1.5rem;
-  --text-xl--line-height: 1.35;
-  --text-2xl: 1.875rem;
-  --text-2xl--line-height: 1.3;
-  --text-3xl: 2.25rem;
-  --text-3xl--line-height: 1.2;
-  --text-4xl: 3rem;
-  --text-4xl--line-height: 1.15;
-  --text-5xl: 3.75rem;
-  --text-5xl--line-height: 1;
-  --text-6xl: 4.5rem;
-  --text-6xl--line-height: 1;
-  --text-7xl: 6rem;
-  --text-7xl--line-height: 1;
-  --text-8xl: 7rem;
-  --text-8xl--line-height: 1;
-  --text-9xl: 8rem;
-  --text-9xl--line-height: 1;
-
   /*
-   * Type scale for an interaction-heavy console: 16px body, 14px secondary.
+   * The type scale is Tailwind's stock scale, deliberately unmodified:
+   * xs 12 / sm 14 / base 16 / lg 18 / xl 20 / 2xl 24 / 3xl 30 / 4xl 36 / 5xl 48px.
    *
-   * All rem, never px, so a reader who scales text to 200% scales the whole
-   * interface with it. Line height is 1.5 throughout.
+   * It used to be overridden here twice, by two blocks that disagreed. The
+   * survivor bumped xs->14 and sm->16, but only reached as far as `xl`, so
+   * `2xl` through `9xl` kept the *other* block's values and every utility above
+   * `xl` silently rendered one step too large (text-2xl was 30px, not 24px).
    *
-   * `xs` is raised from Tailwind's 12px to 14px — the floor for secondary text
-   * — and `sm` from 14px to 16px, so the ~600 existing `text-sm` call sites
-   * land on the body size and `text-xs` on the label size without being
-   * rewritten. `lg` (18px) and up keep Tailwind's values and carry the
-   * headings, since hierarchy has to come from somewhere once the floor rises.
+   * Both blocks are gone. Call sites were shifted instead — text-xs -> text-sm,
+   * text-sm -> text-base — so rendered sizes are unchanged and the class names
+   * now mean what Tailwind says they mean. Body copy is text-base (16px) and
+   * secondary copy text-sm (14px), which is also the floor for running text;
+   * text-xs (12px) is for chips, timestamps and eyebrow labels only.
    *
    * 16px on inputs is not cosmetic: iOS Safari zooms the viewport on focus of
    * any field below it.
    */
-  --text-xs: 0.875rem;
-  --text-xs--line-height: 1.5;
-  --text-sm: 1rem;
-  --text-sm--line-height: 1.5;
-  --text-base: 1rem;
-  --text-base--line-height: 1.5;
-  --text-lg: 1.125rem;
-  --text-lg--line-height: 1.5;
-  --text-xl: 1.25rem;
-  --text-xl--line-height: 1.4;
 
   /* Brand */
   --color-brand: var(--primary);
@@ -152,7 +117,7 @@
   --accent: var(--primary-tint);
   --accent-foreground: var(--primary-hover);
   --destructive: var(--error);
-  --input: var(--border);
+  --input: var(--input-border);
   --ring: var(--primary);
 }
 
@@ -175,13 +140,23 @@
     scroll-behavior: smooth;
   }
 
-  /* Semantic workspace defaults; explicit text utilities can override them. */
-  .ws-shell :where(h1) { font-size: 2.125rem; }
-  .ws-shell :where(h2) { font-size: 1.875rem; }
-  .ws-shell :where(h3) { font-size: 1.625rem; }
-  .ws-shell :where(h4) { font-size: 1.375rem; }
-  .ws-shell :where(h5) { font-size: 1.25rem; }
-  .ws-shell :where(h6) { font-size: 1.125rem; }
+  /*
+   * Semantic heading defaults, on the type scale rather than beside it: the
+   * sizes below are 4xl/3xl/2xl/xl/lg/base. Explicit text utilities still win,
+   * since :where() contributes no specificity.
+   */
+  .ws-shell :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  .ws-shell :where(h1) { font-size: var(--text-4xl); line-height: var(--text-4xl--line-height); letter-spacing: -0.02em; }
+  .ws-shell :where(h2) { font-size: var(--text-3xl); line-height: var(--text-3xl--line-height); letter-spacing: -0.015em; }
+  .ws-shell :where(h3) { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); letter-spacing: -0.01em; }
+  .ws-shell :where(h4) { font-size: var(--text-xl);  line-height: var(--text-xl--line-height); }
+  .ws-shell :where(h5) { font-size: var(--text-lg);  line-height: var(--text-lg--line-height); }
+  .ws-shell :where(h6) { font-size: var(--text-base); line-height: var(--text-base--line-height); }
 
   ::selection {
     background: color-mix(in srgb, var(--primary) 28%, transparent);
@@ -190,12 +165,80 @@
 
 @layer components {
   /*
+   * Typography roles.
+   *
+   * Hierarchy comes from size and weight, in that order — never from fading
+   * text toward the background, which is how the old three-step grey ramp
+   * ended up with 2.4:1 labels. Every role below meets WCAG AA (4.5:1) on the
+   * surfaces it is used on, so a role can be chosen for meaning alone.
+   */
+
+  /* The one h1 per screen, in the console header. */
+  .type-page-title {
+    font-size: var(--text-xl);
+    line-height: var(--text-xl--line-height);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ws-fg);
+  }
+
+  /* A panel or card heading. */
+  .type-section-title {
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    font-weight: 600;
+    color: var(--ws-fg);
+  }
+
+  /*
+   * The sentence under a title. One step down from body and one tier down in
+   * colour, capped at a readable measure — prose past ~75 characters per line
+   * loses the reader on the carriage return.
+   */
+  .type-description {
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--ws-muted);
+    max-width: 68ch;
+    text-wrap: pretty;
+  }
+
+  /*
+   * Eyebrow / field label. The only role that may use text-xs, and only
+   * because caps at 600 weight carry further than the size suggests. Tracking
+   * is mandatory: uppercase set at normal tracking is measurably slower to
+   * read.
+   */
+  .type-eyebrow {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ws-faint);
+  }
+
+  /* Timestamps, counts, and other non-essential metadata. */
+  .type-meta {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--ws-muted);
+  }
+
+  /* Numerals in tables and stat tiles line up in columns, and never reflow. */
+  .type-numeric {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /*
    * Shared by the editor surface and the published view, so authored content
    * renders identically in both.
    */
   .rich-text {
     color: var(--text-secondary);
-    font-size: 1.125rem;
+    /* 18px prose, one step above the 16px UI body, at a relaxed measure. */
+    font-size: var(--text-lg);
     line-height: 1.75;
     /* Long URLs and unbroken strings wrap instead of widening the card. */
     overflow-wrap: break-word;
@@ -278,7 +321,7 @@
     background: var(--surface-muted);
     border-radius: var(--radius-sm);
     padding: 0.1em 0.35em;
-    font-size: max(1.125rem, 0.875em);
+    font-size: 0.875em;
   }
 
   /*
@@ -517,8 +560,8 @@
 /* Toasts are rendered outside the admin shell and ship their own small sizes. */
 [data-sonner-toaster] [data-sonner-toast][data-styled='true'],
 [data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-button] {
-  font-size: 1.125rem;
-  line-height: 1.5;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
 }
 
 [data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-button] {

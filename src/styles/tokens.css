@@ -5,16 +5,19 @@
   --border: #e4e5e8;
   --text-primary: #18191c;
   --text-secondary: #5e6670;
-  --text-muted: #9199a3;
-  --primary: #1fa628;
-  --primary-hover: #0c8b00;
+  --text-muted: #646c77;
+  --primary: #17801d;
+  --primary-hover: #136d18;
   --primary-tint: #eaf4ea;
   --landing-tint: #eef8ed;
   --primary-foreground: #ffffff;
-  --success: #0ba02c;
+  --success: #0a7d23;
   --warning: #f3c623;
-  --error: #e05151;
+  --error: #c93a3a;
   --info: #5e6670;
+  /* Control boundaries need 3:1 (WCAG 1.4.11); --border stays light for
+     decorative dividers, which carry no such requirement. */
+  --input-border: #858b96;
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -31,8 +34,8 @@
   --ws-card-hover: #ececee;
   --ws-line: #e5e5e8;
   --ws-fg: #18191c;
-  --ws-muted: #6e6e74;
-  --ws-faint: #a6a6ad;
+  --ws-muted: #5c5c63;
+  --ws-faint: #68686e;
 
   /*
    * Chips and note cards are flat, fully opaque fills — never a tint of the
@@ -74,11 +77,13 @@
   --primary-hover: #3bc846;
   --primary-tint: #17361a;
   --landing-tint: #17361a;
-  --primary-foreground: #ffffff;
+  /* Ink, not white: white on the light-theme green is 2.66:1. */
+  --primary-foreground: #0b1a0d;
   --success: #35c84a;
   --warning: #f3c623;
   --error: #ff7777;
   --info: #c4cdc4;
+  --input-border: #646f64;
   --shadow-card: 0 12px 24px rgba(0, 0, 0, 0.22);
   --shadow-dropdown: 0 18px 40px rgba(0, 0, 0, 0.38);
 
@@ -89,7 +94,7 @@
   --ws-line: #2b2b2e;
   --ws-fg: #f4f4f5;
   --ws-muted: #9b9ba1;
-  --ws-faint: #6e6e75;
+  --ws-faint: #8a8a92;
 
   /* The fills stay identical in the dark theme — they are the light in it. */
   --chip-solid: var(--primary);

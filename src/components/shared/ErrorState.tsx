@@ -22,14 +22,14 @@ export function ErrorState({
       )}
     >
       <AlertCircle aria-hidden="true" className="size-5 text-red-500" />
-      <p className="text-xs text-slate-500">{message}</p>
+      <p className="text-sm text-slate-500">{message}</p>
       {onRetry ? (
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={onRetry}
-          className="h-8 text-xs"
+          className="h-8 text-sm"
         >
           Try again
         </Button>

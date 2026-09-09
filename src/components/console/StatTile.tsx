@@ -27,13 +27,13 @@ export function StatTile({
     <div className={cn("rounded-xl bg-ws-card p-3.5", className)}>
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-ws-faint">
+          <p className="type-eyebrow">
             {tx(label)}
           </p>
-          <p className="mt-2 text-3xl font-bold tabular-nums text-ws-fg">
+          <p className="mt-2 text-4xl font-bold tabular-nums text-ws-fg">
             {value === undefined ? "—" : value.toLocaleString()}
           </p>
-          {hint ? <p className="mt-1 text-xs text-ws-faint">{tx(hint)}</p> : null}
+          {hint ? <p className="mt-1 text-sm text-ws-faint">{tx(hint)}</p> : null}
         </div>
         {icon ? (
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-ws-card-hover text-ws-muted">

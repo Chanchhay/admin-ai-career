@@ -53,7 +53,7 @@ export default function UserDetailPage() {
     <div className="flex flex-col gap-3">
       <Link
         href="/users"
-        className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ws-muted transition-colors hover:text-ws-fg"
+        className="inline-flex w-fit items-center gap-1.5 text-base font-semibold text-ws-muted transition-colors hover:text-ws-fg"
       >
         <ArrowLeft aria-hidden="true" className="size-4" /> {tx("All accounts")}
       </Link>
@@ -95,7 +95,7 @@ export default function UserDetailPage() {
           * look contradictory.
           */}
         {user.enabled === false && user.status === "ACTIVE" ? (
-          <p className="mt-4 rounded-[18px] bg-chip-alert px-4 py-3 text-xs text-chip-alert-fg">
+          <p className="mt-4 rounded-[18px] bg-chip-alert px-4 py-3 text-sm text-chip-alert-fg">
             {tx(
               "This user is disabled in Keycloak but has no suspension recorded here. It was most likely changed directly in the Keycloak console.",
             )}
@@ -103,7 +103,7 @@ export default function UserDetailPage() {
         ) : null}
 
         {!user.hasLocalAccount ? (
-          <p className="mt-4 rounded-[18px] bg-ws-card-hover px-4 py-3 text-xs text-ws-muted">
+          <p className="mt-4 rounded-[18px] bg-ws-card-hover px-4 py-3 text-sm text-ws-muted">
             {tx(
               "No local account row exists yet. One will be created the first time this account is suspended or reactivated.",
             )}
@@ -112,7 +112,7 @@ export default function UserDetailPage() {
 
         {user.profiles.length > 0 ? (
           <div className="mt-4 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-semibold text-ws-muted">
+            <span className="text-sm font-semibold text-ws-muted">
               {tx("Profiles")}
             </span>
             {user.profiles.map((profile) => (
@@ -187,7 +187,7 @@ function RolesPanel({
         icon={<ShieldCheck aria-hidden="true" className="size-4" />}
       />
 
-      <p className="mb-4 text-sm text-ws-muted">
+      <p className="mb-4 text-base text-ws-muted">
         {tx(
           "Roles decide what the account may reach. Revoking one leaves its existing data — a revoked recruiter keeps their companies and jobs, they simply lose access to them.",
         )}
@@ -269,7 +269,7 @@ function StatusPanel({
         icon={<KeyRound aria-hidden="true" className="size-4" />}
       />
 
-      <p className="mb-4 text-sm text-ws-muted">
+      <p className="mb-4 text-base text-ws-muted">
         {suspended
           ? tx(
               "Re-enables sign-in and clears the local suspension. The user can log in again immediately.",
@@ -305,7 +305,7 @@ function StatusPanel({
         </Button>
       </div>
 
-      <p className="mt-3 text-xs text-ws-faint">
+      <p className="mt-3 text-sm text-ws-faint">
         {tx(
           "You cannot suspend your own account or change your own roles — only another administrator can undo either.",
         )}
@@ -319,8 +319,8 @@ function Row({ label, value }: { label: string; value: string }) {
 
   return (
     <div className="rounded-[18px] bg-ws-card-hover px-4 py-3">
-      <dt className="text-xs font-semibold text-ws-muted">{tx(label)}</dt>
-      <dd className="mt-0.5 truncate text-sm text-ws-fg">{value}</dd>
+      <dt className="text-sm font-semibold text-ws-muted">{tx(label)}</dt>
+      <dd className="mt-0.5 truncate text-base text-ws-fg">{value}</dd>
     </div>
   );
 }
