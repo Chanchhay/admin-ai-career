@@ -520,6 +520,15 @@
   .ws-shell [data-slot="button"] {
     max-width: 100%;
     white-space: normal;
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="skeleton"]::after {
+    animation: none !important;
   }
 }
 
