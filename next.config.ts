@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { BASE_PATH } from "./src/lib/base-path";
 
 const nextConfig: NextConfig = {
   /**
@@ -12,7 +13,11 @@ const nextConfig: NextConfig = {
    * anchors do not, which is what keeps `/api/v1/**`, `/bff/session`, `/logout`
    * and `/oauth2/**` pointing at the gateway instead of at this app.
    */
-  basePath: "/admin",
+  basePath: BASE_PATH,
+  experimental: {
+    useTypeScriptCli: false,
+    webpackBuildWorker: false,
+  },
 };
 
 export default nextConfig;

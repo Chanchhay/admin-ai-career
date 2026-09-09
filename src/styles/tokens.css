@@ -1,24 +1,27 @@
 :root {
-  --background: #eff4ff;
+  --background: #f4f5f7;
   --surface: #ffffff;
   --surface-muted: #f1f2f4;
   --border: #e4e5e8;
   --text-primary: #18191c;
   --text-secondary: #5e6670;
-  --text-muted: #9199a3;
-  --primary: #1fa628;
-  --primary-hover: #0c8b00;
-  --primary-tint: #e7f0fa;
+  --text-muted: #646c77;
+  --primary: #17801d;
+  --primary-hover: #136d18;
+  --primary-tint: #eaf4ea;
   --landing-tint: #eef8ed;
   --primary-foreground: #ffffff;
-  --success: #0ba02c;
+  --success: #0a7d23;
   --warning: #f3c623;
-  --error: #e05151;
-  --info: #0a65cc;
+  --error: #c93a3a;
+  --info: #5e6670;
+  /* Control boundaries need 3:1 (WCAG 1.4.11); --border stays light for
+     decorative dividers, which carry no such requirement. */
+  --input-border: #858b96;
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
-  --shadow-card: 0 12px 24px rgba(0, 44, 109, 0.08);
+  --shadow-card: 0 12px 24px rgba(17, 24, 28, 0.08);
   --shadow-dropdown: 0 18px 40px rgba(24, 25, 28, 0.14);
 
   /*
@@ -31,22 +34,35 @@
   --ws-card-hover: #ececee;
   --ws-line: #e5e5e8;
   --ws-fg: #18191c;
-  --ws-muted: #6e6e74;
-  --ws-faint: #a6a6ad;
+  --ws-muted: #5c5c63;
+  --ws-faint: #68686e;
 
   /*
-   * Chips are brand-only: one solid fill, one tint, one neutral. Hue carries no
-   * meaning here — weight does — so nothing needs a colour of its own.
-   * `alert` is the single exception, and it reuses the existing --error token.
+   * Chips and note cards are flat, fully opaque fills — never a tint of the
+   * brand green over the surface, and never a gradient. Each tone is its own
+   * hue so a queue reads at a glance: green clears, yellow waits, lilac
+   * informs, coral closes. Foregrounds are dark ink so the same fills work in
+   * both themes without dropping their opacity.
    */
   --chip-solid: var(--primary);
   --chip-solid-fg: var(--primary-foreground);
-  --chip-soft: color-mix(in oklab, var(--primary) 15%, #ffffff);
-  --chip-soft-fg: color-mix(in oklab, var(--primary) 78%, #000000);
-  --chip-quiet: #ececee;
-  --chip-quiet-fg: #5c5c64;
-  --chip-alert: color-mix(in oklab, var(--error) 14%, #ffffff);
-  --chip-alert-fg: color-mix(in oklab, var(--error) 72%, #000000);
+  --chip-soft: var(--surface-muted);
+  --chip-soft-fg: var(--text-primary);
+  --chip-quiet: #e2e4e8;
+  --chip-quiet-fg: var(--text-secondary);
+  --chip-alert: var(--error);
+  --chip-alert-fg: #ffffff;
+
+  /*
+   * Note-card fills. The big blocks in the layout are deliberately NOT brand
+   * colours — the green would shout at that size, and it earns more attention
+   * on a chip than on a panel. These two flat hues carry the cards; primary and
+   * secondary stay small.
+   */
+  --note-warm: #f4e26b;
+  --note-warm-fg: #18191c;
+  --note-cool: #cbbcf6;
+  --note-cool-fg: #18191c;
 }
 
 .dark {
@@ -61,11 +77,13 @@
   --primary-hover: #3bc846;
   --primary-tint: #17361a;
   --landing-tint: #17361a;
-  --primary-foreground: #ffffff;
+  /* Ink, not white: white on the light-theme green is 2.66:1. */
+  --primary-foreground: #0b1a0d;
   --success: #35c84a;
   --warning: #f3c623;
   --error: #ff7777;
-  --info: #6aaeff;
+  --info: #c4cdc4;
+  --input-border: #646f64;
   --shadow-card: 0 12px 24px rgba(0, 0, 0, 0.22);
   --shadow-dropdown: 0 18px 40px rgba(0, 0, 0, 0.38);
 
@@ -76,14 +94,21 @@
   --ws-line: #2b2b2e;
   --ws-fg: #f4f4f5;
   --ws-muted: #9b9ba1;
-  --ws-faint: #6e6e75;
+  --ws-faint: #8a8a92;
 
+  /* The fills stay identical in the dark theme — they are the light in it. */
   --chip-solid: var(--primary);
-  --chip-solid-fg: #08120a;
-  --chip-soft: color-mix(in oklab, var(--primary) 22%, #1c1c1e);
-  --chip-soft-fg: color-mix(in oklab, var(--primary) 62%, #ffffff);
-  --chip-quiet: #242427;
-  --chip-quiet-fg: #9b9ba1;
-  --chip-alert: color-mix(in oklab, var(--error) 20%, #1c1c1e);
-  --chip-alert-fg: color-mix(in oklab, var(--error) 68%, #ffffff);
+  --chip-solid-fg: var(--primary-foreground);
+  --chip-soft: var(--surface-muted);
+  --chip-soft-fg: var(--text-primary);
+  --chip-quiet: #2a2a2e;
+  --chip-quiet-fg: #b6b6bd;
+  --chip-alert: var(--error);
+  --chip-alert-fg: #3a0d0d;
+
+  /* The note fills stay put across themes — they are the light in the dark one. */
+  --note-warm: #f6e670;
+  --note-warm-fg: #18191c;
+  --note-cool: #cdbef7;
+  --note-cool-fg: #18191c;
 }

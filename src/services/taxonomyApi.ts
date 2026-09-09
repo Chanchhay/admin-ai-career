@@ -1,5 +1,5 @@
 /**
- * Reference data — `/api/v1/admin/{industries,job-categories,skills}`.
+ * Reference data is read and changed through `/api/v1/admin/**`.
  *
  * All three resources expose the same list / create / update / delete shape, so
  * the console drives them from one screen; the endpoints stay separate because
@@ -40,7 +40,7 @@ export const taxonomyApi = baseApi.injectEndpoints({
     }),
     updateIndustry: builder.mutation<
       IndustryResponse,
-      { id: number; body: IndustryRequest }
+      { id: string; body: IndustryRequest }
     >({
       query: ({ id, body }) => ({
         url: `/admin/industries/${id}`,
@@ -51,7 +51,7 @@ export const taxonomyApi = baseApi.injectEndpoints({
         unwrapApiResponse(response),
       invalidatesTags: ["Industries"],
     }),
-    deleteIndustry: builder.mutation<void, number>({
+    deleteIndustry: builder.mutation<void, string>({
       query: (id) => ({ url: `/admin/industries/${id}`, method: "DELETE" }),
       invalidatesTags: ["Industries"],
     }),
@@ -72,7 +72,7 @@ export const taxonomyApi = baseApi.injectEndpoints({
     }),
     updateJobCategory: builder.mutation<
       JobCategoryResponse,
-      { id: number; body: JobCategoryRequest }
+      { id: string; body: JobCategoryRequest }
     >({
       query: ({ id, body }) => ({
         url: `/admin/job-categories/${id}`,
@@ -83,7 +83,7 @@ export const taxonomyApi = baseApi.injectEndpoints({
         unwrapApiResponse(response),
       invalidatesTags: ["JobCategories"],
     }),
-    deleteJobCategory: builder.mutation<void, number>({
+    deleteJobCategory: builder.mutation<void, string>({
       query: (id) => ({ url: `/admin/job-categories/${id}`, method: "DELETE" }),
       invalidatesTags: ["JobCategories"],
     }),
@@ -102,7 +102,7 @@ export const taxonomyApi = baseApi.injectEndpoints({
         unwrapApiResponse(response),
       invalidatesTags: ["Skills"],
     }),
-    updateSkill: builder.mutation<SkillResponse, { id: number; body: SkillRequest }>({
+    updateSkill: builder.mutation<SkillResponse, { id: string; body: SkillRequest }>({
       query: ({ id, body }) => ({
         url: `/admin/skills/${id}`,
         method: "PUT",
@@ -112,7 +112,7 @@ export const taxonomyApi = baseApi.injectEndpoints({
         unwrapApiResponse(response),
       invalidatesTags: ["Skills"],
     }),
-    deleteSkill: builder.mutation<void, number>({
+    deleteSkill: builder.mutation<void, string>({
       query: (id) => ({ url: `/admin/skills/${id}`, method: "DELETE" }),
       invalidatesTags: ["Skills"],
     }),

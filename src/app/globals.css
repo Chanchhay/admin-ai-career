@@ -5,7 +5,26 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-ui);
+
+  /*
+   * The type scale is Tailwind's stock scale, deliberately unmodified:
+   * xs 12 / sm 14 / base 16 / lg 18 / xl 20 / 2xl 24 / 3xl 30 / 4xl 36 / 5xl 48px.
+   *
+   * It used to be overridden here twice, by two blocks that disagreed. The
+   * survivor bumped xs->14 and sm->16, but only reached as far as `xl`, so
+   * `2xl` through `9xl` kept the *other* block's values and every utility above
+   * `xl` silently rendered one step too large (text-2xl was 30px, not 24px).
+   *
+   * Both blocks are gone. Call sites were shifted instead — text-xs -> text-sm,
+   * text-sm -> text-base — so rendered sizes are unchanged and the class names
+   * now mean what Tailwind says they mean. Body copy is text-base (16px) and
+   * secondary copy text-sm (14px), which is also the floor for running text;
+   * text-xs (12px) is for chips, timestamps and eyebrow labels only.
+   *
+   * 16px on inputs is not cosmetic: iOS Safari zooms the viewport on focus of
+   * any field below it.
+   */
 
   /* Brand */
   --color-brand: var(--primary);
@@ -67,6 +86,11 @@
   --color-chip-alert: var(--chip-alert);
   --color-chip-alert-fg: var(--chip-alert-fg);
 
+  --color-note-warm: var(--note-warm);
+  --color-note-warm-fg: var(--note-warm-fg);
+  --color-note-cool: var(--note-cool);
+  --color-note-cool-fg: var(--note-cool-fg);
+
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
@@ -74,6 +98,11 @@
 }
 
 :root {
+  --font-inter: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-khmer: "Noto Sans Khmer", "Khmer OS", "Khmer OS System",
+    ui-sans-serif, system-ui, sans-serif;
+  --font-ui: var(--font-inter), var(--font-khmer), ui-sans-serif, system-ui,
+    sans-serif;
   --radius: var(--radius-lg);
 
   --foreground: var(--text-primary);
@@ -88,22 +117,46 @@
   --accent: var(--primary-tint);
   --accent-foreground: var(--primary-hover);
   --destructive: var(--error);
-  --input: var(--border);
+  --input: var(--input-border);
   --ring: var(--primary);
 }
 
 @layer base {
+  :lang(km) {
+    --font-ui: var(--font-khmer), var(--font-inter), ui-sans-serif, system-ui,
+      sans-serif;
+    font-family: var(--font-ui);
+  }
+
   * {
     @apply border-border outline-ring/30;
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background font-sans text-base text-foreground antialiased;
   }
 
   html {
     scroll-behavior: smooth;
   }
+
+  /*
+   * Semantic heading defaults, on the type scale rather than beside it: the
+   * sizes below are 4xl/3xl/2xl/xl/lg/base. Explicit text utilities still win,
+   * since :where() contributes no specificity.
+   */
+  .ws-shell :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  .ws-shell :where(h1) { font-size: var(--text-4xl); line-height: var(--text-4xl--line-height); letter-spacing: -0.02em; }
+  .ws-shell :where(h2) { font-size: var(--text-3xl); line-height: var(--text-3xl--line-height); letter-spacing: -0.015em; }
+  .ws-shell :where(h3) { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); letter-spacing: -0.01em; }
+  .ws-shell :where(h4) { font-size: var(--text-xl);  line-height: var(--text-xl--line-height); }
+  .ws-shell :where(h5) { font-size: var(--text-lg);  line-height: var(--text-lg--line-height); }
+  .ws-shell :where(h6) { font-size: var(--text-base); line-height: var(--text-base--line-height); }
 
   ::selection {
     background: color-mix(in srgb, var(--primary) 28%, transparent);
@@ -112,12 +165,80 @@
 
 @layer components {
   /*
+   * Typography roles.
+   *
+   * Hierarchy comes from size and weight, in that order — never from fading
+   * text toward the background, which is how the old three-step grey ramp
+   * ended up with 2.4:1 labels. Every role below meets WCAG AA (4.5:1) on the
+   * surfaces it is used on, so a role can be chosen for meaning alone.
+   */
+
+  /* The one h1 per screen, in the console header. */
+  .type-page-title {
+    font-size: var(--text-xl);
+    line-height: var(--text-xl--line-height);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ws-fg);
+  }
+
+  /* A panel or card heading. */
+  .type-section-title {
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    font-weight: 600;
+    color: var(--ws-fg);
+  }
+
+  /*
+   * The sentence under a title. One step down from body and one tier down in
+   * colour, capped at a readable measure — prose past ~75 characters per line
+   * loses the reader on the carriage return.
+   */
+  .type-description {
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--ws-muted);
+    max-width: 68ch;
+    text-wrap: pretty;
+  }
+
+  /*
+   * Eyebrow / field label. The only role that may use text-xs, and only
+   * because caps at 600 weight carry further than the size suggests. Tracking
+   * is mandatory: uppercase set at normal tracking is measurably slower to
+   * read.
+   */
+  .type-eyebrow {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ws-faint);
+  }
+
+  /* Timestamps, counts, and other non-essential metadata. */
+  .type-meta {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--ws-muted);
+  }
+
+  /* Numerals in tables and stat tiles line up in columns, and never reflow. */
+  .type-numeric {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /*
    * Shared by the editor surface and the published view, so authored content
    * renders identically in both.
    */
   .rich-text {
     color: var(--text-secondary);
-    font-size: 0.9375rem;
+    /* 18px prose, one step above the 16px UI body, at a relaxed measure. */
+    font-size: var(--text-lg);
     line-height: 1.75;
     /* Long URLs and unbroken strings wrap instead of widening the card. */
     overflow-wrap: break-word;
@@ -136,15 +257,15 @@
   }
 
   .rich-text h1 {
-    font-size: 1.375rem;
+    @apply text-2xl;
   }
 
   .rich-text h2 {
-    font-size: 1.15rem;
+    @apply text-xl;
   }
 
   .rich-text h3 {
-    font-size: 1rem;
+    @apply text-lg;
   }
 
   .rich-text h1:not(:first-child),
@@ -257,6 +378,128 @@
     background: var(--ws-panel);
   }
 
+  /*
+   * Notched panel. The top-right corner is scooped out of the fill so the
+   * header's round actions sit in the gap, on the sheet, instead of crowding
+   * the card. The shape is three flat blocks — a short top strip, the body,
+   * and one square whose rounded corner carves the concave joint between them
+   * — so nothing here is a gradient or a mask, just fills meeting at arcs.
+   */
+  .ws-notch {
+    /*
+     * The cut has to clear the actions AND the fillet, not just the actions:
+     * two 2.25rem circles plus their gap need 5.25rem, the fillet swings
+     * --notch-r further in from the strip's edge, and the rest is the breathing
+     * room between the two. Size it to the buttons alone and the fillet grows
+     * out underneath the first one.
+     */
+    --notch-w: 7.25rem;
+    --notch-h: 3.25rem;
+    --notch-r: 1.5rem;
+    --panel-r: 2rem;
+    position: relative;
+  }
+
+  .ws-notch--compact {
+    --notch-w: 4.75rem;
+  }
+
+  .ws-notch__top {
+    width: calc(100% - var(--notch-w));
+    height: var(--notch-h);
+    background: var(--panel-fill);
+    border-radius: var(--panel-r) var(--notch-r) 0 0;
+  }
+
+  .ws-notch__body {
+    background: var(--panel-fill);
+    border-radius: 0 var(--panel-r) var(--panel-r) var(--panel-r);
+  }
+
+  /*
+   * The reflex corner where the top strip's right edge meets the body, filled
+   * so the two surfaces meet on an arc instead of a hard 270° corner.
+   *
+   * The arc is a radial gradient anchored ON the square's top-right corner:
+   * transparent inside the radius, sheet colour outside it. That leaves the
+   * wedge between the two straight edges and the circle, which is tangent to
+   * the strip's right edge and to the body's top edge — so the curve starts
+   * and ends flush instead of stepping.
+   *
+   * border-radius cannot express this. It keeps the quarter-disc INSIDE its
+   * corner circle, which is the complement of the wedge, and renders as a
+   * fin floating above the body rather than a fillet joining it.
+   */
+  .ws-notch__joint {
+    position: absolute;
+    top: calc(var(--notch-h) - var(--notch-r));
+    left: calc(100% - var(--notch-w));
+    width: var(--notch-r);
+    height: var(--notch-r);
+    background: radial-gradient(
+      circle var(--notch-r) at 100% 0,
+      transparent 0 var(--notch-r),
+      var(--panel-fill) calc(var(--notch-r) + 0.5px)
+    );
+  }
+
+  /* Centred in the cut rather than pinned to its top edge. */
+  .ws-notch__actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: var(--notch-h);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-right: 0.125rem;
+  }
+
+  /*
+   * Folder tab. The active tab is part of the sheet below it: square feet, and
+   * a quarter-round of the sheet's own fill on either side of its base so the
+   * two surfaces read as one piece of paper rather than a pill above a card.
+   */
+  .ws-foldertab {
+    --tab-r: 0.875rem;
+    position: relative;
+    background: var(--ws-card);
+    border-radius: var(--tab-r) var(--tab-r) 0 0;
+  }
+
+  /*
+   * The feet, filleted the same way as the notch joint: a circle anchored on
+   * the corner of each pad, transparent inside and sheet colour outside, which
+   * leaves the wedge tangent to the tab's edge and to the panel's top. With
+   * border-radius these render as two blobs detached from the tab.
+   */
+  .ws-foldertab::before,
+  .ws-foldertab::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: var(--tab-r);
+    height: var(--tab-r);
+  }
+
+  .ws-foldertab::before {
+    left: calc(-1 * var(--tab-r));
+    background: radial-gradient(
+      circle var(--tab-r) at 0 0,
+      transparent 0 var(--tab-r),
+      var(--ws-card) calc(var(--tab-r) + 0.5px)
+    );
+  }
+
+  .ws-foldertab::after {
+    right: calc(-1 * var(--tab-r));
+    background: radial-gradient(
+      circle var(--tab-r) at 100% 0,
+      transparent 0 var(--tab-r),
+      var(--ws-card) calc(var(--tab-r) + 0.5px)
+    );
+  }
+
   /* The unfilled remainder of the pipeline track: hatched, never a hard bar. */
   .ws-track-rest {
     background-image: repeating-linear-gradient(
@@ -281,20 +524,138 @@
   }
 }
 
+/* Company cards replace the dense table only on mobile and tablet. */
+@media (width < 64rem) {
+  .companies-table,
+  .companies-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .companies-table .company-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .companies-table .company-row > td {
+    min-width: 0;
+    padding: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .companies-table .company-row > td:first-child,
+  .companies-table .company-row > td:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .companies-table .company-row > td:last-child {
+    border-top: 1px solid var(--ws-line);
+    padding-top: 0.75rem;
+  }
+}
+
+/* Toasts are rendered outside the admin shell and ship their own small sizes. */
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'],
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-button] {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-button] {
+  height: auto;
+  min-height: 2.25rem;
+}
+
+/* Keep tablet/mobile content within its column without changing desktop. */
+@media (width < 80rem) {
+  .ws-shell main :where(.grid) > *,
+  .ws-shell main :where(label, fieldset) {
+    min-width: 0;
+  }
+
+  .ws-shell main :where(p, dd, dt, label) {
+    overflow-wrap: anywhere;
+  }
+
+  .ws-shell main :where(input, select, textarea) {
+    max-width: 100%;
+  }
+}
+
+@media (width < 40rem) {
+  .ws-shell [data-slot="button"] {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="skeleton"]::after {
+    animation: none !important;
+  }
+}
+
 @media print {
   body {
     background: white !important;
   }
 
-  aside[aria-label="Workspace navigation"],
-  nav[aria-label="Workspace navigation"],
+  /*
+   * Anything that is interface rather than document. An invoice printed with
+   * its own "Record a payment" form on the page is not an invoice.
+   */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* The sheet is the page: no card fill, no border, no rounding, no shadow. */
+  .print-sheet {
+    background: white !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: #000 !important;
+  }
+
+  .print-sheet * {
+    color: #000 !important;
+  }
+
+  /* Ruled, because a printed table without rules is a wall of numbers. */
+  .print-sheet table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  .print-sheet th,
+  .print-sheet td {
+    border-bottom: 1px solid #ddd !important;
+  }
+
+  aside[aria-label="Console navigation"],
+  nav[aria-label="Console navigation"],
   .ws-panel > header {
     display: none !important;
   }
 
+  /* The shell pins itself to the viewport on screen; on paper it has to grow
+     to the full document instead, or everything past the first screen is lost. */
+  .ws-shell,
   .ws-panel,
   .ws-scroll,
   main {
+    height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
     border-radius: 0 !important;
   }

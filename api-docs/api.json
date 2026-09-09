@@ -2912,6 +2912,498 @@
           }
         }
       }
+    },
+    "/api/v1/finance/settings": {
+      "get": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "getSettings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFinanceSettingsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "updateSettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFinanceSettingsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/invoices": {
+      "get": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "findInvoices",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "ISSUED",
+                "PARTIALLY_PAID",
+                "PAID",
+                "OVERDUE",
+                "CANCELLED"
+              ]
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageInvoiceResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "createInvoice",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInvoiceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseInvoiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/invoices/{invoiceId}/payments": {
+      "post": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "recordPayment",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordPaymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseInvoiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/invoices/{invoiceId}/issue": {
+      "post": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "issueInvoice",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseInvoiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/invoices/{invoiceId}/cancel": {
+      "post": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "cancelInvoice",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseInvoiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/summary": {
+      "get": {
+        "tags": [
+          "finance-summary-controller"
+        ],
+        "operationId": "summary",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "MONTH",
+              "enum": [
+                "WEEK",
+                "MONTH",
+                "YEAR"
+              ]
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFinanceSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/summary/companies": {
+      "get": {
+        "tags": [
+          "finance-summary-controller"
+        ],
+        "operationId": "companies",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "MONTH",
+              "enum": [
+                "WEEK",
+                "MONTH",
+                "YEAR"
+              ]
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePagePaidCompany"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/invoices/{invoiceId}": {
+      "get": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "getInvoice",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseInvoiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/companies/{companyId}/unbilled-commissions": {
+      "get": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "findUnbilled",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListCommissionRecordResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/commissions": {
+      "get": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "findCommissions",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "PAID",
+                "FAILED",
+                "REFUNDED",
+                "CANCELLED"
+              ]
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageCommissionRecordResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finance/billable-companies": {
+      "get": {
+        "tags": [
+          "finance-controller"
+        ],
+        "operationId": "findBillableCompanies",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListBillableCompanyResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3471,6 +3963,11 @@
             "type": "string",
             "maxLength": 50,
             "minLength": 0
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
           }
         },
         "required": [
@@ -3511,6 +4008,15 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
+          },
+          "parentName": {
+            "type": "string",
+            "description": "Name of the parent category; null for a top-level parent."
           }
         }
       },
@@ -3524,6 +4030,11 @@
           },
           "description": {
             "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
           }
         },
         "required": [
@@ -3564,6 +4075,15 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
+          },
+          "parentName": {
+            "type": "string",
+            "description": "Name of the parent category; null for a top-level parent."
           }
         }
       },
@@ -3586,6 +4106,11 @@
               "PENDING",
               "SUSPENDED"
             ]
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
           }
         },
         "required": [
@@ -3635,6 +4160,15 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
+          },
+          "parentName": {
+            "type": "string",
+            "description": "Name of the parent category; null for a top-level parent."
           }
         }
       },
@@ -4482,6 +5016,11 @@
             "type": "string",
             "maxLength": 50,
             "minLength": 0
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
           }
         },
         "required": [
@@ -4498,6 +5037,11 @@
           },
           "description": {
             "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
           }
         },
         "required": [
@@ -4523,6 +5067,11 @@
               "PENDING",
               "SUSPENDED"
             ]
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
           }
         },
         "required": [
@@ -4973,10 +5522,13 @@
         "type": "object",
         "properties": {
           "profileId": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "uuid"
           },
           "publicProfileSlug": {
+            "type": "string"
+          },
+          "avatarUrl": {
             "type": "string"
           },
           "headline": {
@@ -5370,6 +5922,15 @@
           },
           "skillType": {
             "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
+          },
+          "parentName": {
+            "type": "string",
+            "description": "Name of the parent category; null for a top-level parent."
           }
         }
       },
@@ -5497,6 +6058,15 @@
           },
           "description": {
             "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
+          },
+          "parentName": {
+            "type": "string",
+            "description": "Name of the parent category; null for a top-level parent."
           }
         }
       },
@@ -5529,6 +6099,15 @@
           },
           "description": {
             "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Null for a parent category; otherwise the ID of a top-level parent in the same list. Existing entries keep their level; subcategories may move between parents."
+          },
+          "parentName": {
+            "type": "string",
+            "description": "Name of the parent category; null for a top-level parent."
           }
         }
       },
@@ -5883,6 +6462,540 @@
             "type": "string"
           },
           "data": {}
+        }
+      },
+      "ApiResponsePagePaidCompany": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageObject"
+          }
+        }
+      },
+      "ApiResponseListCommissionRecordResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommissionRecordResponse"
+            }
+          }
+        }
+      },
+      "RecordPaymentRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.0
+          },
+          "paymentMethod": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 0
+          },
+          "transactionReference": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 0
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "amount"
+        ]
+      },
+      "ApiResponseListBillableCompanyResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BillableCompanyResponse"
+            }
+          }
+        }
+      },
+      "ApiResponseInvoiceResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/InvoiceResponse"
+          }
+        }
+      },
+      "BillableCompanyResponse": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string"
+          },
+          "commissionCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "oldestDueAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ApiResponseFinanceSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FinanceSummaryResponse"
+          }
+        }
+      },
+      "FinanceSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "commissionRate": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0
+          },
+          "paymentTermsDays": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 365,
+            "minimum": 0
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 3
+          }
+        },
+        "required": [
+          "commissionRate"
+        ]
+      },
+      "InvoiceItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "commissionRecordId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitAmount": {
+            "type": "number"
+          },
+          "totalAmount": {
+            "type": "number"
+          }
+        }
+      },
+      "FinanceSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDateExclusive": {
+            "type": "string",
+            "format": "date"
+          },
+          "previousStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "availableCurrencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receivedAmount": {
+            "type": "number"
+          },
+          "previousReceivedAmount": {
+            "type": "number"
+          },
+          "paymentCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "payingCompanyCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "invoiceCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outstandingAmount": {
+            "type": "number"
+          },
+          "outstandingInvoiceCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "overdueAmount": {
+            "type": "number"
+          },
+          "overdueInvoiceCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "trend": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Trend"
+            }
+          }
+        }
+      },
+      "ApiResponsePageInvoiceResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageObject"
+          }
+        }
+      },
+      "FinanceSettingsResponse": {
+        "type": "object",
+        "properties": {
+          "commissionRate": {
+            "type": "number"
+          },
+          "paymentTermsDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponsePageCommissionRecordResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageObject"
+          }
+        }
+      },
+      "CreateInvoiceRequest": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "commissionRecordIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 1
+          },
+          "taxAmount": {
+            "type": "number",
+            "minimum": 0.0
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "commissionRecordIds",
+          "companyId"
+        ]
+      },
+      "InvoiceResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceNo": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string"
+          },
+          "subtotalAmount": {
+            "type": "number"
+          },
+          "taxAmount": {
+            "type": "number"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "paidAmount": {
+            "type": "number"
+          },
+          "outstandingAmount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ISSUED",
+              "PARTIALLY_PAID",
+              "PAID",
+              "OVERDUE",
+              "CANCELLED"
+            ]
+          },
+          "note": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoiceItemResponse"
+            }
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoicePaymentResponse"
+            }
+          }
+        }
+      },
+      "InvoicePaymentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "paymentMethod": {
+            "type": "string"
+          },
+          "transactionReference": {
+            "type": "string"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "FAILED",
+              "REFUNDED",
+              "CANCELLED"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseFinanceSettingsResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FinanceSettingsResponse"
+          }
+        }
+      },
+      "Trend": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "paymentCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CommissionRecordResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "hiringRecordId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string"
+          },
+          "commissionRate": {
+            "type": "number"
+          },
+          "commissionAmount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "FAILED",
+              "REFUNDED",
+              "CANCELLED"
+            ]
+          },
+          "note": {
+            "type": "string"
+          },
+          "invoiceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceNo": {
+            "type": "string"
+          }
         }
       }
     },

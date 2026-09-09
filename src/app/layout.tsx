@@ -1,18 +1,26 @@
 import type { Metadata } from "next";
+import { asset } from "@/lib/base-path";
 import { AdminShell } from "@/components/layout/AdminShell";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { StoreProvider } from "@/store/StoreProvider";
+import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { inter, notoSansKhmer } from "./fonts";
 import "./globals.css";
 
+/*
+ * Icon paths go through `asset()` for the same reason the brand images do:
+ * Next does not apply the base path to metadata icons, so a bare
+ * `/images/**` href is served by the gateway from the seeker app and 404s.
+ */
 export const metadata: Metadata = {
   title: "AI Career Admin",
   description:
     "Company verification, candidate review, and reference data for the AI Career Platform.",
   icons: {
-    icon: "/figma/brand-logo.png",
-    shortcut: "/figma/brand-logo.png",
-    apple: "/figma/brand-logo.png",
+    icon: asset("/images/brand/favicon-64.png"),
+    shortcut: asset("/images/brand/favicon-64.png"),
+    apple: asset("/images/brand/apple-icon-180.png"),
   },
 };
 
@@ -27,21 +35,27 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${notoSansKhmer.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-screen bg-canvas" suppressHydrationWarning>
         <ThemeProvider>
-          <StoreProvider>
-            <AdminShell>{children}</AdminShell>
-            <Toaster
-              richColors
-              position="top-right"
-              toastOptions={{
-                classNames: {
-                  success: "!bg-brand !text-white !border-brand",
-                },
-              }}
-            />
-          </StoreProvider>
+          <LocaleProvider>
+            <StoreProvider>
+              <AdminShell>{children}</AdminShell>
+              <Toaster
+                richColors
+                position="top-right"
+                toastOptions={{
+                  classNames: {
+                    success: "!bg-brand !text-white !border-brand",
+                  },
+                }}
+              />
+            </StoreProvider>
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>

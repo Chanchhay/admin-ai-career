@@ -1,11 +1,14 @@
 import {
   Bot,
+  CalendarDays,
+  Cpu,
   Building2,
+  ClipboardCheck,
   Layers,
+  MessagesSquare,
+  ReceiptText,
   LayoutGrid,
-  Tags,
   UsersRound,
-  Wrench,
   type LucideIcon,
 } from "lucide-react";
 
@@ -37,33 +40,53 @@ export const adminNavigation: NavigationItem[] = [
   },
   {
     href: "/applications",
-    label: "Applications",
-    icon: UsersRound,
+    label: "Moderator results",
+    icon: ClipboardCheck,
     description:
-      "Review candidates, run human interviews, forward to recruiters.",
+      "View candidate results, run human interviews, and record decisions.",
+  },
+  {
+    href: "/interviews",
+    label: "Interviews",
+    icon: CalendarDays,
+    description:
+      "Calendar schedule of candidate interviews across all applications.",
+  },
+  {
+    href: "/finance",
+    label: "Finance",
+    icon: ReceiptText,
+    description:
+      "Reported hires, the commissions confirming them creates, and the invoices that bill them.",
+  },
+  {
+    href: "/messages",
+    label: "Messages",
+    icon: MessagesSquare,
+    description: "Threads you have opened with candidates and recruiters.",
+  },
+  {
+    href: "/users",
+    label: "Users",
+    icon: UsersRound,
+    description: "Platform accounts, their roles, and whether they may sign in.",
   },
   {
     href: "/industries",
-    label: "Industries",
+    label: "Platform lists",
     icon: Layers,
-    description: "The industry list companies are classified by.",
-  },
-  {
-    href: "/job-categories",
-    label: "Job categories",
-    icon: Tags,
-    description: "The categories recruiters file job posts under.",
-  },
-  {
-    href: "/skills",
-    label: "Skills",
-    icon: Wrench,
-    description: "The skill vocabulary shared by jobs and resumes.",
+    description: "Manage industries, job categories, and skills.",
   },
   {
     href: "/ai-interview",
     label: "AI interview",
     icon: Bot,
     description: "How many questions each AI interview asks, and of which types.",
+  },
+  {
+    href: "/ai-engine",
+    label: "AI engine",
+    icon: Cpu,
+    description: "The model, API key and tuning every AI feature runs on.",
   },
 ];

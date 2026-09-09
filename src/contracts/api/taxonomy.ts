@@ -9,43 +9,53 @@
 import type { ApiResponse, EntityStatus } from "./common";
 
 export type IndustryResponse = {
-  id: number;
+  parentId: string | null;
+  parentName: string | null;
+  id: string;
   name: string;
   description: string;
-  status: EntityStatus;
-  createdAt: string;
-  updatedAt: string;
+  /** Admin responses include these fields; public list responses may omit them. */
+  status?: EntityStatus;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type IndustryRequest = {
+  parentId?: string | null;
   name: string;
   description?: string;
   status?: EntityStatus;
 };
 
 export type JobCategoryResponse = {
-  id: number;
+  parentId: string | null;
+  parentName: string | null;
+  id: string;
   name: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type JobCategoryRequest = {
+  parentId?: string | null;
   name: string;
   description?: string;
 };
 
 export type SkillResponse = {
-  id: number;
+  parentId: string | null;
+  parentName: string | null;
+  id: string;
   name: string;
   /** Free text on the backend — "TECHNICAL", "SOFT", whatever was entered. */
   skillType: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type SkillRequest = {
+  parentId?: string | null;
   name: string;
   skillType?: string;
 };

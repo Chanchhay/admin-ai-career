@@ -55,6 +55,38 @@ export function CompanyStatusChip({
   return <Chip tone={companyTone[status]}>{humanizeEnum(status)}</Chip>;
 }
 
+/** The dot's colour, keyed the same way the chip tones are. */
+const companyDot: Record<CompanyVerificationStatus, string> = {
+  PENDING_VERIFICATION: "bg-warning",
+  APPROVED: "bg-brand",
+  REJECTED: "bg-error",
+  SUSPENDED: "bg-error",
+};
+
+/**
+ * The same status, sized for a table.
+ *
+ * A filled chip is right when a status is the one thing on a card; down a
+ * column of forty rows it is forty blocks of colour competing with the names
+ * beside them. The dot carries the same information at a fraction of the
+ * weight, and the row stays readable.
+ */
+export function CompanyStatusBadge({
+  status,
+}: {
+  status: CompanyVerificationStatus;
+}) {
+  return (
+    <span className="inline-flex items-center gap-2 whitespace-nowrap text-base text-ws-fg">
+      <span
+        aria-hidden="true"
+        className={`size-2 shrink-0 rounded-full ${companyDot[status]}`}
+      />
+      {humanizeEnum(status)}
+    </span>
+  );
+}
+
 export function ReviewStatusChip({
   status,
 }: {
